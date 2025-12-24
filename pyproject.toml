@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "AutoTuneNet"
+version = "0.1.0"
+author = "Mitish Raina"
+author_email = "mitishrain.dev@gmail.com"
+description = "A Self Optimizing Deep Neural Network"
+readme = "README.md"
+requires-python = ">=3.10"
