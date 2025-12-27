@@ -7,8 +7,6 @@ from src.safeguards.rollback import Rollback
 from src.logging.tracker import Tracker
 from src.logging.error_handler import log_errors
 
-log
-
 class BayesianOptimizer(Optimizer):
     """
     Bayesian optimizer using Optuna's TPE sampler.(Using ask-tell interface)
