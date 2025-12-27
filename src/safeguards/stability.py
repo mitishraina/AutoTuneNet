@@ -18,9 +18,9 @@ class StabilityMonitor:
         self.patience = patience
         self.cooldown = cooldown
         
-        self._bad_steps_count = 0
         self._cooldown_remaining = 0
         self._in_rollback = False
+        self.reset()
         
     def _is_score_valid(self, score: float) -> bool:
         return not (math.isnan(score) or math.isinf(score))
@@ -73,7 +73,7 @@ class StabilityMonitor:
         return self._in_rollback 
         
     def reset(self) -> None:
-        self._bad_steps_count = 0
         self._patience = 0
+        self._cooldown_remaining = 0
         self._in_rollback = False 
         

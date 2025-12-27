@@ -11,3 +11,14 @@ authors = [
 description = "A Self Optimizing Deep Neural Network"
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+    "optuna"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
