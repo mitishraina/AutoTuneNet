@@ -1,5 +1,7 @@
 import logging
 import os
+import sys
+import traceback
 from datetime import datetime
 
 
@@ -19,7 +21,7 @@ def get_logger(name: str = "AutoTuneNet") -> logging.Logger:
     log.setLevel(logging.INFO)
 
     formatter = logging.Formatter(
-        "[%(asctime)s] %(lineno)d %(name)s | %(levelname)s | %(message)s"
+        "[%(asctime)s] %(name)s | %(levelname)s | %(message)s"
     )
 
     stream_handler = logging.StreamHandler()
@@ -32,3 +34,17 @@ def get_logger(name: str = "AutoTuneNet") -> logging.Logger:
     log.addHandler(file_handler)
 
     return log
+
+def log_exception(logger: logging.Logger, exc: Exception, context: str | None = None) -> None:
+    error_type = type(exc).__name__
+    error_msg = str(exc)
+    tb = traceback.format_exc()
+    
+    header = f"EXCEPTION OCCURED [{error_type}]"
+    if context:
+        header += f" | Context: {context}"
+        
+    logger.error(header)
+    logger.error(f"Message: {error_msg}")
+    logger.error("Traceback:")
+    logger.error(tb)

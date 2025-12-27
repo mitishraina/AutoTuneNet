@@ -2,6 +2,8 @@ from src.core.parameters import ParameterSpace
 # from src.core.optimizer_test import DummyOptimizer
 from src.core.bayesian_optimizer import BayesianOptimizer
 # import logging
+from src.logging.global_exception import install_global_exception_handler
+install_global_exception_handler()
 
 def test_dummy_optimizer(params):
     lr = params["lr"]

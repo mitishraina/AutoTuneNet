@@ -5,6 +5,9 @@ from .metrics import MetricSmoother
 from src.safeguards.stability import StabilityMonitor
 from src.safeguards.rollback import Rollback
 from src.logging.tracker import Tracker
+from src.logging.error_handler import log_errors
+
+log
 
 class BayesianOptimizer(Optimizer):
     """
@@ -43,6 +46,7 @@ class BayesianOptimizer(Optimizer):
                 
         return params
     
+    @log_errors(context="BayesianOptimizer.observe")
     def observe(self, params: Dict[str, Any], score: float) -> None:
         if self._active_trial is None:
             raise RuntimeError("No active trial to observe")
