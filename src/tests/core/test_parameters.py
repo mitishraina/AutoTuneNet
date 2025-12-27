@@ -18,7 +18,7 @@ def test_continous_param_in_range():
     
     for _ in range(100):
         lr = space.sample()["lr"]
-        assert 0.0001 <= lr <= 0.1
+        assert 0.001 <= lr <= 0.1
         
 def test_discrete_param_valid():
     choices = [32, 64, 128]
