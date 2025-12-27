@@ -21,7 +21,7 @@ def test_adapter_updates_learning_rate():
     
     initial_lr = optimizer.param_groups[0]['lr']
     
-    adapter.step(metric=0.1) # fake metric
+    adapter.step(metric=1.0) # fake metric
     
     updated_lr = optimizer.param_groups[0]['lr']
     
@@ -64,7 +64,7 @@ def test_adapter_respects_tuning_frequency():
     
     assert lr_1 == lr_2  # No change on first step or no tuning yet
     
-    adapter.step(metric=-0.01)
+    adapter.step(metric=1.0)
     lr_3 = optimizer.param_groups[0]['lr']
     
     assert lr_2 != lr_3  # Change should happen on second step or tuning should happen

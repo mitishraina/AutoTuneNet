@@ -39,6 +39,19 @@ class StabilityMonitor:
             True if step is considered stable. Accept step
             False if unstable. Trigger rollback
         """
+        print(
+            f"[STABILITY] score={score:.6f}, "
+            f"best={best_score}, "
+            f"bad_count={self._patience}, "
+            f"cooldown={self._cooldown_remaining}, "
+            f"in_rollback={self._in_rollback}"
+        )
+        if best_score is None:
+            self._patience = 0
+            self._cooldown_remaining = 0
+            self._in_rollback = False
+            return True
+        
         if self._cooldown_remaining > 0:
             self._cooldown_remaining -= 1
             return True
@@ -59,6 +72,7 @@ class StabilityMonitor:
             self._enter_rollback()
             return False
         return True
+    
     
     def _enter_rollback(self):
         self._in_rollback = True

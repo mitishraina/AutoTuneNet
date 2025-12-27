@@ -45,7 +45,7 @@ class BayesianOptimizer(Optimizer):
         return params
     
     @log_errors(context="BayesianOptimizer.observe")
-    def observe(self, params: Dict[str, Any], score: float) -> None:
+    def observe(self, params: Dict[str, Any], score: float) -> bool:
         if self._active_trial is None:
             raise RuntimeError("No active trial to observe")
         
@@ -53,12 +53,16 @@ class BayesianOptimizer(Optimizer):
         best_score = self.best_score() if self.history else None
         is_stable = self.guard.update(smoothed_score, best_score)
         
+        trial = self._active_trial
+        self._active_trial = None
+        
         if is_stable:
             if self.guard.in_rollback:
                 self.guard.exit_rollback()
                 self.tracker.log_rollback_end()
+                
             super().observe(params, smoothed_score)
-            self.study.tell(self._active_trial, smoothed_score)
+            self.study.tell(trial, smoothed_score)
             self.rollback.update(params)
             
             self.tracker.log_step(
@@ -67,8 +71,11 @@ class BayesianOptimizer(Optimizer):
                 score=smoothed_score,
                 best_score=best_score
             )
+            return True
         else:
+            # self.study.tell(trial, state=optuna.trial.TrialState.FAIL)
             self.tracker.log_rollback_start()
+            return False
         
         # self.study.tell(self._active_trial, score)
-        self._active_trial = None
+        # self._active_trial = None
