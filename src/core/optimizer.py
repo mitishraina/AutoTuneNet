@@ -15,6 +15,7 @@ class Optimizer(ABC):
         '''
         self.param_space = param_space
         self.history: List[Tuple[Dict[str, Any], float]] = []
+        self._step = 0
 
     @abstractmethod
     def suggest(self) -> Dict[str, Any]:
@@ -36,6 +37,8 @@ class Optimizer(ABC):
         if not isinstance(score, (int, float)):
             logging.info("Score must be a numeric value")
             raise ValueError("Score must be a numeric value")
+        
+        self._step += 1
         self.history.append((params, score))
         
     def best_result(self) -> Tuple[Dict[str, Any], float]:
