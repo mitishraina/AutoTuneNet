@@ -14,7 +14,7 @@ def main():
     
     optimizer = BayesianOptimizer(space, seed=42)
     
-    for step in range(50):
+    for step in range(1, 21):
         params = optimizer.suggest()
         score = test_dummy_optimizer(params)
         optimizer.observe(params, score)
