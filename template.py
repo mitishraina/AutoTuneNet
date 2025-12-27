@@ -12,6 +12,8 @@ list_of_files=[
     f"src/core/optimizer.py",
     f"src/core/parameters.py",
     f"src/core/metrics.py",
+    f"src/core/optimizer_test.py",
+    f"src/core/sandbox_test.py",
     f"src/adapters/__int__.py",
     f"src/adapters/pytorch.py",
     f"src/logging/__init__.py",
