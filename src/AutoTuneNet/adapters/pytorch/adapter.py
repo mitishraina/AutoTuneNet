@@ -1,13 +1,13 @@
 from typing import Dict
 import torch
 
-from src.AutoTuneNet.bayesian_optimizer import BayesianOptimizer
-from src.safeguards.rollback import Rollback
-from src.logging.tracker import Tracker
-from src.safeguards.stability import StabilityMonitor
-from src.config.loader import load_config
-from src.AutoTuneNet.metrics import MetricSmoother
-from src.AutoTuneNet.parameters import ParameterSpace
+from src.autotunenet.bayesian_optimizer import BayesianOptimizer
+from src.autotunenet.safeguards.rollback import Rollback
+from src.autotunenet.logging.tracker import Tracker
+from src.autotunenet.safeguards.stability import StabilityMonitor
+from src.autotunenet.config.loader import load_config
+from src.autotunenet.metrics import MetricSmoother
+from src.autotunenet.parameters import ParameterSpace
 
 class PyTorchHyperParameterAdapter:
     def __init__(self, 
