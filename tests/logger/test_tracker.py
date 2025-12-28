@@ -1,4 +1,4 @@
-from src.logging.tracker import Tracker
+from autotunenet.logging.tracker import Tracker
 
 def test_tracker_does_not_crash_on_none_best():
     tracker = Tracker()

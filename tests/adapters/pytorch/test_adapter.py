@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from src.AutoTuneNet.parameters import ParameterSpace
-from src.AutoTuneNet.bayesian_optimizer import BayesianOptimizer
-from src.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
+from autotunenet.parameters import ParameterSpace
+from autotunenet.bayesian_optimizer import BayesianOptimizer
+from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
 
 def test_adapter_updates_learning_rate():
     model = nn.Linear(2, 1)

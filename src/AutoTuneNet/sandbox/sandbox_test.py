@@ -1,8 +1,8 @@
-from src.AutoTuneNet.parameters import ParameterSpace
-# from src.core.optimizer_test import DummyOptimizer
-from src.AutoTuneNet.bayesian_optimizer import BayesianOptimizer
+from autotunenet.parameters import ParameterSpace
+# from autotunenet.core.optimizer_test import DummyOptimizer
+from autotunenet.bayesian_optimizer import BayesianOptimizer
 # import logging
-from src.logging.global_exception import install_global_exception_handler
+from autotunenet.logging.global_exception import install_global_exception_handler
 install_global_exception_handler()
 
 def test_dummy_optimizer(params):

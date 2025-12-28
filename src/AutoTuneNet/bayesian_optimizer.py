@@ -2,10 +2,10 @@ from typing import Dict, Any
 import optuna
 from .optimizer import Optimizer
 from .metrics import MetricSmoother
-from src.safeguards.stability import StabilityMonitor
-from src.safeguards.rollback import Rollback
-from src.logging.tracker import Tracker
-from src.logging.error_handler import log_errors
+from autotunenet.safeguards.stability import StabilityMonitor
+from autotunenet.safeguards.rollback import Rollback
+from autotunenet.logging.tracker import Tracker
+from autotunenet.logging.error_handler import log_errors
 
 class BayesianOptimizer(Optimizer):
     """

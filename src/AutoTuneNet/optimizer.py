@@ -1,5 +1,5 @@
-from src.logging.logger import logging
-from src.exceptions.exception import CustomException
+from autotunenet.logging.logger import logging
+from autotunenet.exceptions.exception import CustomException
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple, Any
 

@@ -1,4 +1,4 @@
-from src.config.loader import load_config_from_dict
+from autotunenet.config.loader import load_config_from_dict
 
 def test_valid_config_loads():
     config = load_config_from_dict({

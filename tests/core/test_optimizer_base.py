@@ -1,5 +1,5 @@
-from src.AutoTuneNet.optimizer import Optimizer
-from src.AutoTuneNet.parameters import ParameterSpace
+from autotunenet.optimizer import Optimizer
+from autotunenet.parameters import ParameterSpace
 
 class DummyOptimizer(Optimizer):
     def suggest(self):

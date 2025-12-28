@@ -1,4 +1,4 @@
-from src.safeguards.stability import StabilityMonitor
+from autotunenet.safeguards.stability import StabilityMonitor
 
 def test_single_patience_does_not_rollback():
     guard = StabilityMonitor(patience=2)

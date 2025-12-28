@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from src.AutoTuneNet.parameters import ParameterSpace
-from src.AutoTuneNet.bayesian_optimizer import BayesianOptimizer
-from src.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
+from autotunenet.parameters import ParameterSpace
+from autotunenet.bayesian_optimizer import BayesianOptimizer
+from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
 
 model = nn.Linear(10, 1)
 optimizer = optim.Adam(model.parameters(), lr=0.01)
