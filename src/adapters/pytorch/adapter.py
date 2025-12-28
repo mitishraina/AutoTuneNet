@@ -4,6 +4,10 @@ import torch
 from src.core.bayesian_optimizer import BayesianOptimizer
 from src.safeguards.rollback import Rollback
 from src.logging.tracker import Tracker
+from src.safeguards.stability import StabilityMonitor
+from src.config.loader import load_config
+from src.core.metrics import MetricSmoother
+from src.core.parameters import ParameterSpace
 
 class PyTorchHyperParameterAdapter:
     def __init__(self, 
@@ -80,3 +84,40 @@ class PyTorchHyperParameterAdapter:
             for key, value in params.items():
                 if key in group:
                     group[key] = value
+                    
+                    
+@classmethod
+def from_config(cls, torch_optmizer, config_path: str, seed: int | None = None):
+    config = load_config(config_path)
+    
+    param_space = ParameterSpace(config.parameter_space)
+    
+    autotune = BayesianOptimizer(
+        param_space=param_space,
+        seed=seed,
+        smmothing_window=config.metrics.get("smoothing_window", 5)
+    )
+    
+    autotune.guard = StabilityMonitor(
+        max_regression=config.stability.get("max_regression", 0.2),
+        patience=config.stability.get("patience", 2),
+        cooldown=config.stability.get("cooldown", 3)
+    )
+    
+    return cls(
+        torch_optimizer=torch_optmizer,
+        autotune_optimizer=autotune,
+        tune_n_steps=config.adapter.get("tune_n_steps", 1)
+    )
+    
+# usage example
+# adapter = PyTorchHyperParameterAdapter.from_config(
+#     torch_optimizer=optimizer, 
+#     config_path="config.yaml", 
+#     seed=42
+# )
+# This will allow:
+#     1. version configs
+#     2. share experiments
+#     3. reproduce runs
+#     4. avoid code changes

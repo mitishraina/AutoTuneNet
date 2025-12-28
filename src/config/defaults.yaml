@@ -1,0 +1,14 @@
+parameter_space:
+  lr: [0.001, 0.1]
+  weight_decay: [0.0001, 0.01]
+
+tuning:
+  tune_n_steps: 1
+
+metrics:
+  smoothing_window: 5
+
+stability:
+  max_regression: 0.2
+  patience: 2
+  cooldown: 3
