@@ -26,7 +26,19 @@ class PyTorchHyperParameterAdapter:
         self._step = 0
         self._last_good_params: Dict[str, float] = self._read_current_params()
         
+    def on_step_end(self, metric: float):
+        self.step_tuning_metric(metric)
+        
+    def on_epoch_end(self, metric: float):
+        self.step_tuning_metric(metric)
+        
+    def on_validation_end(self, metric: float):
+        self.step_tuning_metric(metric)
+        
     def step(self, metric: float):
+        self.step_tuning_metric(metric)
+        
+    def step_tuning_metric(self, metric: float):
         self._step += 1
         
         if self._step % self.tune_n_steps != 0:
