@@ -33,6 +33,19 @@ jobs:
           pip install .
           pip install pytest
 
+      - name: Inspect site-packages
+        run: |
+          python - <<EOF
+          import site, os
+          for p in site.getsitepackages():
+            print("Listing:", p)
+            if os.path.exists(os.path.join(p, "autotunenet")):
+                print("FOUND autotunenet package")
+            else:
+                print("NO autotunenet package")
+          EOF
+        
+
       - name: Debug install
         run: |
           pip show autotunenet || true
