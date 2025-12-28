@@ -33,5 +33,20 @@ jobs:
           pip install .
           pip install pytest
 
+      - name: Debug install
+        run: |
+          pip show autotunenet || true
+          python - << 'EOF'
+          import sys
+          print("sys.path:")
+          for p in sys.path:
+              print(p)
+          try:
+              import autotunenet
+              print("autotunenet imported OK:", autotunenet)
+          except Exception as e:
+              print("IMPORT FAILED:", e)
+          EOF        
+
       - name: Run tests
         run: python -m pytest -v
