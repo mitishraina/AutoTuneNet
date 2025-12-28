@@ -1,3 +1,6 @@
+<img width="1564" height="782" alt="image" src="https://github.com/user-attachments/assets/c66061e7-7e4f-42e4-94dd-a4831474409b" />
+
+
 # AutoTuneNet
 
 A generic, open-source Python library that enables **self-optimizing model training** by dynamically tuning hyperparameters during training using **Bayesian Optimization**.
