@@ -15,11 +15,11 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11"]
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -28,43 +28,35 @@ jobs:
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
 
-      - name: Install package
+      - name: Install package (editable)
         run: |
           pip install --upgrade setuptools wheel
           pip install -e .
           pip install pytest
 
-      - name: Regression check
+      - name: Regression check – package is importable
         run: python -c "import autotunenet; print(autotunenet.__file__)"
 
-      - name: Inspect site-packages
+      - name: Verify src layout
         run: |
-          python - <<EOF
-          import site, os
-          for p in site.getsitepackages():
-            print("Listing:", p)
-            if os.path.exists(os.path.join(p, "autotunenet")):
-                print("FOUND autotunenet package")
-            else:
-                print("NO autotunenet package")
-          EOF
-      
-      - name: Debug filesystem
+          echo "Contents of src/:"
+          ls -l src
+          echo
+          echo "Contents of src/autotunenet/:"
+          ls -l src/autotunenet
+
+      # ---- OPTIONAL: useful when CI fails, cheap otherwise ----
+      - name: Show installation metadata
+        run: pip show autotunenet
+
+      - name: Show Python import path
         run: |
-          ls -R src/autotunenet
-        
-      - name: Debug install
-        run: |
-          pip show autotunenet || true
           python - <<EOF
           import sys
-          import autotunenet
-          print("autotunenet:", autotunenet)
-          print("file:", autotunenet.__file__)
           print("sys.path:")
           for p in sys.path:
-            print(p)
-          EOF 
+              print(" ", p)
+          EOF
 
       - name: Run tests
         run: python -m pytest -v
