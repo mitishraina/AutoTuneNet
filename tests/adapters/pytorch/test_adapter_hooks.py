@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from src.core.parameters import ParameterSpace
-from src.core.bayesian_optimizer import BayesianOptimizer
+from src.AutoTuneNet.parameters import ParameterSpace
+from src.AutoTuneNet.bayesian_optimizer import BayesianOptimizer
 from src.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
 
 def test_epoch_hook_updates_params():

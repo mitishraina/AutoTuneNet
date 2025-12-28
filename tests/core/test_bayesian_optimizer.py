@@ -1,5 +1,5 @@
-from src.core.parameters import ParameterSpace
-from src.core.bayesian_optimizer import BayesianOptimizer
+from src.AutoTuneNet.parameters import ParameterSpace
+from src.AutoTuneNet.bayesian_optimizer import BayesianOptimizer
 
 def test_suggest_then_observe_does_not_crash():
     space = ParameterSpace({"lr": (0.001, 0.1)})

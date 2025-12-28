@@ -2,9 +2,8 @@
 
 A generic, open-source Python library that enables **self-optimizing model training** by dynamically tuning hyperparameters during training using **Bayesian Optimization**.
 
-Instead of manually tuning learning rates, batch sizes, or regularization values before training, AutoTuneNet continuously observes training behavior and automatically adjusts hyperparameters to improve convergence and performance.
+Instead of traditional manually tuning learning rates, batch sizes, or regularization values before training, AutoTuneNet continuously observes training behavior and automatically adjusts hyperparameters to improve convergence and performance.
 
----
 
 ## Why This Project Exists
 
@@ -18,7 +17,6 @@ Common problems:
 
 **AutoTuneNet solves this by making hyperparameter tuning part of the training loop itself.**
 
----
 
 ## Core Idea
 
@@ -33,7 +31,6 @@ During training:
 
 This creates a closed-loop, self-optimizing training system.
 
----
 
 ## What This Is (and Is Not)
 
@@ -44,13 +41,12 @@ This creates a closed-loop, self-optimizing training system.
 - Designed to plug into existing training loops
 - Suitable for research and production workflows
 
-### This project is nto
+### This project is not
 - A single ML model
 - Offline AutoML that runs many full trials
 - Grid or random search
-- Neural Architecture Search (for now)
+- Neural Architecture Search
 
----
 
 ## Design Philosophy
 
@@ -66,23 +62,119 @@ This creates a closed-loop, self-optimizing training system.
 - **Minimal user code changes**  
   Users should be able to integrate this with a few lines of code.
 
----
 
-## Quick Example (PyTorch)
+## Key features
+- Training time hyperparameter optimization
+- Bayesian Optimization (Optuna-backed, ask-tell)
+- Stability guards with rollback protection
+- Metric Smoothing for noisy signals
+- PyTorch Adapter
+- Multi-parameter tuning(lr, momentum, weight_decay etc.)
+- Config-driven tuning via YAML or dict
+- Fully Unit Tested
+- Lightweight & Modular
 
-```python
-from autotunenet import AutoTuneNet
+## Installation
+```bash
+pip install AutoTuneNet
+```
+## Quick Usage
+```bash
+import torch 
+import torch.nn as nn
+import torch.optim as optim
 
-tuner = AutoTuneNet(
-    param_space={
-        "learning_rate": (1e-5, 1e-2),
-        "dropout": (0.1, 0.5)
-    }
+from AutoTuneNet.core.parameters import ParameterSpace
+from AutoTuneNet.core.bayesian_optimizer import BayesianOptimizer
+from AutoTuneNet.adapters.pytorch.adapter import PyTorchHyperparameterAdapter
+
+model = nn.Linear(10, 1)
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+param_space = ParameterSpace({
+    "lr": (1e-4, 1e-1)
+})
+
+autotune = BayesianOptimizer(param_space)
+
+adapter = PyTorchHyperparameterAdapter(
+    torch_optimizer=optimizer,
+    autotune_optimizer=autotune
 )
 
-trainer.fit(
-    model,
-    train_loader,
-    val_loader,
-    tuner=tuner
-)
+for epoch in range(20):
+    train_loss = train_one_epoch(model)
+    val_metric = -train_loss  # higher is better
+
+    adapter.on_epoch_end(metric=val_metric)
+
+    print(f"Epoch {epoch} | lr={optimizer.param_groups[0]['lr']:.6f}")
+```
+That's it
+AutoTuneNet will:
+- explore hyperparameters
+- keep the best configuration
+- rollback unsafe updates automatically
+
+## How it works?
+AutoTuneNet runs a suggest -> observe loop inside training.
+1. Suggest new hyperparameters (Bayesian optimization)
+2. Apply them tentatively
+3. Observe training or validation metric
+4. Accept or rollback based on stability rules
+
+This loop repeats throughout training without breaking it.
+
+## Safety and Stability and Support
+AutoTuneNet is designed to never destabilize training.
+
+- Built-in protections:
+- Regression detection
+- Consecutive failure thresholds(patience)
+- Cooldown after rollback
+- Restore last known good configuration
+
+If a suggested hyperparameter harms training, it is reverted immediately.
+
+It supports
+- PyTorch Adapter or Integration
+- Multi-paramter Tuning
+- Config-Driven Tuning
+
+
+## Testing
+AutoTuneNet is fully unit tested.
+```bash
+python -m pytest -v
+```
+Tests cover:
+1. optimizer lifecycle
+2. stability logic
+3. rollback behavior
+4. PyTorch adapter
+5. config loading
+
+## Folder Structure
+```bash
+autotunenet/
+├── AutoTuneNet/   # Bayesian optimizer, parameter space
+├── safeguards/    # Stability and rollback logic
+├── adapters/      # Framework integrations (PyTorch)
+├── config/        # Config schema & loaders
+├── logging/       # Structured logging
+```
+
+# License
+MIT License
+
+# Contributing
+Contributions are welcome.
+- Open issues for bugs or ideas
+- PRs fro improvement or adapters
+- Tests required for new features
+
+# Acknowledgements
+Built on top of:
+- Optuna
+- PyTorch
+Inspired by real-world ML systems where stability matters more than speed.

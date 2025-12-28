@@ -1,4 +1,4 @@
-from src.core.parameters import ParameterSpace
+from src.AutoTuneNet.parameters import ParameterSpace
 
 def test_sample_returns_all_params():
     space = ParameterSpace({
