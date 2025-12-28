@@ -30,7 +30,8 @@ jobs:
 
       - name: Install package
         run: |
-          pip install -e .
+          pip install --upgrade setuptools wheel
+          pip install -e . --src src
           pip install pytest
 
       - name: Inspect site-packages
