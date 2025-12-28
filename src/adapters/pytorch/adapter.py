@@ -36,6 +36,13 @@ class PyTorchHyperParameterAdapter:
         
         old_params = self._read_current_params()
         self._apply_params(params)
+        
+        # try:
+        #     self.autotune_optimizer.observe(params, metric)
+        #     self._last_good_params = self._read_current_params()
+        # except Exception:
+        #     self._apply_params(old_params)
+        #     self.tracker.log_rollback_start()
 
         accepted = self.autotune_optimizer.observe(params, metric)
         best = self.autotune_optimizer.best_score()
@@ -45,25 +52,19 @@ class PyTorchHyperParameterAdapter:
         else:
             self._last_good_params = params.copy()
 
-
-        
-    def _apply_params(self, params: Dict[str, float]):
-        for param_group in self.torch_optimizer.param_groups:
-            if "lr" in params:
-                param_group['lr'] = params["lr"]
-        
-        self._last_params = params.copy()
         
     # read current hyperparameters from the PyTorch optimizer
     def _read_current_params(self) -> Dict[str, float]:
         params = {}
         for group in self.torch_optimizer.param_groups:
-            if "lr" in group:
-                params["lr"] = group["lr"]
+            for key, value in group.items():
+                if isinstance(value, (int, float)):
+                    params[key] = value
         return params
     
     # apply new hyperparameters to the PyTorch optimizer
     def _apply_params(self, params: Dict[str, float]):
         for group in self.torch_optimizer.param_groups:
-            if "lr" in params:
-                group['lr'] = params["lr"]
+            for key, value in params.items():
+                if key in group:
+                    group[key] = value
