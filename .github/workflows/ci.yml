@@ -30,7 +30,7 @@ jobs:
 
       - name: Install package
         run: |
-          pip install .
+          pip install -e .
           pip install pytest
 
       - name: Inspect site-packages
