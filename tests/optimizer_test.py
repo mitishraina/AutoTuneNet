@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from .optimizer import Optimizer
+from ..src.autotunenet.optimizer import Optimizer
 
 class DummyOptimizer(Optimizer):
     def suggest(self) -> Dict[str, Any]:

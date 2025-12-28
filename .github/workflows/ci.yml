@@ -36,7 +36,10 @@ jobs:
       - name: Debug install
         run: |
           pip show autotunenet || true
-          python - << 'EOF'
+          python <<EOF
+          import autotunenet
+          print(autotunenet)
+          EOF
           import sys
           print("sys.path:")
           for p in sys.path:
