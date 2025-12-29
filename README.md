@@ -144,6 +144,58 @@ It supports
 - Multi-paramter Tuning
 - Config-Driven Tuning
 
+## When does a rollback triggers?
+A rollback is triggered when training performance regresses significantly and consistently.
+
+At a high level:
+- Training or validation metrics may be smoothed over a short window
+- The current metric is compared against the best recent value
+- A rollback is triggered if:
+    1. The relative regression exceeds a configurable threshold 
+    2. this condition persists for multiple consecutive tuning steps
+- This prevent rollback on single noisy measurements, and expected short-term fluctuations
+
+## What happens during rollback?
+When rollback is triggered:
+- The most recetn hyperparameter update is rejected
+- Hyperparameters are restored to the last known good configuration
+- A cooldown period is entered to prevent rapid oscillation
+- So rollback restores tuned hyperparameters not the full optimizer or model state.
+
+Restoring only hyperparameters is a deliberate design choice that balances:
+1. safety
+2. performance
+3. framework independence
+4. restoring optimize state is expensive and framework-specific
+5. most instabilities are caused by unsafe hyperparameters
+6. hyperparameter rollback is sufficient to prevent divergence in practice
+
+## Cooldown behavior
+After rollback, AutoTuneNet enters a short cooldown window during which:
+- further rollbacks are temporarily suppressed
+- training is allowed to stabilize
+- exploration can resume safely afterward
+
+This avoid repeated rollback loops in noisy regions.
+
+### Configuration
+All stability parameters are configurable, including:
+1. regression threshold
+2. number of consecutive failures
+3. cooldown length
+
+## Evalution and Benchmarks:
+The current relase focuses on:
+1. correctness
+2. safety
+3. integration quality
+4. test coverage
+
+### Formal benchmarks agains:
+- fixed hyperparameters
+- learning rate schedulers
+- offline hyperparameter search
+are not yet included. Benchmarking and comparative evaluation are planned, and community contributions in this area are very welcome.
 
 ## Testing
 AutoTuneNet is fully unit tested.
