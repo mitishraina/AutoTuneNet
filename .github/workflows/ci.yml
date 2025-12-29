@@ -33,30 +33,6 @@ jobs:
           pip install --upgrade setuptools wheel
           pip install -e .
           pip install pytest
-
-      - name: Regression check – package is importable
-        run: python -c "import autotunenet; print(autotunenet.__file__)"
-
-      - name: Verify src layout
-        run: |
-          echo "Contents of src/:"
-          ls -l src
-          echo
-          echo "Contents of src/autotunenet/:"
-          ls -l src/autotunenet
-
-      # ---- OPTIONAL: useful when CI fails, cheap otherwise ----
-      - name: Show installation metadata
-        run: pip show autotunenet
-
-      - name: Show Python import path
-        run: |
-          python - <<EOF
-          import sys
-          print("sys.path:")
-          for p in sys.path:
-              print(" ", p)
-          EOF
-
+          
       - name: Run tests
         run: python -m pytest -v
