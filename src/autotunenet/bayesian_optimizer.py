@@ -73,9 +73,6 @@ class BayesianOptimizer(Optimizer):
             )
             return True
         else:
-            # self.study.tell(trial, state=optuna.trial.TrialState.FAIL)
+            self.study.tell(trial, state=optuna.trial.TrialState.FAIL)
             self.tracker.log_rollback_start()
             return False
-        
-        # self.study.tell(self._active_trial, score)
-        # self._active_trial = None

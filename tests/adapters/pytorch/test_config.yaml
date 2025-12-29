@@ -1,0 +1,5 @@
+parameter_space:
+  lr: [0.001, 0.1]
+
+tuning:
+  tune_n_steps: 1

@@ -10,9 +10,9 @@ pip install .
 
 ### Example
 ```bash
-from src.core.parameters import ParameterSpace
-from src.core.bayesian_optimizer import BayesianOptimizer
-from src.adapters.pytorch.adapter import PyTorchHyperparameterAdapter
+from autotunenet.parameters import ParameterSpace
+from autotunenet.bayesian_optimizer import BayesianOptimizer
+from autotunenet.adapters.pytorch.adapter import PyTorchHyperparameterAdapter
 
 optmizer = torch.optim.Adam(model.parameters(), lr=0.01)
 param_space = ParameterSpace({

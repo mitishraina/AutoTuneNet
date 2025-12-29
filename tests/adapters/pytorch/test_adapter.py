@@ -41,10 +41,29 @@ def test_adapter_multiple_steps_safe():
         tune_n_steps=1
     )
     
+    initial_lr = optimizer.param_groups[0]['lr']
+
     for _ in range(10):
         adapter.step(metric=-0.01)
         
+    final_lr = optimizer.param_groups[0]['lr']
+
+    assert initial_lr != final_lr
+
         
+def test_from_config_method():
+    model = nn.Linear(2, 1)
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+    adapter = PyTorchHyperParameterAdapter.from_config(
+        torch_optimizer=optimizer,
+        config_path="tests/adapters/pytorch/test_config.yaml"
+    )
+
+    assert adapter.tune_n_steps == 1
+    assert "lr" in adapter.autotune_optimizer.param_space.space
+
+
 def test_adapter_respects_tuning_frequency():
     model = nn.Linear(2, 1)
     optimizer = optim.Adam(model.parameters(), lr=0.01)

@@ -12,6 +12,7 @@ def test_adapter_rollback_on_exception():
     
     space = ParameterSpace({"lr": (0.001, 0.1)})
     autotune = BayesianOptimizer(space, seed=42)
+    autotune.guard.patience = 1
     
     adapter = PyTorchHyperParameterAdapter(
         torch_optimizer=optimizer,

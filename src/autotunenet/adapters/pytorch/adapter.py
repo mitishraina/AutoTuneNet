@@ -24,25 +24,22 @@ class PyTorchHyperParameterAdapter:
         self.autotune_optimizer = autotune_optimizer
         self.tune_n_steps = tune_n_steps
         
-        self.rollback = Rollback()
-        self.tracker = Tracker()
-        
         self._step = 0
-        self._last_good_params: Dict[str, float] = self._read_current_params()
+
+        # Initialize rollback with the optimizer's starting parameters
+        initial_params = self._read_current_params()
+        self.autotune_optimizer.rollback.update(initial_params)
         
     def on_step_end(self, metric: float):
-        self.step_tuning_metric(metric)
+        self.step(metric)
         
     def on_epoch_end(self, metric: float):
-        self.step_tuning_metric(metric)
+        self.step(metric)
         
     def on_validation_end(self, metric: float):
-        self.step_tuning_metric(metric)
+        self.step(metric)
         
     def step(self, metric: float):
-        self.step_tuning_metric(metric)
-        
-    def step_tuning_metric(self, metric: float):
         self._step += 1
         
         if self._step % self.tune_n_steps != 0:
@@ -50,23 +47,13 @@ class PyTorchHyperParameterAdapter:
         
         params = self.autotune_optimizer.suggest()
         
-        old_params = self._read_current_params()
         self._apply_params(params)
-        
-        # try:
-        #     self.autotune_optimizer.observe(params, metric)
-        #     self._last_good_params = self._read_current_params()
-        # except Exception:
-        #     self._apply_params(old_params)
-        #     self.tracker.log_rollback_start()
 
         accepted = self.autotune_optimizer.observe(params, metric)
-        best = self.autotune_optimizer.best_score()
 
-        if best is not None and metric < best:
-            self._apply_params(old_params)
-        else:
-            self._last_good_params = params.copy()
+        if not accepted:
+            rollback_params = self.autotune_optimizer.rollback.rollback()
+            self._apply_params(rollback_params)
 
         
     # read current hyperparameters from the PyTorch optimizer
@@ -86,38 +73,26 @@ class PyTorchHyperParameterAdapter:
                     group[key] = value
                     
                     
-@classmethod
-def from_config(cls, torch_optmizer, config_path: str, seed: int | None = None):
-    config = load_config(config_path)
-    
-    param_space = ParameterSpace(config.parameter_space)
-    
-    autotune = BayesianOptimizer(
-        param_space=param_space,
-        seed=seed,
-        smmothing_window=config.metrics.get("smoothing_window", 5)
-    )
-    
-    autotune.guard = StabilityMonitor(
-        max_regression=config.stability.get("max_regression", 0.2),
-        patience=config.stability.get("patience", 2),
-        cooldown=config.stability.get("cooldown", 3)
-    )
-    
-    return cls(
-        torch_optimizer=torch_optmizer,
-        autotune_optimizer=autotune,
-        tune_n_steps=config.adapter.get("tune_n_steps", 1)
-    )
-    
-# usage example
-# adapter = PyTorchHyperParameterAdapter.from_config(
-#     torch_optimizer=optimizer, 
-#     config_path="config.yaml", 
-#     seed=42
-# )
-# This will allow:
-#     1. version configs
-#     2. share experiments
-#     3. reproduce runs
-#     4. avoid code changes
+    @classmethod
+    def from_config(cls, torch_optimizer, config_path: str, seed: int | None = None):
+        config = load_config(config_path)
+
+        param_space = ParameterSpace(config.parameter_space)
+
+        autotune = BayesianOptimizer(
+            param_space=param_space,
+            seed=seed,
+            smoothing_window=config.metrics.get("smoothing_window", 5)
+        )
+
+        autotune.guard = StabilityMonitor(
+            max_regression=config.stability.get("max_regression", 0.2),
+            patience=config.stability.get("patience", 2),
+            cooldown=config.stability.get("cooldown", 3)
+        )
+
+        return cls(
+            torch_optimizer=torch_optimizer,
+            autotune_optimizer=autotune,
+            tune_n_steps=config.tuning.get("tune_n_steps", 1)
+        )
