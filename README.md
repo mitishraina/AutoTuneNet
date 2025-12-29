@@ -79,7 +79,7 @@ This creates a closed-loop, self-optimizing training system.
 
 ## Installation
 ```bash
-pip install AutoTuneNet
+pip install autotunenet
 ```
 ## Quick Usage
 ```bash
@@ -87,9 +87,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from AutoTuneNet.core.parameters import ParameterSpace
-from AutoTuneNet.core.bayesian_optimizer import BayesianOptimizer
-from AutoTuneNet.adapters.pytorch.adapter import PyTorchHyperparameterAdapter
+from autotunenet.core.parameters import ParameterSpace
+from autotunenet.core.bayesian_optimizer import BayesianOptimizer
+from autotunenet.adapters.pytorch.adapter import PyTorchHyperparameterAdapter
 
 model = nn.Linear(10, 1)
 optimizer = optim.Adam(model.parameters(), lr=0.01)
