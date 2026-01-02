@@ -1,0 +1,14 @@
+{
+  "batch_size": 64,
+  "epochs": 10,
+  "trial_epochs": 3,
+  "n_trials": 8,
+  "seed": 42,
+  "optimizer": "Adam",
+  "search_space": {
+    "lr": [
+      0.0001,
+      0.1
+    ]
+  }
+}

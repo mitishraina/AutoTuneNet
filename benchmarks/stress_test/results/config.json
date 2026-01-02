@@ -1,0 +1,7 @@
+{
+  "batch_size": 64,
+  "epochs": 10,
+  "initial_lr": 0.1,
+  "seed": 42,
+  "stress_test": "bad_initial_lr"
+}
