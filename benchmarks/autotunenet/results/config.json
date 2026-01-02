@@ -1,0 +1,10 @@
+{
+  "batch_size": 64,
+  "epochs": 10,
+  "initial_lr": 0.01,
+  "seed": 42,
+  "optimizer": "Adam",
+  "tuned_params": [
+    "lr"
+  ]
+}

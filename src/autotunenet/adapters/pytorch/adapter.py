@@ -20,6 +20,11 @@ class PyTorchHyperParameterAdapter:
             autotune_optimizer: BayesianOptimizer from AutoTuneNet
             tune_n_steps: How often to tune hyperparameters
         """
+        if not isinstance(tune_n_steps, int) or tune_n_steps <= 0:
+            raise ValueError(
+                "tune_n_steps must be a positive integer "
+                "(e.g. 1 = every step/epoch, 5 = every 5 steps/epochs)"
+            )
         self.torch_optimizer = torch_optimizer
         self.autotune_optimizer = autotune_optimizer
         self.tune_n_steps = tune_n_steps
