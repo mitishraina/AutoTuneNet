@@ -4,6 +4,9 @@ parameter_space:
 
 tuning:
   tune_n_steps: 1
+  warmup_epochs: 2
+  warmup_metric_threshold: -0.2
+  max_delta: 0.5
 
 metrics:
   smoothing_window: 5
