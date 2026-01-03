@@ -3,6 +3,8 @@
 This document describes the benchmark experiments used to evaluate AutoTuneNet's behavior, safety, and pratical usefulness.
 These benchmarks are designed to answer **trust and adoption questions**, not to clain state-of-the-art(sota) performance.
 
+Introducing a warmup phase and bounded update constraints (`max_delta`) significantly improves AutoTuneNet's reliability. These safeguards prevent catastrophic early exploration while preserving adaptivity, allowing AutoTuneNet to remain competitive with standard schedulers and outperform fixed hyperparameters in stress scenarios.
+
 ## Goals of Benchmarking
 The benchmarks aim to answer three questions majorly:
 1. **Safety**: Does AutoTuneNet avoid destabilizing training?
@@ -115,7 +117,24 @@ Offline HPO may find better final configurations. AutoTuneNet trades global opti
 
 These approaches solve different problems.
 
+### Key Observations
+1. **Safety-first behavior**
+- AutoTuneNet avoids catastrophic divergence even under adversarial conditions.
+- Warmup and bounded updates prevent destructive early exploration.
 
+2. **Closed-loop adaptation**
+- Unlike schedulers, AutoTuneNet adapts based on observed metrics.
+- Hyperparameter changes are reactive, not predefines.
+
+3. **Failure Containment**
+- In stress test with unsafe initial learning rates, AutoTuneNet prevents runaway degradation.
+- Once model capacity is lost, AutoTuneNet does not claim recovery, but guarantees bounded behavior.
+
+2. **Comparison to baselines**
+- Fixed hyperparameters are brittle to poor initialization.
+- Schedulers are stable but inflexible
+- Offline HPO achieves strong final metrics but requires starts
+- AutoTuneNet trades peak performance for adaptability and safety within a single run
 
 ## Important Notes
 - The benchmarks do not claim **state-of-the-art** results.

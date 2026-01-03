@@ -6,7 +6,7 @@
 A generic, open-source Python library that enables **self-optimizing model training** by dynamically tuning hyperparameters during training using **Bayesian Optimization**.
 
 Instead of traditional manually tuning learning rates, batch sizes, or regularization values before training, AutoTuneNet continuously observes training behavior and automatically adjusts hyperparameters to improve convergence and performance.
-
+**AutoTuneNet combines Bayesian optimization with safety-aware adaptation to tune hyperparameters during training without destabilizing optimization. It is designed for scenarios where stability and restart free training matter.**
 
 ## Why This Project Exists
 
@@ -136,6 +136,8 @@ AutoTuneNet is designed to never destabilize training.
 - Consecutive failure thresholds(patience)
 - Cooldown after rollback
 - Restore last known good configuration
+- Warmup phase
+- Bounded Updates
 
 If a suggested hyperparameter harms training, it is reverted immediately.
 
@@ -197,6 +199,51 @@ The current relase focuses on:
 - offline hyperparameter search
 are not yet included. Benchmarking and comparative evaluation are planned, and community contributions in this area are very welcome.
 
+### Config-Driven Tuning
+AutoTuneNet supports configuration-driven hyperparameter tuning with built-in safety mechanisms.
+AutoTuneNet can be configured entirely via a tuning config:
+```yaml
+tuning: 
+  tune_n_steps: 1
+  warmup_epochs: 2
+  max_delta: 0.5
+```
+- Example
+```python
+from autotunenet.factory import build_pytorch_autotunenet
+
+adapter = build_pytorch_autotunenet(
+  torch_optimizer=torch_optimizer,
+  raw_config={
+    "parameter_space": {
+      "lr": [1e-4, 1e-2]
+    },
+    "tuning": {
+      "tune_n_steps": 2,
+      "warmup_epochs": 3,
+      "max_delta": 0.5
+    }
+  }
+)
+```
+
+### Safety-Aware Adaptation
+AutoTuneNet performs online hyperparameter adaptation with built-in safety mechanism:
+- **warmup phase**: delays tuning until early training stabilizes
+- **bounded updates(`max_delta`)**: limits how much a hyperparameter can change per step
+- **Rollback & Cooldown**: prevents repeated destabilizing updates
+
+These mechanisms ensure that adaptive tuning remains bounded and predictable, even under non-stationary training dynamics.
+
+### Safety Controls
+
+| Parameter | Description |
+|---------|------------|
+| `warmup_epochs` | Delays tuning until early training stabilizes |
+| `max_delta` | Limits how much a hyperparameter can change per step |
+| `tune_n_steps` | Controls tuning frequency |
+
+
 ## Testing
 AutoTuneNet is fully unit tested.
 ```bash
@@ -217,6 +264,7 @@ autotunenet/
 ├── adapters/      # Framework integrations (PyTorch)
 ├── config/        # Config schema & loaders
 ├── logging/       # Structured logging
+├── benchmarks/    # Benchmarks(Fixed_lr, offline_HPO, scheduler, stress_test, autotunenet)
 ```
 
 # License
