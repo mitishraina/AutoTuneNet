@@ -57,7 +57,8 @@ def run_autotunenet(model, train_loader, val_loader, device, epochs):
         torch_optimizer=optimizer,
         autotune_optimizer=autotune_optimizer,
         tune_n_steps=1,
-        warmup_epochs=2
+        warmup_epochs=2,
+        max_delta=0.5
     )
     
     def on_epoch_end(epoch, val_loss, val_accuracy):

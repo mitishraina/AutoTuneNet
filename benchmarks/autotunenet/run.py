@@ -48,7 +48,8 @@ def main():
         torch_optimizer=torch_optimizer,
         autotune_optimizer=autotune_optimizer,
         tune_n_steps = 1,
-        warmup_epochs=2
+        warmup_epochs=2,
+        max_delta=0.5
     )
     
     lr_history = []
