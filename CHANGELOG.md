@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project follows Semantic Versioning (https://semver.org)
 
-## [v0.1.0] - 2025-12-28
+## [v1.0.1] - 2025-12-28
 
 ### Added 
 - Bayesian hyperparameter optimization using Optuna (ask-tell interface)
@@ -36,3 +36,30 @@ This project follows Semantic Versioning (https://semver.org)
 ### Notes
 - This is the first public release of AutoTuneNet
 - API is stable for core usage, but subject to refinement based on community feedback.
+
+
+## [v1.0.2] - 2026-01-03
+
+### Added
+- Safe warmup phase for training-time hyperparameter tuning(supports epoch-based & metric-based warmup)
+- Bounded update constraint (`max_delta`) to prevent aggresive hyperparameter jumps
+- Config-driven exposure of tuning safety parameters
+- Factory based adapter construction for PyTorch
+- Comprehensive benchmark suite with reproducible scripts
+
+### Improved
+- Training stability under non-stationary objectives
+- Benchmark reliability and reproducibility
+- Default out-of-the-box behaviour
+- Documentation clarity around assumptions and limitations
+
+### Benchmarks
+- Added comparison against:
+    - Fixed Learning rate
+    - CosineAnnealing LR
+    - Offline Optuna-based HPO
+- Added stress tests with intentionally unsafe initial configurations
+- Included plots for loss, accuracy, learning rate evolution
+
+### Notes
+AutoTuneNet v1.0.2 prioritizes safe and predictable adaptation over aggresive optimization, making it suitable for long-running and sensitive training workflows.

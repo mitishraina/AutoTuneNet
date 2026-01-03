@@ -50,8 +50,11 @@ def build_pytorch_autotunenet(
 #             "lr": [1e-4, 1e-2]
 #         },
 #         "tuning": {
+#             "tune_n_steps": 1,
 #             "warmup_epochs": 2,
 #             "max_delta": 0.5
 #         }
 #     }
 # )
+# Call once per epoch
+# adapter.on_epoch_end(metric=-val_loss)
