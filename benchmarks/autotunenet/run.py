@@ -47,7 +47,8 @@ def main():
     adapter = PyTorchHyperParameterAdapter(
         torch_optimizer=torch_optimizer,
         autotune_optimizer=autotune_optimizer,
-        tune_n_steps = 1
+        tune_n_steps = 1,
+        warmup_epochs=2
     )
     
     lr_history = []
