@@ -68,17 +68,21 @@ class PyTorchHyperParameterAdapter:
         1. First observe the result of previous epoch's params (triggers stability check)
         2. Then suggest new params for next epoch
         """
+        self._step += 1
         self._epoch += 1
 
         self.last_instability = False
         self.last_rollback = False
+        
+        if self._step % self.tune_n_steps != 0:
+            return
 
         if self._epoch <= self.warmup_epochs:
             return
 
         if (
             self.warmup_metric_threshold is not None
-            and metric < self.warmup_metric_threshold
+            and metric < -self.warmup_metric_threshold
         ):
             return
         
