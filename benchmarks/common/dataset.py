@@ -46,3 +46,49 @@ def get_mnist_loaders(
     )
     
     return train_loader, val_loader
+
+def get_cifar_loaders(
+    batch_size: int = 128,
+    val_split: float = 0.1,
+    seed: int = 42,
+):
+    """
+    Returns train and validation DataLoaders for CIFAR-10
+    """
+
+    transform = transforms.Compose([
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomCrop(32, padding=4),
+        transforms.ToTensor(),
+    ])
+
+    full_train = datasets.CIFAR10(
+        root="./data",
+        train=True,
+        download=True,
+        transform=transform
+    )
+
+    val_size = int(len(full_train) * val_split)
+    train_size = len(full_train) - val_size
+
+    generator = torch.Generator().manual_seed(seed)
+    train_ds, val_ds = random_split(
+        full_train,
+        [train_size, val_size],
+        generator=generator
+    )
+
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=batch_size,
+        shuffle=True
+    )
+
+    val_loader = DataLoader(
+        val_ds,
+        batch_size=batch_size,
+        shuffle=False
+    )
+
+    return train_loader, val_loader

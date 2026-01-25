@@ -1,0 +1,30 @@
+seed: 42
+
+training:
+  batch_size: 64
+  epochs: 10
+  initial_lr: 0.01
+
+controller:
+  type: autotunenet
+
+  parameter_space:
+    lr: [1e-4, 1e-1]
+
+  tuning:
+    tune_n_steps: 1
+    warmup_epochs: 2
+    max_delta: 0.5
+
+  metrics:
+    smoothing_window: 3
+
+  stability:
+    max_regression: 0.2
+    patience: 2
+    cooldown: 3
+
+non_stationarity:
+  type: label_noise
+  start_epoch: 5
+  noise_ratio: 0.3

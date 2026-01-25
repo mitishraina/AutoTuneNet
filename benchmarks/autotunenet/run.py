@@ -79,7 +79,7 @@ def main():
         
     with open(output_dir / "lr_history.json", "w") as f:
         json.dump(lr_history, f, indent=2)
-        
+    
     
     print("AutoTuneNet benchmark completed.")
     print(f"Final validation loss: {history['val_loss'][-1]:.4f}")

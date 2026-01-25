@@ -7,23 +7,56 @@ class ParameterSpace:
         self.space = space
         self._validate_space()
         
+    # def _validate_space(self) -> None:
+    #     for name, values in self.space.items():
+    #         if isinstance(values, tuple):
+    #             if len(values) != 2:
+    #                 logging.info(f"Tuple for {name} must be (min, max)")
+    #                 raise ValueError(f"Tuple for {name} must be (min, max)")
+    #         elif isinstance(values, list):
+    #             if len(values) == 0:
+    #                 logging.info(f"List for {name} cannot be empty")
+    #                 raise ValueError(f"List for {name} cannot be empty")
+    #         else:
+    #             logging.info(f"Parameter {name} must be defineed by a tuple or list")
+    #             raise TypeError(
+    #                 f"Parameter {name} must be defined by a tuple or a list"
+    #             )
+    
     def _validate_space(self) -> None:
         for name, values in self.space.items():
             if isinstance(values, tuple):
                 if len(values) != 2:
-                    logging.info(f"Tuple for {name} must be (min, max)")
-                    raise ValueError(f"Tuple for {name} must be (min, max)")
+                    raise ValueError(f"{name} tuple must be (min, max)")
+                self.space[name] = tuple(self._coerce_numeric(v, name) for v in values)
+
             elif isinstance(values, list):
                 if len(values) == 0:
-                    logging.info(f"List for {name} cannot be empty")
-                    raise ValueError(f"List for {name} cannot be empty")
+                    raise ValueError(f"{name} list cannot be empty")
+                self.space[name] = [self._coerce_numeric(v, name) for v in values]
+
             else:
-                logging.info(f"Parameter {name} must be defineed by a tuple or list")
                 raise TypeError(
                     f"Parameter {name} must be defined by a tuple or a list"
                 )
+                
+    def _coerce_numeric(self, value, name):
+        if isinstance(value, (int, float)):
+            return value
+
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except ValueError:
+                raise ValueError(
+                    f"Parameter '{name}' value '{value}' is not numeric"
+                )
+
+        raise TypeError(
+            f"Parameter '{name}' has invalid type: {type(value)}"
+        )
+
                     
-        
     def sample(self) -> Dict[str, Any]:
         params = {}
         for name, values in self.space.items():

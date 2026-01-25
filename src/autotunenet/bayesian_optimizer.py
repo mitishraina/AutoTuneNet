@@ -25,7 +25,14 @@ class BayesianOptimizer(Optimizer):
         self.guard = StabilityMonitor()
         self.rollback = Rollback()
         self.tracker = Tracker()
-        
+        self.last_instability = False
+        self.last_rollback = False
+    
+    # def reset_history(self):
+    #     self.history.clear()
+    #     self._step = 0
+
+    
     def suggest(self) -> Dict[str, Any]:
         self._active_trial = self.study.ask()
         params = {}
@@ -44,10 +51,32 @@ class BayesianOptimizer(Optimizer):
                 
         return params
     
+    # def on_regime_start(self):
+    #     # Reset internal trial state
+    #     self._active_trial = None
+
+    #     # Reset Optuna study but keep sampler seed
+    #     sampler = self.study.sampler
+    #     self.study = optuna.create_study(
+    #         direction="maximize",
+    #         sampler=sampler
+    #     )
+
+    #     # Reset guard + smoother
+    #     self.guard.reset()
+    #     self.smoother.reset()
+
+    #     # Reset history
+    #     self.history.clear()
+    #     self._step = 0
+    
     @log_errors(context="BayesianOptimizer.observe")
     def observe(self, params: Dict[str, Any], score: float) -> bool:
         if self._active_trial is None:
             raise RuntimeError("No active trial to observe")
+        
+        self.last_instability = False
+        self.last_rollback = False
         
         smoothed_score = self.smoother.add(score)
         best_score = self.best_score() if self.history else None
@@ -73,6 +102,8 @@ class BayesianOptimizer(Optimizer):
             )
             return True
         else:
+            self.last_instability = True
+            self.last_rollback = True
             # self.study.tell(trial, state=optuna.trial.TrialState.FAIL)
             self.tracker.log_rollback_start()
             return False

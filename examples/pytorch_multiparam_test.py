@@ -33,7 +33,7 @@ for epoch in range(20):
     adapter.step(metric=val_metric)
     
     print(
-        f"Epoch {epoch} | "
+        f"Epoch {epoch+1} | "
         f"lr={optimizer.param_groups[0]['lr']:.6f} | "
         f"momentum={optimizer.param_groups[0]['momentum']:.4f} | "
         f"weight_decay={optimizer.param_groups[0]['weight_decay']:.6f}"

@@ -1,0 +1,20 @@
+task: mnist_cnn
+
+training:
+  epochs: 10
+  batch_size: 64
+  initial_lr: 0.01
+  seed: 42
+
+controller:
+  type: autotunenet
+  parameter_space:
+    lr: [1e-4, 1e-1]
+  tuning:
+    tune_n_steps: 1
+    max_delta: 0.5
+
+non_stationarity:
+  type: gradient_noise
+  start_epoch: 5
+  std: 0.02

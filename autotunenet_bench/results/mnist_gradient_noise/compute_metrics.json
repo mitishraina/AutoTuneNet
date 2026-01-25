@@ -1,0 +1,8 @@
+{
+  "num_hparam_updates": 0,
+  "num_trials_started": 0,
+  "num_rollbacks": 0,
+  "epochs_per_trial_avg": 0,
+  "controller_time_sec": 0.0072,
+  "controller_time_per_epoch_ms": 0.7196
+}

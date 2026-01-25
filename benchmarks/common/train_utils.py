@@ -39,7 +39,7 @@ def evaluate(model, loader, device):
     accuracy = correct / total
     return avg_loss, accuracy
 
-def train_model(model, train_loader, val_loader, optimizer, device, epochs: int, on_epoch_end=None):
+def train_model(model, train_loader, val_loader, optimizer, device, epochs: int, on_epoch_end=None, regime=None):
     """
     Generic training loop.
     on_epoch_end:
@@ -50,8 +50,17 @@ def train_model(model, train_loader, val_loader, optimizer, device, epochs: int,
         "val_loss": [],
         "val_accuracy": [],
     }
+    train_dataset = train_loader.dataset
     
     for epoch in range(epochs):
+        if regime is not None:
+            regime.maybe_apply(
+                epoch=epoch,
+                train_dataset=train_dataset,
+                optimizer=optimizer,
+                model=model
+            )
+            
         train_loss = train_epoch(
             model, train_loader, optimizer, device
         )
