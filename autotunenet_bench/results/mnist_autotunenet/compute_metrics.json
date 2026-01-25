@@ -3,6 +3,6 @@
   "num_trials_started": 0,
   "num_rollbacks": 0,
   "epochs_per_trial_avg": 6.5,
-  "controller_time_sec": 0.0118,
-  "controller_time_per_epoch_ms": 1.1779
+  "controller_time_sec": 0.0033,
+  "controller_time_per_epoch_ms": 0.3299
 }

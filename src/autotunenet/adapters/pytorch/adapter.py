@@ -57,26 +57,13 @@ class PyTorchHyperParameterAdapter:
         
         self.last_instability = False
         self.last_rollback = False
-        
-        # self._post_shift_steps = 0
-        # self._post_shift_damping_steps = 3
-        
-    # def on_regime_start(self, epoch: int):
-    #     self._pending_observation = False
-    #     self.autotune_optimizer.on_regime_start()
 
-    #     self._post_shift_steps = self._post_shift_damping_steps
-
-    #     self.tracker.logger.info(
-    #         f"[REGIME] New regime detected at epoch {epoch}. "
-    #         "Resetting optimizer state and damping exploration."
-    #     )
  
     def on_step_end(self, metric: float):
         self.step_tuning_metric(metric)
         
     def on_epoch_end(self, metric: float):
-        self.step_tuning_metric(metric)
+        # Removed duplicate step_tuning_metric call - observe happens in step_tuning_metric
         self._epoch += 1
 
         self.last_instability = False
@@ -91,30 +78,17 @@ class PyTorchHyperParameterAdapter:
         ):
             return
         
-        # if self._pending_observation:
-        #     if self.autotune_optimizer.guard.in_rollback:
-        #         self.tracker.logger.warning(
-        #             "[STABILITY] Skipping observe during rollback phase"
-        #         )
-        #         self._pending_observation = False
-        #         return
-
-            # current_params = self._read_current_params()
-
-            # is_stable = self.autotune_optimizer.observe(
-            #     params=current_params,
-            #     score=metric,
-            # )
-
-            # if not is_stable:
-            #     self.last_instability = True
-            #     self.last_rollback = True
-
-            # self._pending_observation = False
-            # return
-
-
         params = self.autotune_optimizer.suggest()
+        
+        # Check if we should rollback instead of applying new params
+        if self.autotune_optimizer.last_rollback:
+            rollback_params = self.autotune_optimizer.rollback_params
+            if rollback_params:
+                self._apply_params(rollback_params)
+                self.last_rollback = True
+                self._pending_observation = False
+                return
+        
         self._apply_params(params)
         self._pending_observation = True
         
@@ -189,50 +163,6 @@ class PyTorchHyperParameterAdapter:
                     proposed_value = max(lower, min(upper, proposed_value))
                     
                 group[key] = proposed_value
-                
-                # if not isinstance(proposed_value, (int, float)):
-                #     self.tracker.logger.debug(
-                #         f"Skipping max_delta for non-numeric param '{key}'"
-                #     )
-    # def _apply_params(self, params: Dict[str, float]):
-    #     for group in self.torch_optimizer.param_groups:
-    #         for key, proposed_value in params.items():
-    #             if key not in group:
-    #                 continue
-
-    #             current_value = group[key]
-
-    #             effective_max_delta = self.max_delta
-
-    #             if (
-    #                 self._post_shift_steps > 0
-    #                 and self.max_delta is not None
-    #                 and isinstance(current_value, (int, float))
-    #             ):
-    #                 decay_ratio = self._post_shift_steps / self._post_shift_damping_steps
-    #                 effective_max_delta = self.max_delta * decay_ratio
-    #                 self._post_shift_steps -= 1
-
-    #                 self.tracker.logger.info(
-    #                     f"[DAMPING] Decayed max_delta={effective_max_delta:.3f} "
-    #                     f"for param '{key}'"
-    #                 )
-
-    #             if (
-    #                 effective_max_delta is not None
-    #                 and isinstance(current_value, (int, float))
-    #                 and isinstance(proposed_value, (int, float))
-    #             ):
-    #                 lower = current_value * (1 - effective_max_delta)
-    #                 upper = current_value * (1 + effective_max_delta)
-    #                 proposed_value = max(lower, min(upper, proposed_value))
-
-    #             group[key] = proposed_value
-
-    #             if not isinstance(proposed_value, (int, float)):
-    #                 self.tracker.logger.debug(
-    #                     f"Skipping max_delta for non-numeric param '{key}'"
-    #                 )
     
                     
     @classmethod

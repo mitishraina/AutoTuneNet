@@ -14,7 +14,7 @@ controller:
     lr: [0.01, 0.01]
 
   metrics:
-    smoothing_window: 1
+    smoothing_window: 3
 
 non_stationarity:
   type: label_noise

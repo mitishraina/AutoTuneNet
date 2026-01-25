@@ -35,7 +35,7 @@
     "val_loss": 0.09818938370556274,
     "val_accuracy": 0.9728333333333333,
     "hyperparams": {
-      "lr": 0.0075,
+      "lr": 0.015,
       "eps": 1e-08,
       "weight_decay": 0,
       "amsgrad": false,
@@ -46,9 +46,39 @@
   },
   {
     "epoch": 3,
-    "train_loss": 0.06434878677455819,
-    "val_loss": 0.0769451204018588,
-    "val_accuracy": 0.9763333333333334,
+    "train_loss": 0.11849042007902232,
+    "val_loss": 0.13097458443247734,
+    "val_accuracy": 0.9623333333333334,
+    "hyperparams": {
+      "lr": 0.0075,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false
+    }
+  },
+  {
+    "epoch": 4,
+    "train_loss": 0.06642586355335112,
+    "val_loss": 0.08572554766037006,
+    "val_accuracy": 0.9806666666666667,
+    "hyperparams": {
+      "lr": 0.00375,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false
+    }
+  },
+  {
+    "epoch": 5,
+    "train_loss": 1.4846828841908848,
+    "val_loss": 0.5488813462409567,
+    "val_accuracy": 0.9686666666666667,
     "hyperparams": {
       "lr": 0.005625,
       "eps": 1e-08,
@@ -60,10 +90,25 @@
     }
   },
   {
-    "epoch": 4,
-    "train_loss": 0.046776590296030054,
-    "val_loss": 0.06925184648741592,
-    "val_accuracy": 0.9815,
+    "epoch": 6,
+    "train_loss": 1.3801057632500526,
+    "val_loss": 0.4905185131950581,
+    "val_accuracy": 0.9696666666666667,
+    "hyperparams": {
+      "lr": 0.0084375,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false
+    }
+  },
+  {
+    "epoch": 7,
+    "train_loss": 1.3776622500041085,
+    "val_loss": 0.5229955185601052,
+    "val_accuracy": 0.9681666666666666,
     "hyperparams": {
       "lr": 0.01265625,
       "eps": 1e-08,
@@ -75,78 +120,33 @@
     }
   },
   {
-    "epoch": 5,
-    "train_loss": 1.50187263500069,
-    "val_loss": 0.4855698312216617,
-    "val_accuracy": 0.9466666666666667,
-    "hyperparams": {
-      "lr": 0.014238281250000002,
-      "eps": 1e-08,
-      "weight_decay": 0.0,
-      "amsgrad": 0.0,
-      "maximize": 0.0,
-      "capturable": 0.0,
-      "differentiable": 0.0
-    }
-  },
-  {
-    "epoch": 6,
-    "train_loss": 1.4135552351649903,
-    "val_loss": 0.6299293700684893,
-    "val_accuracy": 0.9483333333333334,
-    "hyperparams": {
-      "lr": 0.007119140625000001,
-      "eps": 1e-08,
-      "weight_decay": 0.0,
-      "amsgrad": 0.0,
-      "maximize": 0.0,
-      "capturable": 0.0,
-      "differentiable": 0.0
-    }
-  },
-  {
-    "epoch": 7,
-    "train_loss": 1.3670175082593168,
-    "val_loss": 0.5933270286372367,
-    "val_accuracy": 0.952,
-    "hyperparams": {
-      "lr": 0.008009033203125002,
-      "eps": 1e-08,
-      "weight_decay": 0.0,
-      "amsgrad": 0.0,
-      "maximize": 0.0,
-      "capturable": 0.0,
-      "differentiable": 0.0
-    }
-  },
-  {
     "epoch": 8,
-    "train_loss": 1.3633108515451304,
-    "val_loss": 0.5414423641372235,
-    "val_accuracy": 0.9546666666666667,
+    "train_loss": 1.3923230004536598,
+    "val_loss": 0.43459416069882983,
+    "val_accuracy": 0.9558333333333333,
     "hyperparams": {
-      "lr": 0.012013549804687502,
+      "lr": 0.006328125,
       "eps": 1e-08,
-      "weight_decay": 0.0,
-      "amsgrad": 0.0,
-      "maximize": 0.0,
-      "capturable": 0.0,
-      "differentiable": 0.0
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false
     }
   },
   {
     "epoch": 9,
-    "train_loss": 1.382959653627816,
-    "val_loss": 0.5349769129398021,
-    "val_accuracy": 0.9546666666666667,
+    "train_loss": 1.352887549247787,
+    "val_loss": 0.5070841756272824,
+    "val_accuracy": 0.9698333333333333,
     "hyperparams": {
-      "lr": 0.0045050811767578134,
+      "lr": 0.0094921875,
       "eps": 1e-08,
-      "weight_decay": 0.0,
-      "amsgrad": 0.0,
-      "maximize": 0.0,
-      "capturable": 0.0,
-      "differentiable": 0.0
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false
     }
   }
 ]
