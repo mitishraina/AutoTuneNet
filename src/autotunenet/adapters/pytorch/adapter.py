@@ -63,7 +63,11 @@ class PyTorchHyperParameterAdapter:
         self.step_tuning_metric(metric)
         
     def on_epoch_end(self, metric: float):
-        # Removed duplicate step_tuning_metric call - observe happens in step_tuning_metric
+        """
+        Called at the end of each epoch. Implements observe-then-suggest pattern:
+        1. First observe the result of previous epoch's params (triggers stability check)
+        2. Then suggest new params for next epoch
+        """
         self._epoch += 1
 
         self.last_instability = False
@@ -78,17 +82,29 @@ class PyTorchHyperParameterAdapter:
         ):
             return
         
-        params = self.autotune_optimizer.suggest()
-        
-        # Check if we should rollback instead of applying new params
-        if self.autotune_optimizer.last_rollback:
-            rollback_params = self.autotune_optimizer.rollback_params
-            if rollback_params:
-                self._apply_params(rollback_params)
+        # Step 1: Observe the result of previous epoch's params
+        if self._pending_observation:
+            current_params = self._read_current_params()
+            is_stable = self.autotune_optimizer.observe(
+                params=current_params,
+                score=metric,
+            )
+            
+            if not is_stable:
+                self.last_instability = True
                 self.last_rollback = True
+                # Apply rollback params
+                rollback_params = self.autotune_optimizer.rollback_params
+                if rollback_params:
+                    self._apply_params(rollback_params)
+                    self.tracker.logger.info(
+                        f"[ROLLBACK] Applied rollback params: {rollback_params}"
+                    )
                 self._pending_observation = False
                 return
         
+        # Step 2: Suggest new params for next epoch
+        params = self.autotune_optimizer.suggest()
         self._apply_params(params)
         self._pending_observation = True
         

@@ -18,10 +18,6 @@ class BaseController(ABC):
     def apply(self, optimizer) -> None:
         pass # apply controller decisions to the optimizer
     
-    # @abstractmethod
-    # def on_regime_start(self, epoch: int):
-    #     pass
-    
     @abstractmethod
     def name(self) -> str:
         pass # human-readable controller name

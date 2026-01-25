@@ -1,10 +1,10 @@
 {
-  "instability_events": 0,
-  "rollback_count": 0,
-  "time_to_first_instability": null,
+  "instability_events": 1,
+  "rollback_count": 1,
+  "time_to_first_instability": 6,
   "recovery_time": null,
-  "post_shift_degradation": 0.4030725443599488,
-  "loss_spike_magnitude": 0.4631557985805867,
+  "post_shift_degradation": 0.42350933800496043,
+  "loss_spike_magnitude": 0.439286294894818,
   "shift_epoch": 5,
   "time_to_recovery_epochs": null
 }

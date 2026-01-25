@@ -4,5 +4,5 @@
   "num_rollbacks": 0,
   "epochs_per_trial_avg": 0,
   "controller_time_sec": 0.0003,
-  "controller_time_per_epoch_ms": 0.0339
+  "controller_time_per_epoch_ms": 0.027
 }

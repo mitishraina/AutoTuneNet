@@ -3,8 +3,8 @@
   "rollback_count": 0,
   "time_to_first_instability": null,
   "recovery_time": null,
-  "post_shift_degradation": 0.46830700511519024,
-  "loss_spike_magnitude": 0.4988535045710531,
+  "post_shift_degradation": 0.4536282261561087,
+  "loss_spike_magnitude": 0.5312647022866703,
   "shift_epoch": 5,
   "time_to_recovery_epochs": null
 }

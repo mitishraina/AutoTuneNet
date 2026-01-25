@@ -11,14 +11,6 @@ class AutoTuneNetController(BaseController):
         self.last_trial_start = False
         
         
-    # def on_regime_start(self, epoch: int):
-    #     self.adapter.on_regime_start(epoch)
-        
-    #     self.last_instability = False
-    #     self.last_rollback = False
-    #     self.last_update = False
-    #     self.last_trial_start = False
-        
     def on_epoch_end(self, metric: float):
         self.adapter.on_epoch_end(metric)
         self.last_instability = self.adapter.last_instability

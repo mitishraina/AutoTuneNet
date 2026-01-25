@@ -1,8 +1,8 @@
 {
-  "num_hparam_updates": 8,
+  "num_hparam_updates": 7,
   "num_trials_started": 0,
-  "num_rollbacks": 0,
-  "epochs_per_trial_avg": 6.5,
-  "controller_time_sec": 0.0033,
-  "controller_time_per_epoch_ms": 0.3299
+  "num_rollbacks": 1,
+  "epochs_per_trial_avg": 6.428571428571429,
+  "controller_time_sec": 0.0067,
+  "controller_time_per_epoch_ms": 0.6735
 }

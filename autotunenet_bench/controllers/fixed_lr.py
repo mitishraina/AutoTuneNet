@@ -7,9 +7,7 @@ class FixedLRController(BaseController):
         
     def on_epoch_end(self, metric: float):
         pass # no adaptation
-    
-    # def on_regime_start(self, epoch:int):
-    #     pass
+
         
     def apply(self, optimizer):
         for group in optimizer.param_groups:
