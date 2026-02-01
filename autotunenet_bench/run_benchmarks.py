@@ -10,7 +10,7 @@ from autotunenet.parameters import ParameterSpace
 from autotunenet.bayesian_optimizer import BayesianOptimizer
 from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
 
-from benchmarks.common.dataset import get_mnist_loaders
+from benchmarks.common.dataset import get_cifar_loaders
 from benchmarks.common.model import CNN
 
 from autotunenet_bench.controllers.factory import build_controller
@@ -39,7 +39,7 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
 
-    train_loader, val_loader = get_mnist_loaders(
+    train_loader, val_loader = get_cifar_loaders(
         batch_size=config["training"]["batch_size"],
         seed=seed
     )

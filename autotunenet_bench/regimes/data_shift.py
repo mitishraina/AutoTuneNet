@@ -15,13 +15,23 @@ class LabelNoiseShift(NonStationarityRegime):
         random.seed(self.seed)
         torch.manual_seed(self.seed)
 
+        base_dataset = train_dataset
+        indices = list(range(len(train_dataset)))
+
+        #this is for cifar
+        while hasattr(base_dataset, "dataset"):
+            if hasattr(base_dataset, "indices"):
+                indices = base_dataset.indices
+            base_dataset = base_dataset.dataset
+
+        # enable this when using mnist
         # Handle Subset datasets
-        if hasattr(train_dataset, "dataset") and hasattr(train_dataset, "indices"):
-            base_dataset = train_dataset.dataset
-            indices = train_dataset.indices
-        else:
-            base_dataset = train_dataset
-            indices = list(range(len(train_dataset)))
+        # if hasattr(train_dataset, "dataset") and hasattr(train_dataset, "indices"):
+        #     base_dataset = train_dataset.dataset
+        #     indices = train_dataset.indices
+        # else:
+        #     base_dataset = train_dataset
+        #     indices = list(range(len(train_dataset)))
 
         # Access labels safely
         if hasattr(base_dataset, "targets"):
@@ -32,8 +42,13 @@ class LabelNoiseShift(NonStationarityRegime):
             raise AttributeError(
                 "Dataset does not expose targets or labels"
             )
+        
+        #mnist
+        # num_classes = int(torch.max(labels).item() + 1) 
 
-        num_classes = int(torch.max(labels).item() + 1)
+        #cifar
+        num_classes = max(labels) + 1
+
         num_noisy = int(self.noise_ratio * len(indices))
         noisy_indices = random.sample(indices, num_noisy)
 

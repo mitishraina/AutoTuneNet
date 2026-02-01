@@ -55,29 +55,54 @@ def get_cifar_loaders(
     """
     Returns train and validation DataLoaders for CIFAR-10
     """
-
-    transform = transforms.Compose([
+    train_transform = transforms.Compose([
         transforms.RandomHorizontalFlip(),
         transforms.RandomCrop(32, padding=4),
         transforms.ToTensor(),
+        transforms.Normalize(mean=(0.4914, 0.4822, 0.4465), std=(0.2023, 0.1994, 0.2010))
     ])
 
-    full_train = datasets.CIFAR10(
+    val_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=(0.4914, 0.4822, 0.4465), std=(0.2023, 0.1994, 0.2010))
+    ])
+
+
+    full_dataset = datasets.CIFAR10(
         root="./data",
         train=True,
         download=True,
-        transform=transform
+        transform=None
     )
 
-    val_size = int(len(full_train) * val_split)
-    train_size = len(full_train) - val_size
+    val_size = int(len(full_dataset) * val_split)
+    train_size = len(full_dataset) - val_size
+
+    from torch.utils.data import Subset
+    
+    class ApplyTransform(torch.utils.data.Dataset):
+        def __init__(self, dataset, transform):
+            self.dataset = dataset
+            self.transform = transform
+            
+        def __getitem__(self, idx):
+            x, y = self.dataset[idx]
+            if self.transform:
+                x = self.transform(x)
+            return x, y
+            
+        def __len__(self):
+            return len(self.dataset)
 
     generator = torch.Generator().manual_seed(seed)
-    train_ds, val_ds = random_split(
-        full_train,
+    train_ds_raw, val_ds_raw = random_split(
+        full_dataset,
         [train_size, val_size],
         generator=generator
     )
+
+    train_ds = ApplyTransform(train_ds_raw, train_transform)
+    val_ds = ApplyTransform(val_ds_raw, val_transform)
 
     train_loader = DataLoader(
         train_ds,

@@ -3,17 +3,17 @@ seed: 42
 training:
   batch_size: 128
   epochs: 10
-  initial_lr: 0.01
+  initial_lr: 0.001
 
 controller:
   type: fixed_lr
 
-  lr: 0.01
+  lr: 0.001
 
   parameter_space:
-    lr: [0.01, 0.01]
-    momentum: [0.7, 0.99]
-    weight_decay: [1e-5, 1e-3]
+    lr: [1e-4, 1e-3]
+    momentum: [0.8, 0.99]
+    weight_decay: [1e-4, 5e-4]
 
 metrics:
   smoothing_window: 1
