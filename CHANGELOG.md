@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 This project follows Semantic Versioning (https://semver.org)
 
+## [Unreleased]
+
+### Fixed
+- Config parameter spaces: `[low, high]` in YAML/dict configs is now a continuous range. It used to be silently treated as two categorical values. Scientific notation such as `1e-4`, which PyYAML reads as a string, is coerced to float.
+- `PyTorchHyperParameterAdapter.from_config` no longer crashes. It had a misspelled `smoothing_window` argument and read a non-existent `config.adapter` section. It now delegates to `build_pytorch_autotunenet`.
+- `build_pytorch_autotunenet` now applies the `stability` section (`max_regression`, `patience`, `cooldown`) and accepts a `seed`.
+- `autotunenet_bench/run_benchmarks.py` chooses the dataset and model from the config's `task` field (`mnist` | `cifar10`). It previously always used CIFAR-10. The runner also applies the config's stability settings.
+- `defaults.yaml` is now included in the built wheel.
+
+### Changed
+- Categorical values in configs must be written as `{choices: [...]}`. A continuous range can also be written as `{low: a, high: b}`. Lists that don't have exactly two elements are rejected.
+- Config validation now covers `smoothing_window`, `max_regression`, `patience` and `cooldown`.
+- Development tooling moved to [uv](https://docs.astral.sh/uv/): a `dev` dependency group, a `uv.lock` lockfile, and `.python-version`. CI uses `uv sync --locked`. `requirements.txt` was removed.
+
+### Added
+- `CITATION.cff` for GitHub's "Cite this repository".
+- `MNISTCNN` model and the `benchmarks/common/tasks.py` task registry.
+- Regression tests for config parsing, factory stability settings and `from_config`.
+
 ## [v1.0.1] - 2025-12-28
 
 ### Added 
