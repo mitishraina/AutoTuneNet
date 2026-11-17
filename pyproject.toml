@@ -8,7 +8,7 @@ version = "1.0.2"
 authors = [
     { name = "Mitish Raina", email = "mitishraina.dev@gmail.com"}
 ]
-description = "Generic Bayesian self-optimizing hyperparameter tuning engine"
+description = "Online hyperparameter adaptation for PyTorch training, using Bayesian optimization with rollback safeguards"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -19,11 +19,11 @@ dependencies = [
     "pyyaml"
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-  "pytest",
-  "black",
-  "ruff"
+    "pytest>=8",
+    "black",
+    "ruff",
 ]
 
 [project.urls]
