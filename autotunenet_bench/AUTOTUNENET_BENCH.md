@@ -164,5 +164,5 @@ It is not intended as a leaderboard for maximizing accuracy.
 ### Citation
 If you use AutoTuneNet-Bench in your research, please cite:
 ```bash
-AutoTuneNet: Safe Online Hyperparameter Adaptation
+AutoTuneNet: Online Hyperparameter Adaptation
 ```
