@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560" role="img" aria-labelledby="title desc">
+  <title id="title">AutoTuneNet architecture</title>
+  <desc id="desc">The training run sends a validation metric to the AutoTuneNet controller. The controller gates on warmup, smooths the metric and checks stability. Stable steps update a TPE surrogate model, which proposes the next configuration; the change is bounded and written to the optimizer's hyperparameters. Unstable steps roll back to the last stable configuration and start a cooldown.</desc>
+
+  <style>
+    .bg        { fill: #ffffff; }
+    .panel     { fill: #f6f8fa; stroke: #d0d7de; }
+    .box       { fill: #ffffff; stroke: #d0d7de; }
+    .box-model { fill: #ddf4ff; stroke: #54aeff; }
+    .box-safe  { fill: #fff8c5; stroke: #d4a72c; }
+    .box-roll  { fill: #ffebe9; stroke: #ff8182; }
+    .h         { font: 600 15px -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+    .s         { font: 400 12.5px -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+    .panel-h   { font: 600 13px -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; letter-spacing: 0.06em; }
+    .title     { font: 600 19px -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+    .lbl       { font: 500 12px -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+    .lbl-ok    { font: 600 12px -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1a7f37; }
+    .lbl-bad   { font: 600 12px -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #cf222e; }
+    .foot      { font: 400 13px -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+    .edge      { fill: none; stroke: #6e7781; stroke-width: 1.6; }
+    .edge-ok   { fill: none; stroke: #1a7f37; stroke-width: 1.8; }
+    .edge-bad  { fill: none; stroke: #cf222e; stroke-width: 1.8; stroke-dasharray: 6 4; }
+    .head      { fill: #6e7781; }
+    .head-ok   { fill: #1a7f37; }
+    .head-bad  { fill: #cf222e; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg        { fill: #0d1117; }
+      .panel     { fill: #161b22; stroke: #30363d; }
+      .box       { fill: #0d1117; stroke: #3d444d; }
+      .box-model { fill: #0c2d6b; stroke: #388bfd; }
+      .box-safe  { fill: #3b2e00; stroke: #9e6a03; }
+      .box-roll  { fill: #42141a; stroke: #da3633; }
+      .h, .title { fill: #e6edf3; }
+      .s, .panel-h, .lbl, .foot { fill: #9198a1; }
+      .lbl-ok    { fill: #3fb950; }
+      .lbl-bad   { fill: #f85149; }
+      .edge      { stroke: #8b949e; }
+      .edge-ok   { stroke: #3fb950; }
+      .edge-bad  { stroke: #f85149; }
+      .head      { fill: #8b949e; }
+      .head-ok   { fill: #3fb950; }
+      .head-bad  { fill: #f85149; }
+    }
+  </style>
+
+  <defs>
+    <marker id="a"     viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head"     d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="a-ok"  viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-ok"  d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="a-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-bad" d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="560" rx="14"/>
+
+  <text class="title" x="600" y="40" text-anchor="middle">AutoTuneNet: online hyperparameter adaptation inside a single training run</text>
+
+  <!-- ===== Training run ===== -->
+  <rect class="panel" x="30" y="70" width="330" height="440" rx="12"/>
+  <text class="panel-h" x="50" y="98">TRAINING RUN</text>
+
+  <rect class="box" x="60" y="120" width="270" height="64" rx="8"/>
+  <text class="h" x="195" y="148" text-anchor="middle">Train one epoch</text>
+  <text class="s" x="195" y="169" text-anchor="middle">model weights updated by the optimizer</text>
+
+  <rect class="box" x="60" y="240" width="270" height="64" rx="8"/>
+  <text class="h" x="195" y="268" text-anchor="middle">Validate</text>
+  <text class="s" x="195" y="289" text-anchor="middle">validation loss / accuracy</text>
+
+  <rect class="box" x="60" y="400" width="270" height="80" rx="8"/>
+  <text class="h" x="195" y="430" text-anchor="middle">Optimizer hyperparameters</text>
+  <text class="s" x="195" y="452" text-anchor="middle">learning rate · momentum · weight decay</text>
+
+  <path class="edge" d="M195,184 L195,238" marker-end="url(#a)"/>
+  <path class="edge" d="M60,440 L45,440 L45,152 L58,152" marker-end="url(#a)"/>
+  <text class="lbl" x="40" y="296" text-anchor="middle" transform="rotate(-90 40 296)">next epoch</text>
+
+  <!-- ===== Controller ===== -->
+  <rect class="panel" x="400" y="70" width="770" height="440" rx="12"/>
+  <text class="panel-h" x="420" y="98">AUTOTUNENET CONTROLLER</text>
+
+  <!-- row 1: observe -->
+  <rect class="box-safe" x="430" y="120" width="190" height="72" rx="8"/>
+  <text class="h" x="525" y="150" text-anchor="middle">Warmup gate</text>
+  <text class="s" x="525" y="171" text-anchor="middle">no tuning in early epochs</text>
+
+  <rect class="box" x="660" y="120" width="200" height="72" rx="8"/>
+  <text class="h" x="760" y="150" text-anchor="middle">Metric smoothing</text>
+  <text class="s" x="760" y="171" text-anchor="middle">sliding-window average</text>
+
+  <rect class="box-safe" x="900" y="120" width="220" height="72" rx="8"/>
+  <text class="h" x="1010" y="150" text-anchor="middle">Stability check</text>
+  <text class="s" x="1010" y="171" text-anchor="middle">sustained drop from best score?</text>
+
+  <path class="edge" d="M620,156 L658,156" marker-end="url(#a)"/>
+  <path class="edge" d="M860,156 L898,156" marker-end="url(#a)"/>
+
+  <!-- row 2: propose -->
+  <rect class="box-model" x="900" y="270" width="220" height="72" rx="8"/>
+  <text class="h" x="1010" y="300" text-anchor="middle">Surrogate model (TPE)</text>
+  <text class="s" x="1010" y="321" text-anchor="middle">updated with the observed score</text>
+
+  <rect class="box-model" x="660" y="270" width="200" height="72" rx="8"/>
+  <text class="h" x="760" y="300" text-anchor="middle">Propose next config</text>
+  <text class="s" x="760" y="321" text-anchor="middle">sample a promising region</text>
+
+  <rect class="box-safe" x="430" y="270" width="190" height="72" rx="8"/>
+  <text class="h" x="525" y="300" text-anchor="middle">Bounded update</text>
+  <text class="s" x="525" y="321" text-anchor="middle">change limited to ±δ per step</text>
+
+  <path class="edge-ok" d="M1010,192 L1010,268" marker-end="url(#a-ok)"/>
+  <text class="lbl-ok" x="1020" y="235">stable</text>
+  <path class="edge" d="M900,306 L862,306" marker-end="url(#a)"/>
+  <path class="edge" d="M660,306 L622,306" marker-end="url(#a)"/>
+
+  <!-- row 3: recover -->
+  <rect class="box-roll" x="740" y="410" width="380" height="72" rx="8"/>
+  <text class="h" x="930" y="440" text-anchor="middle">Rollback + cooldown</text>
+  <text class="s" x="930" y="461" text-anchor="middle">restore last stable configuration, then pause rollbacks</text>
+
+  <path class="edge-bad" d="M1120,156 L1145,156 L1145,446 L1122,446" marker-end="url(#a-bad)"/>
+  <text class="lbl-bad" x="1158" y="300" text-anchor="middle" transform="rotate(90 1158 300)">unstable</text>
+
+  <!-- ===== Cross-panel flows ===== -->
+  <path class="edge" d="M330,272 L382,272 L382,156 L428,156" marker-end="url(#a)"/>
+  <text class="lbl" x="370" y="214" text-anchor="middle" transform="rotate(-90 370 214)">validation metric</text>
+
+  <path class="edge-ok" d="M525,342 L525,428 L332,428" marker-end="url(#a-ok)"/>
+  <text class="lbl-ok" x="440" y="420" text-anchor="middle">apply new values</text>
+
+  <path class="edge-bad" d="M740,462 L332,462" marker-end="url(#a-bad)"/>
+  <text class="lbl-bad" x="560" y="479" text-anchor="middle">restore</text>
+
+  <text class="foot" x="600" y="538" text-anchor="middle">Training is never restarted. Only the optimizer's hyperparameters change between epochs; model weights are never rolled back.</text>
+</svg>

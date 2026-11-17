@@ -3,32 +3,34 @@
 This guide shows how to use AutoTuneNet
 
 
-# Installation(local)
+# Installation (local)
 ```bash
-pip install .
+uv sync            # or: pip install -e .
 ```
 
 ### Example
-```bash
-from src.core.parameters import ParameterSpace
-from src.core.bayesian_optimizer import BayesianOptimizer
-from src.adapters.pytorch.adapter import PyTorchHyperparameterAdapter
+```python
+import torch
 
-optmizer = torch.optim.Adam(model.parameters(), lr=0.01)
+from autotunenet.parameters import ParameterSpace
+from autotunenet.bayesian_optimizer import BayesianOptimizer
+from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
+
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 param_space = ParameterSpace({
     "lr": (1e-4, 1e-1)
 })
 
-autotune = BayesianOptimizer(param_space)
-adapter = PyTorchHyperparameterAdapter(
+autotune = BayesianOptimizer(param_space, seed=42)
+adapter = PyTorchHyperParameterAdapter(
     torch_optimizer = optimizer,
     autotune_optimizer = autotune
 )
 
 for epoch in range(epochs):
     train(...)
-    val_metric = validate(...)
-    adapter.on_epoch_end(metric=val_metric)
+    val_loss = validate(...)
+    adapter.on_epoch_end(metric=-val_loss)   # higher is better
 ```
 
 That's it, AutoTuneNet will
@@ -47,9 +49,9 @@ AutoTuneNet does not run separate trials. It adapts hyperparameters while traini
 - observe metric
 - accept or rollback
 
-This loop repeats safely thorughout training.
+This loop repeats throughout training.
 
-3. Bayesian Optmization
+3. Bayesian Optimization
 AutoTuneNet uses Bayesian Optimization to:
 - model the relationship between hyperparameters and performance
 - prioritize promising regions
@@ -62,5 +64,5 @@ Every update is guarded by:
 - cooldown periods
 - rollback to last known good state
 
-Training stability is never compromise.
+A rollback restores hyperparameters only. It does not restore model weights or optimizer state.
 
