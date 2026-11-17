@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use AutoTuneNet or AutoTuneNet-Bench in your research, please cite it as below."
+title: "AutoTuneNet: Online Hyperparameter Adaptation"
+type: software
+authors:
+  - family-names: Raina
+    given-names: Mitish
+version: 1.0.2
+license: MIT
+repository-code: "https://github.com/mitishraina/AutoTuneNet"
+url: "https://github.com/mitishraina/AutoTuneNet"
+abstract: >-
+  AutoTuneNet treats hyperparameter tuning as an online control problem inside a
+  single training run. A Bayesian optimizer (Optuna TPE, ask-tell) proposes
+  hyperparameters at each tuning step; proposals are applied with bounded updates,
+  scored on a smoothed validation signal, and checked by a stability monitor that
+  rolls back to the last known-good configuration on sustained regression.
+  The repository includes AutoTuneNet-Bench, a benchmark suite for Online
+  Hyperparameter Adaptation (OHA) under controlled non-stationarity.
+keywords:
+  - hyperparameter optimization
+  - online hyperparameter adaptation
+  - bayesian optimization
+  - training stability
+  - pytorch
