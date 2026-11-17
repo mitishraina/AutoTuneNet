@@ -35,6 +35,9 @@ Issues = "https://github.com/mitishraina/AutoTuneNet/issues"
 package-dir = {"" = "src"}
 include-package-data = true
 
+[tool.setuptools.package-data]
+autotunenet = ["config/*.yaml"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["*.tests", "*.tests.*", "*_test"]

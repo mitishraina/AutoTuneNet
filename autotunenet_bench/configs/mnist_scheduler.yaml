@@ -1,3 +1,4 @@
+task: mnist
 seed: 42
 
 training:

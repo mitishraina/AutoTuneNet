@@ -186,32 +186,19 @@ class PyTorchHyperParameterAdapter:
     
                     
     @classmethod
-    def from_config(cls, torch_optmizer, config_path: str, seed: int | None = None):
+    def from_config(cls, torch_optimizer, config_path: str, seed: int | None = None):
+        """
+        Build an adapter from a YAML config file.
+        Uses the same schema and defaults as autotunenet.factory.build_pytorch_autotunenet.
+        """
+        # Local import: factory imports this module.
+        from autotunenet.factory import build_pytorch_autotunenet
+
         config = load_config(config_path)
-        
-        param_space = ParameterSpace(config.parameter_space)
-        
-        autotune = BayesianOptimizer(
-            param_space=param_space,
+        return build_pytorch_autotunenet(
+            torch_optimizer=torch_optimizer,
+            raw_config=config.raw_config,
             seed=seed,
-            smmothing_window=config.metrics.get("smoothing_window", 5)
-        )
-        
-        autotune.guard = StabilityMonitor(
-            max_regression=config.stability.get("max_regression", 0.2),
-            patience=config.stability.get("patience", 2),
-            cooldown=config.stability.get("cooldown", 3)
-        )
-        
-        return cls(
-            torch_optimizer=torch_optmizer,
-            autotune_optimizer=autotune,
-            tune_n_steps=config.adapter.get("tune_n_steps", 1),
-            warmup_epochs=config.adapter.get("warmup_epochs", 0),
-            warmup_metric_threshold=config.adapter.get(
-                "warmup_metric_threshold", None
-            ),
-            max_delta=config.adapter.get("max_delta", None)
         )
     
 # usage example

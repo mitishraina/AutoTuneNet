@@ -2,34 +2,49 @@ from autotunenet.parameters import ParameterSpace
 from autotunenet.bayesian_optimizer import BayesianOptimizer
 from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
 from autotunenet.config.schema import AutoTuneConfig
+from autotunenet.safeguards.stability import StabilityMonitor
 
 def build_pytorch_autotunenet(
     torch_optimizer,
     raw_config: dict,
+    seed: int | None = None,
 ):
     """
     Factory that builds AutoTuneNet components for PyTorch from a validated configuration.
+
+    Config sections (all optional except parameter_space):
+        parameter_space: {name: [low, high] | {choices: [...]}}
+        tuning:    tune_n_steps, warmup_epochs, warmup_metric_threshold, max_delta
+        metrics:   smoothing_window
+        stability: max_regression, patience, cooldown
     """
-    
+
     config = AutoTuneConfig(raw_config)
-    
+
     param_space = ParameterSpace(config.parameter_space)
-    
+
     autotune_optimizer = BayesianOptimizer(
         param_space=param_space,
+        seed=seed,
         smoothing_window=config.metrics.get("smoothing_window", 3)
     )
-    
+
+    autotune_optimizer.guard = StabilityMonitor(
+        max_regression=config.stability.get("max_regression", 0.2),
+        patience=config.stability.get("patience", 2),
+        cooldown=config.stability.get("cooldown", 3),
+    )
+
     tuning_cfg = config.tuning
-    
+
     tune_n_steps = tuning_cfg.get("tune_n_steps", 1)
     warmup_epochs = tuning_cfg.get("warmup_epochs", 0)
     warmup_metric_threshold = tuning_cfg.get(
         "warmup_metric_threshold"
     )
     max_delta = tuning_cfg.get("max_delta")
-    
-    
+
+
     adapter = PyTorchHyperParameterAdapter(
         torch_optimizer=torch_optimizer,
         autotune_optimizer=autotune_optimizer,
@@ -38,7 +53,7 @@ def build_pytorch_autotunenet(
         warmup_metric_threshold=warmup_metric_threshold,
         max_delta=max_delta,
     )
-    
+
     return adapter
 
 
@@ -47,14 +62,20 @@ def build_pytorch_autotunenet(
 #     torch_optimizer,
 #     raw_config={
 #         "parameter_space": {
-#             "lr": [1e-4, 1e-2]
+#             "lr": [1e-4, 1e-2]              # continuous range
 #         },
 #         "tuning": {
 #             "tune_n_steps": 1,
 #             "warmup_epochs": 2,
 #             "max_delta": 0.5
+#         },
+#         "stability": {
+#             "max_regression": 0.2,
+#             "patience": 2,
+#             "cooldown": 3
 #         }
-#     }
+#     },
+#     seed=42,
 # )
 # Call once per epoch
 # adapter.on_epoch_end(metric=-val_loss)
