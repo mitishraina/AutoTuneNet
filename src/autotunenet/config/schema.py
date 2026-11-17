@@ -1,29 +1,87 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple, List, Union
+
+
+def _to_number(value: Any, name: str) -> float:
+    # PyYAML (YAML 1.1) parses scientific notation without a dot, e.g. 1e-4, as a string.
+    if isinstance(value, bool):
+        raise ValueError(f"Parameter '{name}': boolean is not a valid numeric bound")
+    if isinstance(value, (int, float)):
+        return value
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            pass
+    raise ValueError(f"Parameter '{name}': '{value}' is not numeric")
+
+
+def normalize_parameter_space(
+    raw_space: Dict[str, Any],
+) -> Dict[str, Union[Tuple[float, float], List[Any]]]:
+    """
+    Convert a config-style parameter space into the form ParameterSpace expects.
+
+    Config files (YAML/JSON) have no tuple type, so the config syntax is:
+        lr: [1e-4, 1e-1]                  -> continuous range (low, high)
+        lr: {low: 1e-4, high: 1e-1}       -> continuous range (low, high)
+        batch_size: {choices: [32, 64]}   -> categorical choices
+
+    Tuples are passed through unchanged as ranges.
+    """
+    if not isinstance(raw_space, dict):
+        raise ValueError("parameter_space must be a dictionary")
+
+    normalized: Dict[str, Union[Tuple[float, float], List[Any]]] = {}
+
+    for name, spec in raw_space.items():
+        if isinstance(spec, dict):
+            if "choices" in spec:
+                choices = spec["choices"]
+                if not isinstance(choices, (list, tuple)) or len(choices) == 0:
+                    raise ValueError(f"Parameter '{name}': 'choices' must be a non-empty list")
+                normalized[name] = list(choices)
+                continue
+            if "low" in spec and "high" in spec:
+                spec = [spec["low"], spec["high"]]
+            else:
+                raise ValueError(
+                    f"Parameter '{name}': mapping must define either 'choices' or both 'low' and 'high'"
+                )
+
+        if isinstance(spec, (list, tuple)):
+            if len(spec) != 2:
+                raise ValueError(
+                    f"Parameter '{name}': a range must be [low, high]; "
+                    f"use {{choices: [...]}} for categorical values"
+                )
+            low, high = (_to_number(v, name) for v in spec)
+            if low > high:
+                raise ValueError(f"Parameter '{name}': low ({low}) must be <= high ({high})")
+            normalized[name] = (low, high)
+            continue
+
+        raise ValueError(f"invalid parameter definition for {name}")
+
+    return normalized
+
 
 class AutoTuneConfig:
     """
     Strongly typed representation for the AutoTuneNet configuration.
     """
-    
+
     def __init__(self, raw_config: Dict[str, Any]):
         self.raw_config = raw_config
-        
-        self.parameter_space = raw_config["parameter_space"]
-        self.tuning = raw_config.get("tuning", {})
-        self.stability = raw_config.get("stability", {})
-        self.metrics = raw_config.get("metrics", {})
-        
+
+        self.parameter_space = normalize_parameter_space(raw_config["parameter_space"])
+        self.tuning = raw_config.get("tuning", {}) or {}
+        self.stability = raw_config.get("stability", {}) or {}
+        self.metrics = raw_config.get("metrics", {}) or {}
+
         self._validate()
-        
-        
+
+
     def _validate(self):
-        if not isinstance(self.parameter_space, dict):
-            raise ValueError("parameter_space must be a dictionary")
-        
-        for name, values in self.parameter_space.items():
-            if not isinstance(values, (list, tuple)):
-                raise ValueError(f"invalid parameter definition for {name}")
-            
         tune_n_steps = self.tuning.get("tune_n_steps")
         if tune_n_steps is not None:
             if not isinstance(tune_n_steps, int) or tune_n_steps <= 0:
@@ -45,3 +103,23 @@ class AutoTuneConfig:
                 raise ValueError("max_delta must be a number")
             if not (0.0 < max_delta < 1.0):
                 raise ValueError("max_delta must be in range (0, 1)")
+
+        smoothing_window = self.metrics.get("smoothing_window")
+        if smoothing_window is not None:
+            if not isinstance(smoothing_window, int) or smoothing_window <= 0:
+                raise ValueError("smoothing_window must be a positive integer")
+
+        max_regression = self.stability.get("max_regression")
+        if max_regression is not None:
+            if not isinstance(max_regression, (int, float)) or max_regression < 0:
+                raise ValueError("max_regression must be a non-negative number")
+
+        patience = self.stability.get("patience")
+        if patience is not None:
+            if not isinstance(patience, int) or patience <= 0:
+                raise ValueError("patience must be a positive integer")
+
+        cooldown = self.stability.get("cooldown")
+        if cooldown is not None:
+            if not isinstance(cooldown, int) or cooldown < 0:
+                raise ValueError("cooldown must be a non-negative integer")
