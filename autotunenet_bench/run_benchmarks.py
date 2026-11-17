@@ -6,12 +6,9 @@ from autotunenet_bench.regimes.factory import build_regime
 from autotunenet_bench.configs.loader import load_benchmark_config
 from autotunenet_bench.runners.train_runner import train
 
-from autotunenet.parameters import ParameterSpace
-from autotunenet.bayesian_optimizer import BayesianOptimizer
-from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
+from autotunenet.factory import build_pytorch_autotunenet
 
-from benchmarks.common.dataset import get_cifar_loaders
-from benchmarks.common.model import CNN
+from benchmarks.common.tasks import build_task, resolve_task
 
 from autotunenet_bench.controllers.factory import build_controller
 
@@ -31,20 +28,24 @@ def main():
     config = load_benchmark_config(args.config)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    seed = config.get("seed", 42)
+    seed = config.get("seed", config["training"].get("seed", 42))
     torch.manual_seed(seed)
 
     run_name = Path(args.config).stem
     output_dir = Path("autotunenet_bench/results") / run_name
     output_dir.mkdir(parents=True, exist_ok=True)
 
-
-    train_loader, val_loader = get_cifar_loaders(
-        batch_size=config["training"]["batch_size"],
-        seed=seed
+    # Task is read from the config; older configs without `task` are inferred from the file name.
+    task = resolve_task(
+        config.get("task") or ("cifar10" if "cifar" in run_name.lower() else "mnist")
     )
+    print(f"[bench] run={run_name} task={task} seed={seed} device={device}")
 
-    model = CNN()
+    train_loader, val_loader, model = build_task(
+        task,
+        batch_size=config["training"]["batch_size"],
+        seed=seed,
+    )
 
     optimizer = torch.optim.Adam(
         model.parameters(),
@@ -53,26 +54,23 @@ def main():
 
     controller_cfg = config["controller"]
 
-    param_space = ParameterSpace(controller_cfg["parameter_space"])
-
-    autotune = BayesianOptimizer(
-        param_space=param_space,
-        seed=seed,
-        smoothing_window=controller_cfg.get("metrics", {}).get(
-            "smoothing_window", 5
+    # Only the AutoTuneNet controller needs an adapter. It is built through the
+    # library factory so that parameter_space, tuning, metrics and stability
+    # settings in the config are all applied.
+    adapter = None
+    if controller_cfg["type"] == "autotunenet":
+        adapter_cfg = {
+            "parameter_space": controller_cfg["parameter_space"],
+            "tuning": controller_cfg.get("tuning", {}),
+            "metrics": {"smoothing_window": 5, **controller_cfg.get("metrics", {})},
+            "stability": controller_cfg.get("stability", {}),
+        }
+        adapter = build_pytorch_autotunenet(
+            torch_optimizer=optimizer,
+            raw_config=adapter_cfg,
+            seed=seed,
         )
-    )
 
-    adapter = PyTorchHyperParameterAdapter(
-        torch_optimizer=optimizer,
-        autotune_optimizer=autotune,
-        tune_n_steps=controller_cfg.get("tuning", {}).get("tune_n_steps", 1),
-        warmup_epochs=controller_cfg.get("tuning", {}).get("warmup_epochs", 0),
-        warmup_metric_threshold=controller_cfg.get("tuning", {}).get(
-            "warmup_metric_threshold"
-        ),
-        max_delta=controller_cfg.get("tuning", {}).get("max_delta"),
-    )
     scheduler=None
     if controller_cfg["type"] == "scheduler":
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(

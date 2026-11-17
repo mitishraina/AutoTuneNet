@@ -1,4 +1,4 @@
-task: mnist_cnn
+task: mnist
 
 training:
   epochs: 10
