@@ -1,4 +1,5 @@
 import argparse
+import json
 import torch
 from pathlib import Path
 
@@ -20,14 +21,36 @@ def parse_args():
         required=True,
         help="Path to benchmark config YAML"
     )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="auto",
+        choices=["auto", "cpu", "cuda", "mps"],
+        help="Device to train on. 'auto' picks CUDA, then Apple MPS, then CPU. "
+             "Compare runs only when they used the same device.",
+    )
     return parser.parse_args()
+
+
+def resolve_device(name: str) -> torch.device:
+    if name == "auto":
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        if torch.backends.mps.is_available():
+            return torch.device("mps")
+        return torch.device("cpu")
+    if name == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("--device cuda requested but CUDA is not available")
+    if name == "mps" and not torch.backends.mps.is_available():
+        raise RuntimeError("--device mps requested but Apple MPS is not available")
+    return torch.device(name)
 
 
 def main():
     args = parse_args()
     config = load_benchmark_config(args.config)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = resolve_device(args.device)
     seed = config.get("seed", config["training"].get("seed", 42))
     torch.manual_seed(seed)
 
@@ -98,6 +121,19 @@ def main():
         device=device,
         output_dir=output_dir,
     )
+
+    with open(output_dir / "run_info.json", "w") as f:
+        json.dump(
+            {
+                "config": Path(args.config).name,
+                "task": task,
+                "seed": seed,
+                "device": device.type,
+                "torch_version": torch.__version__,
+            },
+            f,
+            indent=2,
+        )
 
 
 if __name__ == "__main__":
