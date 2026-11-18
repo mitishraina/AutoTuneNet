@@ -1,0 +1,7 @@
+{
+  "config": "mnist_gradient_noise_autotunenet.yaml",
+  "task": "mnist",
+  "seed": 42,
+  "device": "cpu",
+  "torch_version": "2.15.0"
+}

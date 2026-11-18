@@ -2,7 +2,7 @@
   "num_hparam_updates": 7,
   "num_trials_started": 0,
   "num_rollbacks": 1,
-  "epochs_per_trial_avg": 6.428571428571429,
-  "controller_time_sec": 0.0067,
-  "controller_time_per_epoch_ms": 0.6735
+  "epochs_per_trial_avg": 6.571428571428571,
+  "controller_time_sec": 0.0068,
+  "controller_time_per_epoch_ms": 0.6763
 }
