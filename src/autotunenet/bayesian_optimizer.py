@@ -1,5 +1,7 @@
 from typing import Dict, Any
 import optuna
+from optuna.distributions import CategoricalDistribution, FloatDistribution
+from optuna.trial import TrialState
 from .optimizer import Optimizer
 from .metrics import MetricSmoother
 from autotunenet.safeguards.stability import StabilityMonitor
@@ -69,7 +71,7 @@ class BayesianOptimizer(Optimizer):
                 self.tracker.log_rollback_end()
                 
             super().observe(params, smoothed_score)
-            self.study.tell(trial, smoothed_score)
+            self._record_observation(trial, params, smoothed_score)
             self.rollback.update(params)
             
             self.tracker.log_step(
@@ -82,17 +84,56 @@ class BayesianOptimizer(Optimizer):
         else:
             self.last_instability = True
             self.last_rollback = True
-            # self.study.tell(trial, state=optuna.trial.TrialState.FAIL)
+            # Close the trial so it is not left RUNNING forever. FAIL trials are
+            # ignored by TPE.
+            self.study.tell(trial, state=TrialState.FAIL)
             # Store rollback params for adapter to apply
             if self.rollback._last_good_params is not None:
                 self._rollback_params = self.rollback.rollback()
             self.tracker.log_rollback_start()
             return False
         
-        
-        # self.study.tell(self._active_trial, score)
-        # self._active_trial = None
-        
+    def _record_observation(self, trial, params: Dict[str, Any], score: float) -> None:
+        """
+        Tell the study which hyperparameters produced `score`.
+
+        The adapter may change a proposal before it runs (for example, clipping it
+        with max_delta). The score belongs to the values that actually ran, so those
+        are recorded. If nothing was changed, the proposal trial is completed as-is;
+        otherwise it is closed as FAIL (ignored by TPE) and a completed trial with
+        the applied values is added in its place.
+        """
+        applied = {
+            name: params.get(name, proposed)
+            for name, proposed in trial.params.items()
+        }
+
+        if applied == trial.params:
+            self.study.tell(trial, score)
+            return
+
+        distributions = {}
+        for name, value in applied.items():
+            dist = trial.distributions[name]
+            if isinstance(dist, FloatDistribution) and not (dist.low <= value <= dist.high):
+                # The applied value can sit outside the search range (e.g. the
+                # optimizer's initial value). Widen the range for this record only.
+                dist = FloatDistribution(
+                    low=min(dist.low, value), high=max(dist.high, value), log=dist.log
+                )
+            elif isinstance(dist, CategoricalDistribution) and value not in dist.choices:
+                self.tracker.logger.warning(
+                    f"Applied value {value!r} for '{name}' is not one of its choices; "
+                    f"recording the proposed value instead."
+                )
+                applied[name] = trial.params[name]
+            distributions[name] = dist
+
+        self.study.tell(trial, state=TrialState.FAIL)
+        self.study.add_trial(
+            optuna.trial.create_trial(params=applied, distributions=distributions, value=score)
+        )
+
     @property
     def rollback_params(self):
         """Returns the params to rollback to, or None if no rollback needed."""
