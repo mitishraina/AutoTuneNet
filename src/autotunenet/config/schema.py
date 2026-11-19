@@ -105,8 +105,13 @@ class AutoTuneConfig:
             
         warmup_metric_threshold = self.tuning.get("warmup_metric_threshold")
         if warmup_metric_threshold is not None:
-            if not isinstance(warmup_metric_threshold, (int, float)):
+            if isinstance(warmup_metric_threshold, bool) or not isinstance(warmup_metric_threshold, (int, float)):
                 raise ValueError("warmup_metric_threshold must be a number")
+            if warmup_metric_threshold <= 0:
+                raise ValueError(
+                    "warmup_metric_threshold must be > 0: tuning starts once the validation "
+                    "loss is at or below it (the adapter receives -val_loss as the metric)"
+                )
             
         max_delta = self.tuning.get("max_delta")
         if max_delta is not None:

@@ -50,7 +50,7 @@ In the Python `ParameterSpace` API used directly (not through a config), a **tup
 |---|---|---|---|---|
 | `tuning` | `tune_n_steps` | `1` | int > 0 | Tune every *n* adapter calls |
 | `tuning` | `warmup_epochs` | `0` | int ≥ 0 | Epochs before tuning starts |
-| `tuning` | `warmup_metric_threshold` | `None` | number | Tuning starts only once `metric ≥ −threshold` |
+| `tuning` | `warmup_metric_threshold` | `None` | number > 0 | Tuning starts once the validation loss is at or below this value (the adapter receives `-val_loss`) |
 | `tuning` | `max_delta` | `None` | 0 < x < 1 | Max relative change per tuning step |
 | `search` | `n_startup_trials` | `10` | int ≥ 0 | Trials TPE samples at random before using its model. Runs with few tuning steps need a small value (e.g. 3), or every proposal is random |
 | `metrics` | `smoothing_window` | `3` | int > 0 | Moving-average window over observed metrics |

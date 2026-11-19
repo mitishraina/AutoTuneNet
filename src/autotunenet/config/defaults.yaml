@@ -5,7 +5,9 @@ parameter_space:
 tuning:
   tune_n_steps: 1
   warmup_epochs: 2
-  warmup_metric_threshold: -0.2
+  # Start tuning once the validation loss is at or below this value
+  # (the metric passed to the adapter is -val_loss).
+  warmup_metric_threshold: 0.5
   max_delta: 0.5
 
 metrics:

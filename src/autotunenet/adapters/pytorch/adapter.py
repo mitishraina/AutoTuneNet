@@ -22,7 +22,8 @@ class PyTorchHyperParameterAdapter:
             autotune_optimizer: BayesianOptimizer from AutoTuneNet
             tune_n_steps: How often to tune hyperparameters
             warmup_epochs: Number of steps/epochs before tuning starts
-            warmup_metric_threshold: Minimum metric required before tuning start
+            warmup_metric_threshold: Start tuning once the loss is at or below this
+                value, i.e. once metric >= -warmup_metric_threshold. Must be > 0.
             max_delta: Maximum relative change allowed per tuning step (e.g. 0.5 = +-50%, postive or negative 50% change)
         """
         if not isinstance(tune_n_steps, int) or tune_n_steps <= 0:
@@ -34,6 +35,12 @@ class PyTorchHyperParameterAdapter:
         if warmup_epochs < 0:
             raise ValueError("warmup_epochs must be non-negative or >= 0")
         
+        if warmup_metric_threshold is not None and warmup_metric_threshold <= 0:
+            raise ValueError(
+                "warmup_metric_threshold must be > 0: tuning starts once the loss "
+                "is at or below it (metric >= -warmup_metric_threshold)"
+            )
+
         if max_delta is not None and (max_delta <=0 or max_delta >= 1):
             raise ValueError("max_delta must be in the range (0,1)")
         
