@@ -18,7 +18,7 @@ from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
 
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 param_space = ParameterSpace({
-    "lr": (1e-4, 1e-1)
+    "lr": {"low": 1e-4, "high": 1e-1, "log": True}
 })
 
 autotune = BayesianOptimizer(param_space, seed=42)

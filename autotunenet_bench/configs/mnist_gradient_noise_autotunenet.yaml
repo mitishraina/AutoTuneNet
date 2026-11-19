@@ -10,7 +10,7 @@ controller:
   type: autotunenet
 
   parameter_space:
-    lr: [1e-4, 1e-1]
+    lr: {low: 1e-4, high: 1e-1, log: true}
 
   tuning:
     tune_n_steps: 1

@@ -132,8 +132,9 @@ from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
 model = nn.Linear(10, 1)
 optimizer = optim.Adam(model.parameters(), lr=1e-2)
 
-# Tuple (low, high) = continuous range; list [a, b, c] = categorical choices
-param_space = ParameterSpace({"lr": (1e-4, 1e-1)})
+# Ranges: (low, high) is linear; {"low", "high", "log": True} samples evenly across
+# orders of magnitude (use it for lr). A list [a, b, c] is a set of categorical choices.
+param_space = ParameterSpace({"lr": {"low": 1e-4, "high": 1e-1, "log": True}})
 autotune = BayesianOptimizer(param_space, seed=42, smoothing_window=3)
 
 adapter = PyTorchHyperParameterAdapter(
@@ -160,9 +161,9 @@ The adapter changes `optimizer.param_groups` in place, so the rest of your train
 optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.9, weight_decay=1e-4)
 
 param_space = ParameterSpace({
-    "lr":           (1e-4, 1e-1),
+    "lr":           {"low": 1e-4, "high": 1e-1, "log": True},
     "momentum":     (0.80, 0.99),
-    "weight_decay": (1e-5, 1e-3),
+    "weight_decay": {"low": 1e-5, "high": 1e-3, "log": True},
 })
 ```
 
@@ -188,7 +189,7 @@ from autotunenet.factory import build_pytorch_autotunenet
 adapter = build_pytorch_autotunenet(
     torch_optimizer=optimizer,
     raw_config={
-        "parameter_space": {"lr": [1e-4, 1e-2]},
+        "parameter_space": {"lr": {"low": 1e-4, "high": 1e-2, "log": True}},
         "tuning":    {"tune_n_steps": 1, "warmup_epochs": 2, "max_delta": 0.5},
         "metrics":   {"smoothing_window": 3},
         "stability": {"max_regression": 0.2, "patience": 2, "cooldown": 3},
@@ -201,7 +202,7 @@ The same config can live in a YAML file:
 
 ```yaml
 parameter_space:
-  lr: [1e-4, 1e-1]                     # continuous range [low, high]
+  lr: {low: 1e-4, high: 1e-1, log: true}   # continuous range, log scale
   momentum: {low: 0.8, high: 0.99}     # continuous range, explicit form
   # batch_size: {choices: [32, 64]}    # categorical
 tuning:
@@ -220,7 +221,7 @@ stability:
 adapter = PyTorchHyperParameterAdapter.from_config(optimizer, "autotune.yaml", seed=42)
 ```
 
-In a config, `[low, high]` always means a continuous range, and categorical values must be written as `{choices: [...]}`. In the Python `ParameterSpace` API, a tuple is a range and a list is categorical. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+In a config, `[low, high]` always means a continuous range on a linear scale, `{low, high, log: true}` a log-scale range, and categorical values must be written as `{choices: [...]}`. In the Python `ParameterSpace` API, a tuple is a linear range, a `{"low", "high", "log"}` mapping a (log-scale) range, and a list is categorical. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
 
 ## Hyperparameters of AutoTuneNet
 

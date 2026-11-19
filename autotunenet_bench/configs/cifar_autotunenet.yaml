@@ -10,7 +10,7 @@ controller:
   type: autotunenet
 
   parameter_space:
-    lr: [1e-4, 1e-3]
+    lr: {low: 1e-4, high: 1e-3, log: true}
     momentum: [0.8, 0.99]
     weight_decay: [1e-4, 5e-4]
 

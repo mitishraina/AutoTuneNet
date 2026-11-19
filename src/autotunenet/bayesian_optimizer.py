@@ -39,7 +39,7 @@ class BayesianOptimizer(Optimizer):
             if isinstance(values, tuple):
                 low, high = values
                 params[name] = self._active_trial.suggest_float(
-                    name, low, high
+                    name, low, high, log=self.param_space.is_log(name)
                 )
                 
             elif isinstance(values, list):

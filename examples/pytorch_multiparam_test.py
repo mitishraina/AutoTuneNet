@@ -16,7 +16,7 @@ optimizer = optim.SGD(
 )
 
 param_space = ParameterSpace({
-    "lr": (1e-4, 1e-1),
+    "lr": {"low": 1e-4, "high": 1e-1, "log": True},
     "momentum": (0.0, 0.99),
     "weight_decay": (1e-6, 1e-2)
 })

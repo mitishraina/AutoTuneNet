@@ -17,23 +17,25 @@ def _to_number(value: Any, name: str) -> float:
 
 def normalize_parameter_space(
     raw_space: Dict[str, Any],
-) -> Dict[str, Union[Tuple[float, float], List[Any]]]:
+) -> Dict[str, Union[Tuple[float, float], Dict[str, Any], List[Any]]]:
     """
     Convert a config-style parameter space into the form ParameterSpace expects.
 
     Config files (YAML/JSON) have no tuple type, so the config syntax is:
-        lr: [1e-4, 1e-1]                  -> continuous range (low, high)
-        lr: {low: 1e-4, high: 1e-1}       -> continuous range (low, high)
-        batch_size: {choices: [32, 64]}   -> categorical choices
+        lr: [1e-4, 1e-1]                        -> continuous range (low, high), linear
+        lr: {low: 1e-4, high: 1e-1}             -> continuous range, linear
+        lr: {low: 1e-4, high: 1e-1, log: true}  -> continuous range, log scale
+        batch_size: {choices: [32, 64]}         -> categorical choices
 
     Tuples are passed through unchanged as ranges.
     """
     if not isinstance(raw_space, dict):
         raise ValueError("parameter_space must be a dictionary")
 
-    normalized: Dict[str, Union[Tuple[float, float], List[Any]]] = {}
+    normalized: Dict[str, Union[Tuple[float, float], Dict[str, Any], List[Any]]] = {}
 
     for name, spec in raw_space.items():
+        log = False
         if isinstance(spec, dict):
             if "choices" in spec:
                 choices = spec["choices"]
@@ -42,6 +44,9 @@ def normalize_parameter_space(
                 normalized[name] = list(choices)
                 continue
             if "low" in spec and "high" in spec:
+                log = spec.get("log", False)
+                if not isinstance(log, bool):
+                    raise ValueError(f"Parameter '{name}': 'log' must be true or false")
                 spec = [spec["low"], spec["high"]]
             else:
                 raise ValueError(
@@ -57,7 +62,12 @@ def normalize_parameter_space(
             low, high = (_to_number(v, name) for v in spec)
             if low > high:
                 raise ValueError(f"Parameter '{name}': low ({low}) must be <= high ({high})")
-            normalized[name] = (low, high)
+            if log:
+                if low <= 0:
+                    raise ValueError(f"Parameter '{name}': a log-scale range needs low > 0")
+                normalized[name] = {"low": low, "high": high, "log": True}
+            else:
+                normalized[name] = (low, high)
             continue
 
         raise ValueError(f"invalid parameter definition for {name}")
