@@ -17,6 +17,9 @@ tuning:
   warmup_metric_threshold: 0.5         # optional
   max_delta: 0.5
 
+search:
+  n_startup_trials: 3                  # random proposals before TPE uses its model
+
 metrics:
   smoothing_window: 3
 
@@ -49,6 +52,7 @@ In the Python `ParameterSpace` API used directly (not through a config), a **tup
 | `tuning` | `warmup_epochs` | `0` | int ≥ 0 | Epochs before tuning starts |
 | `tuning` | `warmup_metric_threshold` | `None` | number | Tuning starts only once `metric ≥ −threshold` |
 | `tuning` | `max_delta` | `None` | 0 < x < 1 | Max relative change per tuning step |
+| `search` | `n_startup_trials` | `10` | int ≥ 0 | Trials TPE samples at random before using its model. Runs with few tuning steps need a small value (e.g. 3), or every proposal is random |
 | `metrics` | `smoothing_window` | `3` | int > 0 | Moving-average window over observed metrics |
 | `stability` | `max_regression` | `0.2` | number ≥ 0 | Relative drop from best smoothed score counted as a regression |
 | `stability` | `patience` | `2` | int > 0 | Consecutive regressions before rollback |

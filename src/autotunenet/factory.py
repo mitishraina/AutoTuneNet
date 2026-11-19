@@ -16,6 +16,7 @@ def build_pytorch_autotunenet(
         parameter_space: {name: [low, high] | {choices: [...]}}
         tuning:    tune_n_steps, warmup_epochs, warmup_metric_threshold, max_delta
         metrics:   smoothing_window
+        search:    n_startup_trials
         stability: max_regression, patience, cooldown
     """
 
@@ -26,7 +27,8 @@ def build_pytorch_autotunenet(
     autotune_optimizer = BayesianOptimizer(
         param_space=param_space,
         seed=seed,
-        smoothing_window=config.metrics.get("smoothing_window", 3)
+        smoothing_window=config.metrics.get("smoothing_window", 3),
+        n_startup_trials=config.search.get("n_startup_trials", 10),
     )
 
     autotune_optimizer.guard = StabilityMonitor(

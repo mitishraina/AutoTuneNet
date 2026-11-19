@@ -87,6 +87,7 @@ class AutoTuneConfig:
         self.tuning = raw_config.get("tuning", {}) or {}
         self.stability = raw_config.get("stability", {}) or {}
         self.metrics = raw_config.get("metrics", {}) or {}
+        self.search = raw_config.get("search", {}) or {}
 
         self._validate()
 
@@ -123,6 +124,11 @@ class AutoTuneConfig:
         if max_regression is not None:
             if not isinstance(max_regression, (int, float)) or max_regression < 0:
                 raise ValueError("max_regression must be a non-negative number")
+
+        n_startup_trials = self.search.get("n_startup_trials")
+        if n_startup_trials is not None:
+            if not isinstance(n_startup_trials, int) or isinstance(n_startup_trials, bool) or n_startup_trials < 0:
+                raise ValueError("n_startup_trials must be a non-negative integer")
 
         patience = self.stability.get("patience")
         if patience is not None:

@@ -87,6 +87,7 @@ def main():
             "tuning": controller_cfg.get("tuning", {}),
             "metrics": {"smoothing_window": 5, **controller_cfg.get("metrics", {})},
             "stability": controller_cfg.get("stability", {}),
+            "search": controller_cfg.get("search", {}),
         }
         adapter = build_pytorch_autotunenet(
             torch_optimizer=optimizer,

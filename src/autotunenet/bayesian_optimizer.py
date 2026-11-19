@@ -13,12 +13,31 @@ class BayesianOptimizer(Optimizer):
     """
     Bayesian optimizer using Optuna's TPE sampler.(Using ask-tell interface)
     """
-    def __init__(self, param_space, seed: int | None = None, smoothing_window: int=5):
+    def __init__(
+        self,
+        param_space,
+        seed: int | None = None,
+        smoothing_window: int = 5,
+        n_startup_trials: int = 10,
+    ):
+        """
+        Args:
+            param_space: ParameterSpace to search.
+            seed: Seed for the TPE sampler.
+            smoothing_window: Moving-average window used by the stability check.
+            n_startup_trials: Number of completed trials TPE samples at random
+                before it starts using its model. Optuna's default is 10; online
+                runs with few tuning steps should use a smaller value, or every
+                proposal will be random.
+        """
         super().__init__(param_space)
+
+        if not isinstance(n_startup_trials, int) or isinstance(n_startup_trials, bool) or n_startup_trials < 0:
+            raise ValueError("n_startup_trials must be a non-negative integer")
         
         self.study = optuna.create_study(
             direction="maximize",
-            sampler=optuna.samplers.TPESampler(seed=seed)
+            sampler=optuna.samplers.TPESampler(seed=seed, n_startup_trials=n_startup_trials)
         )
         
         self._active_trial = None

@@ -15,3 +15,5 @@ stability:
   max_regression: 0.2
   patience: 2
   cooldown: 3
+search:
+  n_startup_trials: 10
