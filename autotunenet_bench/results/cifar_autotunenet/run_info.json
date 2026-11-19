@@ -1,7 +1,0 @@
-{
-  "config": "cifar_autotunenet.yaml",
-  "task": "cifar10",
-  "seed": 42,
-  "device": "mps",
-  "torch_version": "2.15.0"
-}

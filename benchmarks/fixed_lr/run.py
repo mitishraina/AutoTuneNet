@@ -1,56 +1,23 @@
+"""Fixed learning-rate baseline. Usage: python -m benchmarks.fixed_lr.run --task mnist|cifar10 --seed 42"""
 import torch
-import json
-from pathlib import Path
 
-from benchmarks.common.model import CNN
-from benchmarks.common.dataset import get_cifar_loaders
+from benchmarks.common.legacy import LegacyRun
 from benchmarks.common.train_utils import train_model
 
+
 def main():
-    config = {
-        "batch_size": 64,
-        "epochs": 10,
-        "learning_rate": 0.01, # Fixed learning rate for cifar dataset
-        "seed": 42,
-        "optimizer": "Adam"
-    }
-    
-    torch.manual_seed(config["seed"])
-    
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    train_loader, val_loader = get_cifar_loaders(
-        batch_size = config["batch_size"],
-        seed=config["seed"]
-    )
-    
-    model = CNN().to(device)
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=config["learning_rate"]
-    )
-    
-    history = train_model(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        optimizer=optimizer,
-        device=device,
-        epochs=config["epochs"],
-    )
-    
-    output_dir = Path(__file__).parent / "results"
-    output_dir.mkdir(exist_ok=True)
-    
-    with open(output_dir / "config.json", "w") as f:
-        json.dump(config, f, indent=2)
-        
-    with open(output_dir / "metrics.json", "w") as f:
-        json.dump(history, f, indent=2)
-        
-    print("Fixed LR benchmark completed.")
-    print(f"Final validation loss: {history['val_loss'][-1]:.4f}")
-    print(f"Final validation accuracy: {history['val_accuracy'][-1]:.4f}")
-    
+    run = LegacyRun(__file__, "Fixed learning-rate baseline")
+    lr = run.defaults["lr"]
+
+    model = run.new_model()
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    history = train_model(model, run.train_loader, run.val_loader, optimizer, run.device, run.epochs)
+
+    test = run.test_metrics(model)
+    run.save("metrics.json", {**history, **test, "epochs_trained": run.epochs})
+    run.save("run_info.json", run.run_info(method="fixed_lr", lr=lr, optimizer="Adam"))
+    print(f"Fixed LR ({lr}): test_accuracy={test['test_accuracy']:.4f} test_loss={test['test_loss']:.4f}")
+
+
 if __name__ == "__main__":
     main()

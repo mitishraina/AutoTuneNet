@@ -23,4 +23,3 @@ non_stationarity:
   type: gradient_noise
   start_epoch: 5
   std: 0.02
-  seed: 42

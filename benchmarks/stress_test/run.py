@@ -1,133 +1,68 @@
+"""
+Stress test: every method starts from a deliberately bad learning rate (0.1).
+Usage: python -m benchmarks.stress_test.run --task mnist|cifar10 --seed 42
+"""
 import torch
-import json
-from pathlib import Path
 
-from benchmarks.common.model import CNN
-from benchmarks.common.dataset import get_cifar_loaders
+from benchmarks.common.legacy import LegacyRun, autotunenet_config
 from benchmarks.common.train_utils import train_model
 
-from autotunenet.parameters import ParameterSpace
-from autotunenet.bayesian_optimizer import BayesianOptimizer
-from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
+BAD_LR = 0.1
 
-def run_fixed_lr(model, train_loader, val_loader, device, epochs):
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-    return train_model(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        optimizer=optimizer,
-        device=device,
-        epochs=epochs
-    )
-    
-def run_scheduler(model, train_loader, val_loader, device, epochs):
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-        optimizer,
-        T_max=epochs
-    )
-    
+
+def run_fixed(run):
+    model = run.new_model()
+    optimizer = torch.optim.Adam(model.parameters(), lr=BAD_LR)
+    history = train_model(model, run.train_loader, run.val_loader, optimizer, run.device, run.epochs)
+    return model, history, [BAD_LR] * run.epochs, 0
+
+
+def run_scheduler(run):
+    model = run.new_model()
+    optimizer = torch.optim.Adam(model.parameters(), lr=BAD_LR)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=run.epochs)
+    lrs = []
+
     def on_epoch_end(epoch, val_loss, val_accuracy):
         scheduler.step()
-        
-    return train_model(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        optimizer=optimizer,
-        device=device,
-        epochs=epochs,
-        on_epoch_end=on_epoch_end
-    )
-    
-def run_autotunenet(model, train_loader, val_loader, device, epochs):
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-    
-    param_space = ParameterSpace({
-        "lr": (1e-4, 1e-1)
-    })
-    
-    autotune_optimizer = BayesianOptimizer(
-        param_space=param_space,
-        smoothing_window=3
-    )
-    
-    adapter = PyTorchHyperParameterAdapter(
-        torch_optimizer=optimizer,
-        autotune_optimizer=autotune_optimizer,
-        tune_n_steps=1,
-        warmup_epochs=2,
-        max_delta=0.5
-    )
-    
+        lrs.append(optimizer.param_groups[0]["lr"])
+
+    history = train_model(model, run.train_loader, run.val_loader, optimizer, run.device, run.epochs,
+                          on_epoch_end=on_epoch_end)
+    return model, history, lrs, 0
+
+
+def run_autotunenet(run):
+    model = run.new_model()
+    optimizer = torch.optim.Adam(model.parameters(), lr=BAD_LR)
+    adapter = run.autotunenet_adapter(optimizer)
+    lrs, rollbacks = [], 0
+
     def on_epoch_end(epoch, val_loss, val_accuracy):
+        nonlocal rollbacks
         adapter.on_epoch_end(metric=-val_loss)
-        
-    return train_model(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        optimizer=optimizer,
-        device=device,
-        epochs=epochs,
-        on_epoch_end=on_epoch_end
-    )
-    
-    
+        rollbacks += int(adapter.last_rollback)
+        lrs.append(optimizer.param_groups[0]["lr"])
+
+    history = train_model(model, run.train_loader, run.val_loader, optimizer, run.device, run.epochs,
+                          on_epoch_end=on_epoch_end)
+    return model, history, lrs, rollbacks
+
+
 def main():
-    config = {
-        "batch_size": 64,
-        "epochs": 10,
-        "initial_lr": 0.1,
-        "seed": 42,
-        "stress_test": "bad_initial_lr"
-    }
-    
-    torch.manual_seed(config["seed"])
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    train_loader, val_loader = get_cifar_loaders(
-        batch_size=config["batch_size"],
-        seed=config["seed"]
-    )
-    
+    run = LegacyRun(__file__, "Stress test with a bad initial learning rate")
     results = {}
-    
-    # Fixed LR
-    model = CNN().to(device)
-    results["fixed_lr"] = run_fixed_lr(
-        model, train_loader, val_loader, device, config["epochs"]
-    )
-    
-    #Scheduler
-    model = CNN().to(device)
-    results["scheduler"] = run_scheduler(
-        model, train_loader, val_loader, device, config["epochs"]
-    )
-    
-    # AutoTuneNet
-    model = CNN().to(device)
-    results["autotunenet"] = run_autotunenet(
-        model, train_loader, val_loader, device, config["epochs"]
-    )
-    
-    output_dir = Path(__file__).parent / "results"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_dir / "config.json", "w") as f:
-        json.dump(config, f, indent=2)
-        
-    with open(output_dir / "results.json", "w") as f:
-        json.dump(results, f, indent=2)
-        
-    
-    print("Stress Test Benchmark completed.")
-    for key, history in results.items():
-        print(
-            f"{key}: final val_loss={history['val_loss'][-1]:.4f}"
-            f"val_accuracy={history['val_accuracy'][-1]:.4f}"
-        )
-        
+    for name, fn in [("fixed_lr", run_fixed), ("scheduler", run_scheduler), ("autotunenet", run_autotunenet)]:
+        model, history, lrs, rollbacks = fn(run)
+        results[name] = {**history, **run.test_metrics(model), "lr_history": lrs,
+                         "rollbacks": rollbacks, "epochs_trained": run.epochs}
+        print(f"{name}: test_accuracy={results[name]['test_accuracy']:.4f}")
+
+    run.save("results.json", results)
+    run.save("run_info.json", run.run_info(
+        method="stress_test", initial_lr=BAD_LR, autotunenet=autotunenet_config(run.task)
+    ))
+
+
 if __name__ == "__main__":
     main()
