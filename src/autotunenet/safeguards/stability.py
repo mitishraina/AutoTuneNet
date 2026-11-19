@@ -74,6 +74,10 @@ class StabilityMonitor:
         return True
     
     
+    def force_rollback(self) -> None:
+        """Enter rollback immediately, bypassing patience and cooldown."""
+        self._enter_rollback()
+
     def _enter_rollback(self):
         self._in_rollback = True
         self._patience = 0

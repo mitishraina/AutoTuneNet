@@ -1,3 +1,4 @@
+import math
 from typing import Dict, Any
 import optuna
 from optuna.distributions import CategoricalDistribution, FloatDistribution
@@ -76,10 +77,22 @@ class BayesianOptimizer(Optimizer):
         
         self.last_instability = False
         self.last_rollback = False
-        
-        smoothed_score = self.smoother.add(score)
-        best_score = self.best_score() if self.history else None
-        is_stable = self.guard.update(smoothed_score, best_score)
+
+        if isinstance(score, bool) or not isinstance(score, (int, float)):
+            raise ValueError("Score must be a numeric value")
+
+        if math.isfinite(score):
+            smoothed_score = self.smoother.add(score)
+            best_score = self.best_score() if self.history else None
+            is_stable = self.guard.update(smoothed_score, best_score)
+        else:
+            # A NaN/Inf score means training has diverged. Roll back at once
+            # (no patience, even during cooldown) and keep the value out of the
+            # smoother and history, where it would poison every later comparison.
+            self.tracker.logger.warning(f"Non-finite score {score}; rolling back immediately.")
+            smoothed_score = None
+            self.guard.force_rollback()
+            is_stable = False
         
         trial = self._active_trial
         self._active_trial = None

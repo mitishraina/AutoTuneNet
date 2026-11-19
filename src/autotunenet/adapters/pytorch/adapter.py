@@ -48,6 +48,9 @@ class PyTorchHyperParameterAdapter:
         self._epoch = 0
         self._step = 0
         self._last_good_params: Dict[str, float] = self._read_current_params()
+        # Fallback rollback target when nothing has been accepted yet
+        # (e.g. the first tuned epoch diverges).
+        self._initial_params: Dict[str, float] = dict(self._last_good_params)
         
         self.warmup_epochs = warmup_epochs
         self.warmup_metric_threshold = warmup_metric_threshold
@@ -98,7 +101,7 @@ class PyTorchHyperParameterAdapter:
                 self.last_instability = True
                 self.last_rollback = True
                 # Apply rollback params
-                rollback_params = self.autotune_optimizer.rollback_params
+                rollback_params = self.autotune_optimizer.rollback_params or self._initial_params
                 if rollback_params:
                     self._apply_params(rollback_params)
                     self.tracker.logger.info(
