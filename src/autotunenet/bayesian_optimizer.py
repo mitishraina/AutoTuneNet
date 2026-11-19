@@ -102,8 +102,11 @@ class BayesianOptimizer(Optimizer):
                 self.guard.exit_rollback()
                 self.tracker.log_rollback_end()
                 
+            # The smoothed score drives the stability check and history; TPE gets
+            # the raw score, which belongs to this config alone (the smoothing
+            # window also contains epochs that ran under earlier configs).
             super().observe(params, smoothed_score)
-            self._record_observation(trial, params, smoothed_score)
+            self._record_observation(trial, params, score)
             self.rollback.update(params)
             
             self.tracker.log_step(
@@ -116,15 +119,29 @@ class BayesianOptimizer(Optimizer):
         else:
             self.last_instability = True
             self.last_rollback = True
-            # Close the trial so it is not left RUNNING forever. FAIL trials are
-            # ignored by TPE.
-            self.study.tell(trial, state=TrialState.FAIL)
+            # Report the rejected config with the score it actually produced, so
+            # TPE learns that this region is harmful (a FAIL would be ignored).
+            if math.isfinite(score):
+                self._record_observation(trial, params, score)
+            else:
+                worst = self._worst_completed_value()
+                if worst is None:
+                    self.study.tell(trial, state=TrialState.FAIL)
+                else:
+                    self._record_observation(trial, params, worst)
             # Store rollback params for adapter to apply
             if self.rollback._last_good_params is not None:
                 self._rollback_params = self.rollback.rollback()
             self.tracker.log_rollback_start()
             return False
         
+    def _worst_completed_value(self):
+        values = [
+            t.value for t in self.study.trials
+            if t.state == TrialState.COMPLETE and t.value is not None and math.isfinite(t.value)
+        ]
+        return min(values) if values else None
+
     def _record_observation(self, trial, params: Dict[str, Any], score: float) -> None:
         """
         Tell the study which hyperparameters produced `score`.

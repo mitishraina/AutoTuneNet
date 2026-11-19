@@ -72,11 +72,11 @@ def test_rejected_trials_are_closed_not_left_running():
     for score in [-0.1, -0.1, -5.0, -5.0, -5.0, -5.0]:
         adapter.on_epoch_end(metric=score)
 
-    states = {t.state for t in autotune.study.trials}
     # Only the most recent proposal may still be waiting for its score.
     running = [t for t in autotune.study.trials if t.state == TrialState.RUNNING]
     assert len(running) <= 1
-    assert TrialState.FAIL in states
+    # Rejected configs are reported with their (bad) score, not dropped.
+    assert any(t.value == -5.0 for t in _completed(autotune.study))
 
 
 def test_applied_value_outside_search_range_is_recorded():
