@@ -170,14 +170,19 @@ class PyTorchHyperParameterAdapter:
     
     # apply new hyperparameters to the PyTorch optimizer
     def _apply_params(self, params: Dict[str, float]):
+        space = getattr(getattr(self.autotune_optimizer, "param_space", None), "space", None)
         for group in self.torch_optimizer.param_groups:
             for key, proposed_value in params.items():
                 if key not in group:
                     continue
-                
+
                 current_value = group[key]
-                
-                if (self.max_delta is not None and isinstance(current_value,(int, float)) and isinstance(proposed_value,(int, float))):
+
+                # Categorical values are applied exactly: clipping could produce a
+                # value that is not one of the allowed choices.
+                is_categorical = isinstance(space, dict) and isinstance(space.get(key), list)
+
+                if (self.max_delta is not None and not is_categorical and isinstance(current_value,(int, float)) and isinstance(proposed_value,(int, float))):
                     lower = current_value * (1 - self.max_delta)
                     upper = current_value * (1 + self.max_delta)
                     proposed_value = max(lower, min(upper, proposed_value))

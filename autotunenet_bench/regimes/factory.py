@@ -17,7 +17,8 @@ def build_regime(regime_config: dict):
     elif regime_type == "gradient_noise":
         return GradientNoiseRegime(
             start_epoch=regime_config["start_epoch"],
-            std=regime_config.get("std", 0.01)
+            std=regime_config.get("std", 0.01),
+            seed=regime_config.get("seed", 42),
         )
         
     raise ValueError(f"Unknown regime type: {regime_type}")

@@ -44,3 +44,6 @@ exclude = ["*.tests", "*.tests.*", "*_test"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Repo root on sys.path so tests can import the benchmark harness
+# (autotunenet_bench, benchmarks), which is not part of the installed package.
+pythonpath = ["."]
