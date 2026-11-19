@@ -103,7 +103,9 @@ class PyTorchHyperParameterAdapter:
                 # Apply rollback params
                 rollback_params = self.autotune_optimizer.rollback_params or self._initial_params
                 if rollback_params:
-                    self._apply_params(rollback_params)
+                    # Restore exactly: max_delta limits how far a *proposal* may
+                    # move, not how far a rollback may go back.
+                    self._apply_params(rollback_params, bounded=False)
                     self.tracker.logger.info(
                         f"[ROLLBACK] Applied rollback params: {rollback_params}"
                     )
@@ -172,7 +174,14 @@ class PyTorchHyperParameterAdapter:
         return params
     
     # apply new hyperparameters to the PyTorch optimizer
-    def _apply_params(self, params: Dict[str, float]):
+    def _apply_params(self, params: Dict[str, float], bounded: bool = True):
+        """
+        Write hyperparameters into the optimizer's param groups.
+
+        With bounded=True (proposals), numeric values are clipped to
+        current * (1 +/- max_delta). Rollbacks pass bounded=False so the
+        saved configuration is restored exactly.
+        """
         space = getattr(getattr(self.autotune_optimizer, "param_space", None), "space", None)
         for group in self.torch_optimizer.param_groups:
             for key, proposed_value in params.items():
@@ -185,7 +194,7 @@ class PyTorchHyperParameterAdapter:
                 # value that is not one of the allowed choices.
                 is_categorical = isinstance(space, dict) and isinstance(space.get(key), list)
 
-                if (self.max_delta is not None and not is_categorical and isinstance(current_value,(int, float)) and isinstance(proposed_value,(int, float))):
+                if (bounded and self.max_delta is not None and not is_categorical and isinstance(current_value,(int, float)) and isinstance(proposed_value,(int, float))):
                     lower = current_value * (1 - self.max_delta)
                     upper = current_value * (1 + self.max_delta)
                     proposed_value = max(lower, min(upper, proposed_value))
