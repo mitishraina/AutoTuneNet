@@ -107,7 +107,11 @@ class BayesianOptimizer(Optimizer):
             # window also contains epochs that ran under earlier configs).
             super().observe(params, smoothed_score)
             self._record_observation(trial, params, score)
-            self.rollback.update(params)
+            # Only a non-regressing step becomes the rollback target. A step
+            # accepted during cooldown, or one still within the patience
+            # allowance, may be a bad config.
+            if not getattr(self.guard, "last_step_regressed", False):
+                self.rollback.update(params)
             
             self.tracker.log_step(
                 step=self._step,
