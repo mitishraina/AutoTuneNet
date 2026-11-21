@@ -4,13 +4,15 @@ and an HTML page that embeds the SVG. Colour codes:
 
 - cell shade: rank within the column (lightest = rank 1 = best)
 - red triangle: worse than the Fixed LR baseline in that column
+- dashed "—": planned but not run yet (with a plan)
+- "2/3 seeds": some seeds done; the value is over those seeds
 - grey "n/a": the scenario does not apply to the method
 - dashed row: the Fixed LR baseline
 """
 import html
 
 from benchmarks.reporting.labels import BASELINE, METHOD_LABELS, label
-from benchmarks.reporting.table import Matrix, cost_text
+from benchmarks.reporting.table import NA, PARTIAL, PENDING, Matrix, cost_text
 
 RANK_COLOURS = ["#c8dbfa", "#9dbdf3", "#6f9de6", "#4a7fd6", "#3463b6", "#274d92", "#1f3d74", "#18305c"]
 GROUP_COLOURS = ["#5ab37a", "#e07b5f", "#c9a227", "#8f7ad6"]       # one bar colour per task
@@ -77,6 +79,11 @@ def render_svg(matrix: Matrix, title: str, subtitle: str = "") -> str:
     out.append(f'<path d="M{x} {ly - 6} L{x + 12} {ly - 6} L{x + 6} {ly + 5} Z" fill="{WORSE}"/>')
     out.append(_text(x + 18, ly + 4, f"worse than {label(METHOD_LABELS, BASELINE)}", size=12, fill=MUTED))
     x += 170
+    out.append(f'<rect x="{x}" y="{ly - 8}" width="26" height="16" rx="4" fill="none" stroke="{MUTED}" '
+               f'stroke-dasharray="3 2"/>')
+    out.append(_text(x + 13, ly + 4, "—", size=12, fill=MUTED, anchor="middle"))
+    out.append(_text(x + 34, ly + 4, "not run yet", size=12, fill=MUTED))
+    x += 116
     out.append(f'<rect x="{x}" y="{ly - 8}" width="26" height="16" rx="4" fill="{NA_FILL}" stroke="{BORDER}"/>')
     out.append(_text(x + 34, ly + 4, "n/a: scenario does not apply", size=12, fill=MUTED))
 
@@ -110,7 +117,13 @@ def render_svg(matrix: Matrix, title: str, subtitle: str = "") -> str:
             c = matrix.cell(method, task, scenario)
             x = gx0 + j * (CELL_W + GAP)
             dash = f' stroke="{MUTED}" stroke-dasharray="4 3"' if baseline else ""
-            if c.mean is None:
+            if c.status == PENDING:
+                out.append(f'<rect x="{x + 1}" y="{y + 1}" width="{CELL_W - 2}" height="{CELL_H - 2}" rx="6" '
+                           f'fill="{PANEL}" stroke="{MUTED}" stroke-dasharray="5 4"><title>{_esc(name)}: '
+                           f'not run yet</title></rect>')
+                out.append(_text(x + CELL_W / 2, y + CELL_H / 2 + 8, "—", size=24, fill=MUTED, anchor="middle"))
+                continue
+            if c.status == NA:
                 out.append(f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" rx="6" '
                            f'fill="{NA_FILL}" stroke="{BORDER}"/>')
                 out.append(_text(x + CELL_W / 2, y + CELL_H / 2 + 5, "n/a", size=13, fill=MUTED, anchor="middle"))
@@ -121,8 +134,8 @@ def render_svg(matrix: Matrix, title: str, subtitle: str = "") -> str:
                        f'{c.mean:.2f} ± {c.std:.2f} % over {c.n} seeds, rank {c.rank}</title></rect>')
             out.append(_text(x + CELL_W / 2, y + 30, f"{c.mean:.2f}", size=19, weight="700", fill=ink,
                              anchor="middle", family=MONO))
-            out.append(_text(x + CELL_W / 2, y + 50, f"#{c.rank} · ±{c.std:.2f}", size=11, fill=ink,
-                             anchor="middle"))
+            detail = f"#{c.rank} · {c.n}/{c.planned} seeds" if c.status == PARTIAL else f"#{c.rank} · ±{c.std:.2f}"
+            out.append(_text(x + CELL_W / 2, y + 50, detail, size=11, fill=ink, anchor="middle"))
             if c.worse_than_baseline:
                 out.append(f'<path d="M{x + 7} {y + 7} L{x + 21} {y + 7} L{x + 14} {y + 19} Z" fill="{WORSE}">'
                            f'<title>worse than {label(METHOD_LABELS, BASELINE)}</title></path>')
@@ -152,15 +165,17 @@ def render_markdown(matrix: Matrix, title: str = "Support matrix") -> str:
         cells = []
         for task, scenario in matrix.columns:
             c = matrix.cell(method, task, scenario)
-            if c.mean is None:
-                cells.append("n/a")
+            if c.status in (NA, PENDING):
+                cells.append("n/a" if c.status == NA else "—")
                 continue
             text = f"{c.mean:.2f} ± {c.std:.2f} (#{c.rank})"
+            if c.status == PARTIAL:
+                text += f" [{c.n}/{c.planned} seeds]"
             cells.append(("**" + text + "**" if c.rank == 1 else text) + (" ▼" if c.worse_than_baseline else ""))
         lines.append("| " + " | ".join([name] + cells + [cost_text(matrix.cost[method])]) + " |")
     lines.append("")
     lines.append("Test accuracy (%) on the held-out split, mean ± std over seeds; #rank within the column; "
-                 "**bold** = best; ▼ = worse than Fixed LR; n/a = the scenario does not apply to the method.")
+                 "**bold** = best; ▼ = worse than Fixed LR; — = not run yet; n/a = the scenario does not apply.")
     return "\n".join(lines) + "\n"
 
 
