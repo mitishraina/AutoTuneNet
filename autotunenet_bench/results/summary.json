@@ -1,0 +1,1397 @@
+{
+  "cifar_autotunenet": {
+    "setting": "cifar",
+    "controller": "autotunenet",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "final_val_accuracy": {
+        "mean": 0.7065999999999999,
+        "std": 0.02590521183082664,
+        "n": 3,
+        "values": [
+          0.714,
+          0.6778,
+          0.728
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.7065999999999999,
+        "std": 0.02590521183082664,
+        "n": 3,
+        "values": [
+          0.714,
+          0.6778,
+          0.728
+        ]
+      },
+      "final_val_loss": {
+        "mean": 1.0750084390242896,
+        "std": 0.04939411412987542,
+        "n": 3,
+        "values": [
+          1.0389646351337434,
+          1.1313110366463661,
+          1.054749645292759
+        ]
+      },
+      "test_accuracy": {
+        "mean": 0.7078333333333333,
+        "std": 0.018727608852529287,
+        "n": 3,
+        "values": [
+          0.7098,
+          0.6882,
+          0.7255
+        ]
+      },
+      "test_loss": {
+        "mean": 1.0694239645064632,
+        "std": 0.04734710481994171,
+        "n": 3,
+        "values": [
+          1.036417695540416,
+          1.1236721382865422,
+          1.0481820596924312
+        ]
+      },
+      "post_shift_degradation": {
+        "mean": 0.23071573505798973,
+        "std": 0.006282270515285733,
+        "n": 3,
+        "values": [
+          0.2273609027266501,
+          0.22682307511568067,
+          0.23796322733163844
+        ]
+      },
+      "loss_spike_magnitude": {
+        "mean": 0.23141480634609857,
+        "std": 0.04613692903374633,
+        "n": 3,
+        "values": [
+          0.1802518025040627,
+          0.2441364288330078,
+          0.2698561877012252
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.6666666666666666,
+        "std": 0.5773502691896257,
+        "n": 3,
+        "values": [
+          1,
+          0,
+          1
+        ]
+      },
+      "controller_ms_per_epoch": {
+        "mean": 2.3396000000000003,
+        "std": 1.052709537336867,
+        "n": 3,
+        "values": [
+          3.5228,
+          1.9893,
+          1.5067
+        ]
+      },
+      "cumulative_regret_vs_fixed_lr": {
+        "mean": -0.13860703557729706,
+        "std": 0.10782678890080272,
+        "n": 3,
+        "values": [
+          -0.06763326525688163,
+          -0.08550126105546929,
+          -0.2626865804195403
+        ]
+      }
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "final_val_accuracy": 0.714,
+        "best_val_accuracy": 0.714,
+        "final_val_loss": 1.0389646351337434,
+        "test_accuracy": 0.7098,
+        "test_loss": 1.036417695540416,
+        "post_shift_degradation": 0.2273609027266501,
+        "loss_spike_magnitude": 0.1802518025040627,
+        "rollbacks": 1,
+        "controller_ms_per_epoch": 3.5228,
+        "cumulative_regret_vs_fixed_lr": -0.06763326525688163
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "final_val_accuracy": 0.6778,
+        "best_val_accuracy": 0.6778,
+        "final_val_loss": 1.1313110366463661,
+        "test_accuracy": 0.6882,
+        "test_loss": 1.1236721382865422,
+        "post_shift_degradation": 0.22682307511568067,
+        "loss_spike_magnitude": 0.2441364288330078,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 1.9893,
+        "cumulative_regret_vs_fixed_lr": -0.08550126105546929
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "final_val_accuracy": 0.728,
+        "best_val_accuracy": 0.728,
+        "final_val_loss": 1.054749645292759,
+        "test_accuracy": 0.7255,
+        "test_loss": 1.0481820596924312,
+        "post_shift_degradation": 0.23796322733163844,
+        "loss_spike_magnitude": 0.2698561877012252,
+        "rollbacks": 1,
+        "controller_ms_per_epoch": 1.5067,
+        "cumulative_regret_vs_fixed_lr": -0.2626865804195403
+      }
+    ]
+  },
+  "cifar_fixed_lr": {
+    "setting": "cifar",
+    "controller": "fixed_lr",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "final_val_accuracy": {
+        "mean": 0.7050666666666666,
+        "std": 0.01204214820259796,
+        "n": 3,
+        "values": [
+          0.6916,
+          0.7088,
+          0.7148
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.7105333333333334,
+        "std": 0.008139615060513214,
+        "n": 3,
+        "values": [
+          0.7034,
+          0.7088,
+          0.7194
+        ]
+      },
+      "final_val_loss": {
+        "mean": 1.078562366962433,
+        "std": 0.02123923513350469,
+        "n": 3,
+        "values": [
+          1.056086318194866,
+          1.0813018307089806,
+          1.0982989519834518
+        ]
+      },
+      "test_accuracy": {
+        "mean": 0.7074666666666666,
+        "std": 0.012064963047325641,
+        "n": 3,
+        "values": [
+          0.6937,
+          0.7125,
+          0.7162
+        ]
+      },
+      "test_loss": {
+        "mean": 1.0763197694649678,
+        "std": 0.02048528822011553,
+        "n": 3,
+        "values": [
+          1.0539234416394294,
+          1.0809262409994873,
+          1.0941096257559861
+        ]
+      },
+      "post_shift_degradation": {
+        "mean": 0.2481255117058754,
+        "std": 0.026710168970495825,
+        "n": 3,
+        "values": [
+          0.2654246968030929,
+          0.21736287385225284,
+          0.2615889644622805
+        ]
+      },
+      "loss_spike_magnitude": {
+        "mean": 0.2898371343811353,
+        "std": 0.028172088868447142,
+        "n": 3,
+        "values": [
+          0.28051964938640594,
+          0.2675041198730468,
+          0.3214876338839531
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      },
+      "controller_ms_per_epoch": {
+        "mean": 0.007166666666666666,
+        "std": 0.0021733231083604053,
+        "n": 3,
+        "values": [
+          0.0095,
+          0.0068,
+          0.0052
+        ]
+      },
+      "cumulative_regret_vs_fixed_lr": null
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "final_val_accuracy": 0.6916,
+        "best_val_accuracy": 0.7034,
+        "final_val_loss": 1.056086318194866,
+        "test_accuracy": 0.6937,
+        "test_loss": 1.0539234416394294,
+        "post_shift_degradation": 0.2654246968030929,
+        "loss_spike_magnitude": 0.28051964938640594,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0095,
+        "cumulative_regret_vs_fixed_lr": null
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "final_val_accuracy": 0.7088,
+        "best_val_accuracy": 0.7088,
+        "final_val_loss": 1.0813018307089806,
+        "test_accuracy": 0.7125,
+        "test_loss": 1.0809262409994873,
+        "post_shift_degradation": 0.21736287385225284,
+        "loss_spike_magnitude": 0.2675041198730468,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0068,
+        "cumulative_regret_vs_fixed_lr": null
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "final_val_accuracy": 0.7148,
+        "best_val_accuracy": 0.7194,
+        "final_val_loss": 1.0982989519834518,
+        "test_accuracy": 0.7162,
+        "test_loss": 1.0941096257559861,
+        "post_shift_degradation": 0.2615889644622805,
+        "loss_spike_magnitude": 0.3214876338839531,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0052,
+        "cumulative_regret_vs_fixed_lr": null
+      }
+    ]
+  },
+  "cifar_scheduler": {
+    "setting": "cifar",
+    "controller": "scheduler",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "final_val_accuracy": {
+        "mean": 0.7185333333333332,
+        "std": 0.01693556415751581,
+        "n": 3,
+        "values": [
+          0.7198,
+          0.701,
+          0.7348
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.7195333333333332,
+        "std": 0.018401449218290778,
+        "n": 3,
+        "values": [
+          0.7198,
+          0.701,
+          0.7378
+        ]
+      },
+      "final_val_loss": {
+        "mean": 1.047625225285689,
+        "std": 0.02345887338817233,
+        "n": 3,
+        "values": [
+          1.0425943270325662,
+          1.0731914073228837,
+          1.0270899415016175
+        ]
+      },
+      "test_accuracy": {
+        "mean": 0.7208333333333333,
+        "std": 0.010153981156833669,
+        "n": 3,
+        "values": [
+          0.7243,
+          0.7094,
+          0.7288
+        ]
+      },
+      "test_loss": {
+        "mean": 1.043799586185423,
+        "std": 0.018064027975888106,
+        "n": 3,
+        "values": [
+          1.038816802109344,
+          1.0638320159308519,
+          1.0287499405160736
+        ]
+      },
+      "post_shift_degradation": {
+        "mean": 0.21663303901751838,
+        "std": 0.0034473448219447733,
+        "n": 3,
+        "values": [
+          0.21802774846553807,
+          0.21916450381278996,
+          0.21270686477422707
+        ]
+      },
+      "loss_spike_magnitude": {
+        "mean": 0.2580038259426753,
+        "std": 0.0333601067193721,
+        "n": 3,
+        "values": [
+          0.22592135220766074,
+          0.2555806949734688,
+          0.2925094306468964
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      },
+      "controller_ms_per_epoch": {
+        "mean": 0.028566666666666667,
+        "std": 0.010457692543450173,
+        "n": 3,
+        "values": [
+          0.0188,
+          0.0273,
+          0.0396
+        ]
+      },
+      "cumulative_regret_vs_fixed_lr": {
+        "mean": -0.25291010538736963,
+        "std": 0.1525308226335151,
+        "n": 3,
+        "values": [
+          -0.1527010694146157,
+          -0.1775783300399777,
+          -0.42845091670751556
+        ]
+      }
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "final_val_accuracy": 0.7198,
+        "best_val_accuracy": 0.7198,
+        "final_val_loss": 1.0425943270325662,
+        "test_accuracy": 0.7243,
+        "test_loss": 1.038816802109344,
+        "post_shift_degradation": 0.21802774846553807,
+        "loss_spike_magnitude": 0.22592135220766074,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0188,
+        "cumulative_regret_vs_fixed_lr": -0.1527010694146157
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "final_val_accuracy": 0.701,
+        "best_val_accuracy": 0.701,
+        "final_val_loss": 1.0731914073228837,
+        "test_accuracy": 0.7094,
+        "test_loss": 1.0638320159308519,
+        "post_shift_degradation": 0.21916450381278996,
+        "loss_spike_magnitude": 0.2555806949734688,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0273,
+        "cumulative_regret_vs_fixed_lr": -0.1775783300399777
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "final_val_accuracy": 0.7348,
+        "best_val_accuracy": 0.7378,
+        "final_val_loss": 1.0270899415016175,
+        "test_accuracy": 0.7288,
+        "test_loss": 1.0287499405160736,
+        "post_shift_degradation": 0.21270686477422707,
+        "loss_spike_magnitude": 0.2925094306468964,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0396,
+        "cumulative_regret_vs_fixed_lr": -0.42845091670751556
+      }
+    ]
+  },
+  "mnist_autotunenet": {
+    "setting": "mnist",
+    "controller": "autotunenet",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "final_val_accuracy": {
+        "mean": 0.959,
+        "std": 0.010369560153534867,
+        "n": 3,
+        "values": [
+          0.9706666666666667,
+          0.9508333333333333,
+          0.9555
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.9685555555555556,
+        "std": 0.012500370364883575,
+        "n": 3,
+        "values": [
+          0.981,
+          0.9686666666666667,
+          0.956
+        ]
+      },
+      "final_val_loss": {
+        "mean": 0.5263847984532092,
+        "std": 0.054569661098321225,
+        "n": 3,
+        "values": [
+          0.4689087962850611,
+          0.5774886170600323,
+          0.5327569820145344
+        ]
+      },
+      "test_accuracy": {
+        "mean": 0.9624333333333333,
+        "std": 0.009981148898465225,
+        "n": 3,
+        "values": [
+          0.9738,
+          0.9551,
+          0.9584
+        ]
+      },
+      "test_loss": {
+        "mean": 0.5207151456117124,
+        "std": 0.04906604844990222,
+        "n": 3,
+        "values": [
+          0.46720459658628816,
+          0.5635931670286094,
+          0.5313476732202397
+        ]
+      },
+      "post_shift_degradation": {
+        "mean": 0.4226439517899581,
+        "std": 0.043988814164659565,
+        "n": 3,
+        "values": [
+          0.374545880604258,
+          0.4608332643523178,
+          0.4325527104132987
+        ]
+      },
+      "loss_spike_magnitude": {
+        "mean": 0.44887075929717546,
+        "std": 0.034075116754601585,
+        "n": 3,
+        "values": [
+          0.41066122329992016,
+          0.47610799930593434,
+          0.45984305528567193
+        ]
+      },
+      "rollbacks": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          1,
+          1,
+          1
+        ]
+      },
+      "controller_ms_per_epoch": {
+        "mean": 1.1384666666666667,
+        "std": 0.6928661943935014,
+        "n": 3,
+        "values": [
+          1.9339,
+          0.6664,
+          0.8151
+        ]
+      },
+      "cumulative_regret_vs_fixed_lr": {
+        "mean": -0.1133095163704187,
+        "std": 0.08045926642768414,
+        "n": 3,
+        "values": [
+          -0.19115205984092024,
+          -0.11830973565736991,
+          -0.03046675361296594
+        ]
+      }
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "final_val_accuracy": 0.9706666666666667,
+        "best_val_accuracy": 0.981,
+        "final_val_loss": 0.4689087962850611,
+        "test_accuracy": 0.9738,
+        "test_loss": 0.46720459658628816,
+        "post_shift_degradation": 0.374545880604258,
+        "loss_spike_magnitude": 0.41066122329992016,
+        "rollbacks": 1,
+        "controller_ms_per_epoch": 1.9339,
+        "cumulative_regret_vs_fixed_lr": -0.19115205984092024
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "final_val_accuracy": 0.9508333333333333,
+        "best_val_accuracy": 0.9686666666666667,
+        "final_val_loss": 0.5774886170600323,
+        "test_accuracy": 0.9551,
+        "test_loss": 0.5635931670286094,
+        "post_shift_degradation": 0.4608332643523178,
+        "loss_spike_magnitude": 0.47610799930593434,
+        "rollbacks": 1,
+        "controller_ms_per_epoch": 0.6664,
+        "cumulative_regret_vs_fixed_lr": -0.11830973565736991
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "final_val_accuracy": 0.9555,
+        "best_val_accuracy": 0.956,
+        "final_val_loss": 0.5327569820145344,
+        "test_accuracy": 0.9584,
+        "test_loss": 0.5313476732202397,
+        "post_shift_degradation": 0.4325527104132987,
+        "loss_spike_magnitude": 0.45984305528567193,
+        "rollbacks": 1,
+        "controller_ms_per_epoch": 0.8151,
+        "cumulative_regret_vs_fixed_lr": -0.03046675361296594
+      }
+    ]
+  },
+  "mnist_fixed_lr": {
+    "setting": "mnist",
+    "controller": "fixed_lr",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "final_val_accuracy": {
+        "mean": 0.9458888888888889,
+        "std": 0.015833625728294293,
+        "n": 3,
+        "values": [
+          0.9616666666666667,
+          0.93,
+          0.946
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.9656666666666668,
+        "std": 0.009111957955224443,
+        "n": 3,
+        "values": [
+          0.9756666666666667,
+          0.9635,
+          0.9578333333333333
+        ]
+      },
+      "final_val_loss": {
+        "mean": 0.5587347086439741,
+        "std": 0.0059649020713203734,
+        "n": 3,
+        "values": [
+          0.5551724957024797,
+          0.5554106181606333,
+          0.5656210120688093
+        ]
+      },
+      "test_accuracy": {
+        "mean": 0.9466666666666667,
+        "std": 0.01205003457809701,
+        "n": 3,
+        "values": [
+          0.9593,
+          0.9353,
+          0.9454
+        ]
+      },
+      "test_loss": {
+        "mean": 0.5541830014144793,
+        "std": 0.010160707722566064,
+        "n": 3,
+        "values": [
+          0.5554374477286248,
+          0.543453315450887,
+          0.5636582410639259
+        ]
+      },
+      "post_shift_degradation": {
+        "mean": 0.45092767929048966,
+        "std": 0.009978518696196275,
+        "n": 3,
+        "values": [
+          0.4395446841017977,
+          0.45816559234356613,
+          0.4550727614261051
+        ]
+      },
+      "loss_spike_magnitude": {
+        "mean": 0.4711365163295715,
+        "std": 0.04963128446139617,
+        "n": 3,
+        "values": [
+          0.48006616681294034,
+          0.5156967908223259,
+          0.41764659135344817
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      },
+      "controller_ms_per_epoch": {
+        "mean": 0.002266666666666667,
+        "std": 5.773502691896248e-05,
+        "n": 3,
+        "values": [
+          0.0023,
+          0.0023,
+          0.0022
+        ]
+      },
+      "cumulative_regret_vs_fixed_lr": null
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "final_val_accuracy": 0.9616666666666667,
+        "best_val_accuracy": 0.9756666666666667,
+        "final_val_loss": 0.5551724957024797,
+        "test_accuracy": 0.9593,
+        "test_loss": 0.5554374477286248,
+        "post_shift_degradation": 0.4395446841017977,
+        "loss_spike_magnitude": 0.48006616681294034,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0023,
+        "cumulative_regret_vs_fixed_lr": null
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "final_val_accuracy": 0.93,
+        "best_val_accuracy": 0.9635,
+        "final_val_loss": 0.5554106181606333,
+        "test_accuracy": 0.9353,
+        "test_loss": 0.543453315450887,
+        "post_shift_degradation": 0.45816559234356613,
+        "loss_spike_magnitude": 0.5156967908223259,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0023,
+        "cumulative_regret_vs_fixed_lr": null
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "final_val_accuracy": 0.946,
+        "best_val_accuracy": 0.9578333333333333,
+        "final_val_loss": 0.5656210120688093,
+        "test_accuracy": 0.9454,
+        "test_loss": 0.5636582410639259,
+        "post_shift_degradation": 0.4550727614261051,
+        "loss_spike_magnitude": 0.41764659135344817,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0022,
+        "cumulative_regret_vs_fixed_lr": null
+      }
+    ]
+  },
+  "mnist_gradient_noise_autotunenet": {
+    "setting": "mnist_gradient_noise",
+    "controller": "autotunenet",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "final_val_accuracy": {
+        "mean": 0.9698888888888888,
+        "std": 0.011222909769917258,
+        "n": 3,
+        "values": [
+          0.9775,
+          0.9751666666666666,
+          0.957
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.9710555555555556,
+        "std": 0.012517025442409476,
+        "n": 3,
+        "values": [
+          0.981,
+          0.9751666666666666,
+          0.957
+        ]
+      },
+      "final_val_loss": {
+        "mean": 0.09913876167571185,
+        "std": 0.0239206135753867,
+        "n": 3,
+        "values": [
+          0.08281779883706823,
+          0.08800117627895893,
+          0.1265973099111084
+        ]
+      },
+      "test_accuracy": {
+        "mean": 0.9725666666666667,
+        "std": 0.007081195755896935,
+        "n": 3,
+        "values": [
+          0.977,
+          0.9763,
+          0.9644
+        ]
+      },
+      "test_loss": {
+        "mean": 0.08790674038495717,
+        "std": 0.01722089486264794,
+        "n": 3,
+        "values": [
+          0.07722914130654954,
+          0.07871794967969975,
+          0.10777313016862224
+        ]
+      },
+      "post_shift_degradation": {
+        "mean": 0.0005909695128203385,
+        "std": 0.012906394780687063,
+        "n": 3,
+        "values": [
+          0.00552150367640275,
+          -0.014053887089199218,
+          0.010305291951257484
+        ]
+      },
+      "loss_spike_magnitude": {
+        "mean": 0.0772316604010523,
+        "std": 0.03818602466146148,
+        "n": 3,
+        "values": [
+          0.12054682388763002,
+          0.04843125438832857,
+          0.06271690292719831
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.3333333333333333,
+        "std": 0.5773502691896257,
+        "n": 3,
+        "values": [
+          1,
+          0,
+          0
+        ]
+      },
+      "controller_ms_per_epoch": {
+        "mean": 1.4247666666666667,
+        "std": 0.3992683349995756,
+        "n": 3,
+        "values": [
+          1.3779,
+          1.051,
+          1.8454
+        ]
+      },
+      "cumulative_regret_vs_fixed_lr": {
+        "mean": -0.27642830015748,
+        "std": 0.21574666275470517,
+        "n": 3,
+        "values": [
+          -0.13248363334408148,
+          -0.5244874648769644,
+          -0.1723138022513941
+        ]
+      }
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "final_val_accuracy": 0.9775,
+        "best_val_accuracy": 0.981,
+        "final_val_loss": 0.08281779883706823,
+        "test_accuracy": 0.977,
+        "test_loss": 0.07722914130654954,
+        "post_shift_degradation": 0.00552150367640275,
+        "loss_spike_magnitude": 0.12054682388763002,
+        "rollbacks": 1,
+        "controller_ms_per_epoch": 1.3779,
+        "cumulative_regret_vs_fixed_lr": -0.13248363334408148
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "final_val_accuracy": 0.9751666666666666,
+        "best_val_accuracy": 0.9751666666666666,
+        "final_val_loss": 0.08800117627895893,
+        "test_accuracy": 0.9763,
+        "test_loss": 0.07871794967969975,
+        "post_shift_degradation": -0.014053887089199218,
+        "loss_spike_magnitude": 0.04843125438832857,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 1.051,
+        "cumulative_regret_vs_fixed_lr": -0.5244874648769644
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "final_val_accuracy": 0.957,
+        "best_val_accuracy": 0.957,
+        "final_val_loss": 0.1265973099111084,
+        "test_accuracy": 0.9644,
+        "test_loss": 0.10777313016862224,
+        "post_shift_degradation": 0.010305291951257484,
+        "loss_spike_magnitude": 0.06271690292719831,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 1.8454,
+        "cumulative_regret_vs_fixed_lr": -0.1723138022513941
+      }
+    ]
+  },
+  "mnist_gradient_noise_fixed_lr": {
+    "setting": "mnist_gradient_noise",
+    "controller": "fixed_lr",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "final_val_accuracy": {
+        "mean": 0.9523333333333334,
+        "std": 0.011905880899790647,
+        "n": 3,
+        "values": [
+          0.9658333333333333,
+          0.9478333333333333,
+          0.9433333333333334
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.9656666666666668,
+        "std": 0.009111957955224443,
+        "n": 3,
+        "values": [
+          0.9756666666666667,
+          0.9635,
+          0.9578333333333333
+        ]
+      },
+      "final_val_loss": {
+        "mean": 0.15944489968258638,
+        "std": 0.022355181443955072,
+        "n": 3,
+        "values": [
+          0.13504034306908502,
+          0.16436244396770255,
+          0.17893191201097153
+        ]
+      },
+      "test_accuracy": {
+        "mean": 0.9556666666666667,
+        "std": 0.010038094108611088,
+        "n": 3,
+        "values": [
+          0.9671,
+          0.9516,
+          0.9483
+        ]
+      },
+      "test_loss": {
+        "mean": 0.14708500481530729,
+        "std": 0.03183797408380571,
+        "n": 3,
+        "values": [
+          0.11043222545135238,
+          0.16294422659987381,
+          0.16787856239469567
+        ]
+      },
+      "post_shift_degradation": {
+        "mean": 0.06149845377076416,
+        "std": 0.0028757351845334466,
+        "n": 3,
+        "values": [
+          0.05878662187457481,
+          0.06451398674596816,
+          0.06119475269174954
+        ]
+      },
+      "loss_spike_magnitude": {
+        "mean": 0.06488209616034524,
+        "std": 0.02438147065121533,
+        "n": 3,
+        "values": [
+          0.0430626185558875,
+          0.09119926527776619,
+          0.06038440464738201
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      },
+      "controller_ms_per_epoch": {
+        "mean": 0.0022333333333333333,
+        "std": 5.773502691896248e-05,
+        "n": 3,
+        "values": [
+          0.0023,
+          0.0022,
+          0.0022
+        ]
+      },
+      "cumulative_regret_vs_fixed_lr": null
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "final_val_accuracy": 0.9658333333333333,
+        "best_val_accuracy": 0.9756666666666667,
+        "final_val_loss": 0.13504034306908502,
+        "test_accuracy": 0.9671,
+        "test_loss": 0.11043222545135238,
+        "post_shift_degradation": 0.05878662187457481,
+        "loss_spike_magnitude": 0.0430626185558875,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0023,
+        "cumulative_regret_vs_fixed_lr": null
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "final_val_accuracy": 0.9478333333333333,
+        "best_val_accuracy": 0.9635,
+        "final_val_loss": 0.16436244396770255,
+        "test_accuracy": 0.9516,
+        "test_loss": 0.16294422659987381,
+        "post_shift_degradation": 0.06451398674596816,
+        "loss_spike_magnitude": 0.09119926527776619,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0022,
+        "cumulative_regret_vs_fixed_lr": null
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "final_val_accuracy": 0.9433333333333334,
+        "best_val_accuracy": 0.9578333333333333,
+        "final_val_loss": 0.17893191201097153,
+        "test_accuracy": 0.9483,
+        "test_loss": 0.16787856239469567,
+        "post_shift_degradation": 0.06119475269174954,
+        "loss_spike_magnitude": 0.06038440464738201,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0022,
+        "cumulative_regret_vs_fixed_lr": null
+      }
+    ]
+  },
+  "mnist_gradient_noise_scheduler": {
+    "setting": "mnist_gradient_noise",
+    "controller": "scheduler",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "final_val_accuracy": {
+        "mean": 0.9735,
+        "std": 0.006173419725817412,
+        "n": 3,
+        "values": [
+          0.9805,
+          0.9711666666666666,
+          0.9688333333333333
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.9742777777777777,
+        "std": 0.0068725163864105454,
+        "n": 3,
+        "values": [
+          0.982,
+          0.972,
+          0.9688333333333333
+        ]
+      },
+      "final_val_loss": {
+        "mean": 0.09215656394185993,
+        "std": 0.010190401365028318,
+        "n": 3,
+        "values": [
+          0.08065581288092095,
+          0.09575198616515448,
+          0.10006189277950436
+        ]
+      },
+      "test_accuracy": {
+        "mean": 0.9758,
+        "std": 0.005311308689955802,
+        "n": 3,
+        "values": [
+          0.9818,
+          0.9739,
+          0.9717
+        ]
+      },
+      "test_loss": {
+        "mean": 0.08043950279228654,
+        "std": 0.014504969212193727,
+        "n": 3,
+        "values": [
+          0.06369084668172818,
+          0.08873623758509969,
+          0.08889142411003174
+        ]
+      },
+      "post_shift_degradation": {
+        "mean": -0.0021013145790565874,
+        "std": 0.013726422601176692,
+        "n": 3,
+        "values": [
+          0.013492029034990832,
+          -0.01235774320877217,
+          -0.007438229563388424
+        ]
+      },
+      "loss_spike_magnitude": {
+        "mean": 0.033816467636018824,
+        "std": 0.014999199204436382,
+        "n": 3,
+        "values": [
+          0.03687380736463386,
+          0.04705145186249246,
+          0.01752414368093015
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      },
+      "controller_ms_per_epoch": {
+        "mean": 0.02513333333333333,
+        "std": 0.006316908526592208,
+        "n": 3,
+        "values": [
+          0.0246,
+          0.0317,
+          0.0191
+        ]
+      },
+      "cumulative_regret_vs_fixed_lr": {
+        "mean": -0.4217524038858304,
+        "std": 0.08083485084038508,
+        "n": 3,
+        "values": [
+          -0.33379578607267096,
+          -0.4927861770748736,
+          -0.43867524850994666
+        ]
+      }
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "final_val_accuracy": 0.9805,
+        "best_val_accuracy": 0.982,
+        "final_val_loss": 0.08065581288092095,
+        "test_accuracy": 0.9818,
+        "test_loss": 0.06369084668172818,
+        "post_shift_degradation": 0.013492029034990832,
+        "loss_spike_magnitude": 0.03687380736463386,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0246,
+        "cumulative_regret_vs_fixed_lr": -0.33379578607267096
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "final_val_accuracy": 0.9711666666666666,
+        "best_val_accuracy": 0.972,
+        "final_val_loss": 0.09575198616515448,
+        "test_accuracy": 0.9739,
+        "test_loss": 0.08873623758509969,
+        "post_shift_degradation": -0.01235774320877217,
+        "loss_spike_magnitude": 0.04705145186249246,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0317,
+        "cumulative_regret_vs_fixed_lr": -0.4927861770748736
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "final_val_accuracy": 0.9688333333333333,
+        "best_val_accuracy": 0.9688333333333333,
+        "final_val_loss": 0.10006189277950436,
+        "test_accuracy": 0.9717,
+        "test_loss": 0.08889142411003174,
+        "post_shift_degradation": -0.007438229563388424,
+        "loss_spike_magnitude": 0.01752414368093015,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0191,
+        "cumulative_regret_vs_fixed_lr": -0.43867524850994666
+      }
+    ]
+  },
+  "mnist_scheduler": {
+    "setting": "mnist",
+    "controller": "scheduler",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "final_val_accuracy": {
+        "mean": 0.9678333333333334,
+        "std": 0.007131697631778214,
+        "n": 3,
+        "values": [
+          0.976,
+          0.9646666666666667,
+          0.9628333333333333
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.9708333333333333,
+        "std": 0.009968004369537115,
+        "n": 3,
+        "values": [
+          0.982,
+          0.9676666666666667,
+          0.9628333333333333
+        ]
+      },
+      "final_val_loss": {
+        "mean": 0.4775399338480429,
+        "std": 0.024724781672795855,
+        "n": 3,
+        "values": [
+          0.4490020062695158,
+          0.4910983725431118,
+          0.492519422731501
+        ]
+      },
+      "test_accuracy": {
+        "mean": 0.9711333333333334,
+        "std": 0.00695509405639731,
+        "n": 3,
+        "values": [
+          0.979,
+          0.9686,
+          0.9658
+        ]
+      },
+      "test_loss": {
+        "mean": 0.4726668073619753,
+        "std": 0.028394705087351372,
+        "n": 3,
+        "values": [
+          0.4401780091653204,
+          0.48508788711705786,
+          0.49273452580354776
+        ]
+      },
+      "post_shift_degradation": {
+        "mean": 0.4030276629873568,
+        "std": 0.005240345704705222,
+        "n": 3,
+        "values": [
+          0.40764750505715824,
+          0.40410212040977916,
+          0.3973333634951331
+        ]
+      },
+      "loss_spike_magnitude": {
+        "mean": 0.4622239278072528,
+        "std": 0.016038768383700795,
+        "n": 3,
+        "values": [
+          0.47271696186780515,
+          0.47019347177937315,
+          0.4437613497745801
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      },
+      "controller_ms_per_epoch": {
+        "mean": 0.031966666666666664,
+        "std": 0.02115994643975578,
+        "n": 3,
+        "values": [
+          0.0198,
+          0.0197,
+          0.0564
+        ]
+      },
+      "cumulative_regret_vs_fixed_lr": {
+        "mean": -0.34325364365239114,
+        "std": 0.06625956277702724,
+        "n": 3,
+        "values": [
+          -0.2668087170979483,
+          -0.37874488697010783,
+          -0.3842073268891172
+        ]
+      }
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "final_val_accuracy": 0.976,
+        "best_val_accuracy": 0.982,
+        "final_val_loss": 0.4490020062695158,
+        "test_accuracy": 0.979,
+        "test_loss": 0.4401780091653204,
+        "post_shift_degradation": 0.40764750505715824,
+        "loss_spike_magnitude": 0.47271696186780515,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0198,
+        "cumulative_regret_vs_fixed_lr": -0.2668087170979483
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "final_val_accuracy": 0.9646666666666667,
+        "best_val_accuracy": 0.9676666666666667,
+        "final_val_loss": 0.4910983725431118,
+        "test_accuracy": 0.9686,
+        "test_loss": 0.48508788711705786,
+        "post_shift_degradation": 0.40410212040977916,
+        "loss_spike_magnitude": 0.47019347177937315,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0197,
+        "cumulative_regret_vs_fixed_lr": -0.37874488697010783
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "final_val_accuracy": 0.9628333333333333,
+        "best_val_accuracy": 0.9628333333333333,
+        "final_val_loss": 0.492519422731501,
+        "test_accuracy": 0.9658,
+        "test_loss": 0.49273452580354776,
+        "post_shift_degradation": 0.3973333634951331,
+        "loss_spike_magnitude": 0.4437613497745801,
+        "rollbacks": 0,
+        "controller_ms_per_epoch": 0.0564,
+        "cumulative_regret_vs_fixed_lr": -0.3842073268891172
+      }
+    ]
+  }
+}

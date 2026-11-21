@@ -1,0 +1,10 @@
+{
+  "task": "mnist",
+  "seed": 44,
+  "device": "mps",
+  "torch_version": "2.15.0",
+  "batch_size": 64,
+  "method": "fixed_lr",
+  "lr": 0.01,
+  "optimizer": "Adam"
+}

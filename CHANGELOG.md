@@ -11,16 +11,29 @@ This project follows Semantic Versioning (https://semver.org)
 - `build_pytorch_autotunenet` now applies the `stability` section (`max_regression`, `patience`, `cooldown`) and accepts a `seed`.
 - `autotunenet_bench/run_benchmarks.py` chooses the dataset and model from the config's `task` field (`mnist` | `cifar10`). It previously always used CIFAR-10. The runner also applies the config's stability settings.
 - `defaults.yaml` is now included in the built wheel.
+- TPE is told the hyperparameters that actually ran, after `max_delta` clipping, not the unclipped proposal.
+- The gradient-noise benchmark regime now adds noise on every backward pass. Before, it had no effect on training.
+- A NaN/Inf score triggers an immediate rollback and never enters the history. Before, a NaN at the first tuning step disabled the stability guard.
+- Rollback restores the last good configuration exactly, instead of clipping it with `max_delta`.
+- Configurations rejected by the guard are reported to TPE with their real score, and TPE gets each configuration's own score rather than the smoothed average.
+- Regressing steps, during cooldown or within the patience allowance, no longer become the rollback target.
+- `step()`, `on_step_end()` and `on_validation_end()` score the configuration that produced the metric, using the same flow as `on_epoch_end()`. The metric warmup gate is latched once passed.
+- Post-shift benchmark metrics use a pre-shift baseline that is frozen at the shift.
+- The packaged `defaults.yaml` no longer disables tuning (`warmup_metric_threshold` is now 0.5, and values ≤ 0 are rejected).
 
 ### Changed
 - Categorical values in configs must be written as `{choices: [...]}`. A continuous range can also be written as `{low: a, high: b}`. Lists that don't have exactly two elements are rejected.
 - Config validation now covers `smoothing_window`, `max_regression`, `patience` and `cooldown`.
+- Benchmarks are reported as mean ± std over 3 seeds, with test accuracy on the held-out test split, on MNIST and CIFAR-10.
 - Development tooling moved to [uv](https://docs.astral.sh/uv/): a `dev` dependency group, a `uv.lock` lockfile, and `.python-version`. CI uses `uv sync --locked`. `requirements.txt` was removed.
 
 ### Added
 - `CITATION.cff` for GitHub's "Cite this repository".
 - `MNISTCNN` model and the `benchmarks/common/tasks.py` task registry.
 - Regression tests for config parsing, factory stability settings and `from_config`.
+- Log-scale search ranges: `{low, high, log: true}` in configs, and `{"low", "high", "log": True}` in Python. A warning is shown for wide linear ranges.
+- `n_startup_trials` (config section `search`) controls how many random trials TPE runs before using its model.
+- Benchmark runners take `--task`, `--device` (including Apple MPS) and `--seed`. Adds `autotunenet_bench/aggregate.py` for multi-seed summaries and `plot_results.py`, which also redraws the paper's figures.
 
 ## [v1.0.1] - 2025-12-28
 

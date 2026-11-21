@@ -238,59 +238,54 @@ In a config, `[low, high]` always means a continuous range on a linear scale, `{
 
 ## Benchmarks
 
-All results are single-seed (seed = 42), 10-epoch runs with a small CNN. They show how the controller behaves (stability, recovery, overhead). They are not state-of-the-art claims.
+All numbers are **mean ± std over 3 seeds (42, 43, 44)**, 10-epoch runs with small CNNs, trained on Apple MPS. **Test accuracy** is measured on the held-out test split, which no method uses for tuning or model selection. These results describe controller behaviour (stability, adaptation, overhead); they are not state-of-the-art claims. Per-seed values: [`autotunenet_bench/results/summary.json`](autotunenet_bench/results/summary.json) and [`benchmarks/results_summary.json`](benchmarks/results_summary.json).
 
-### AutoTuneNet-Bench: non-stationary training
+AutoTuneNet uses the same settings everywhere: log-scale `lr` search (`[1e-4, 1e-1]` on MNIST, `[1e-4, 1e-3]` on CIFAR-10), `n_startup_trials = 3`, `warmup_epochs = 2`, `max_delta = 0.5`, `smoothing_window = 3`, `max_regression = 0.2`, `patience = 2`, `cooldown = 3`. All methods use Adam.
 
-Setup: Adam optimizer, a shift injected at epoch 5, and the same controller settings for every AutoTuneNet run: `warmup_epochs = 2`, `max_delta = 0.5`, `smoothing_window = 3`, `max_regression = 0.2`, `patience = 2`, `cooldown = 3`. The learning-rate range is `[1e-4, 1e-1]` on MNIST and `[1e-4, 1e-3]` on CIFAR-10. The CIFAR-10 config also lists momentum and weight decay, but these have no effect: Adam has no `momentum` setting and a weight decay of 0 cannot move under `max_delta`. Each comparison was run on a single device (MNIST on CPU, CIFAR-10 on Apple MPS); the device and PyTorch version are recorded in each run's `run_info.json`. Full protocol: [autotunenet_bench/AUTOTUNENET_BENCH.md](autotunenet_bench/AUTOTUNENET_BENCH.md).
+### AutoTuneNet-Bench: a shift in the middle of training
 
-**Label noise** (30% of training labels randomized from epoch 5):
+The shift starts at epoch 5. Regret is the cumulative validation-loss difference against fixed LR, summed over epochs (negative is better).
 
-| Task | Controller | Final val acc ↑ | Best val acc ↑ | Final val loss ↓ | Rollbacks | Overhead / epoch |
+| Setting | Controller | Test acc ↑ | Final val loss ↓ | Post-shift degradation ↓ | Rollbacks | Regret vs fixed LR ↓ |
 |---|---|---|---|---|---|---|
-| MNIST | Fixed LR (1e-2) | 95.38 | 97.25 | 0.556 | 0 | 0.003 ms |
-| MNIST | Cosine scheduler | **97.80** | **97.80** | **0.435** | 0 | 0.017 ms |
-| MNIST | AutoTuneNet | 94.22 | 96.73 | 0.602 | 1 | 0.68 ms |
-| CIFAR-10 | Fixed LR (1e-3) | 69.16 | 70.34 | 1.056 | 0 | 0.006 ms |
-| CIFAR-10 | AutoTuneNet | **70.54** | **70.54** | **1.053** | 1 | 2.0 ms |
+| MNIST, 30% label noise | Fixed LR (1e-2) | 94.67 ± 1.21 | 0.559 ± 0.006 | 0.451 ± 0.010 | 0 | — |
+| | Cosine scheduler | **97.11 ± 0.70** | **0.478 ± 0.025** | **0.403 ± 0.005** | 0 | **−0.343 ± 0.066** |
+| | AutoTuneNet | 96.24 ± 1.00 | 0.526 ± 0.055 | 0.423 ± 0.044 | 1.0 | −0.113 ± 0.080 |
+| MNIST, gradient noise (σ = 0.02) | Fixed LR (1e-2) | 95.57 ± 1.00 | 0.159 ± 0.022 | 0.061 ± 0.003 | 0 | — |
+| | Cosine scheduler | **97.58 ± 0.53** | **0.092 ± 0.010** | **−0.002 ± 0.014** | 0 | **−0.422 ± 0.081** |
+| | AutoTuneNet | 97.26 ± 0.71 | 0.099 ± 0.024 | 0.001 ± 0.013 | 0.3 | −0.276 ± 0.216 |
+| CIFAR-10, 30% label noise | Fixed LR (1e-3) | 70.75 ± 1.21 | 1.079 ± 0.021 | 0.248 ± 0.027 | 0 | — |
+| | Cosine scheduler | **72.08 ± 1.02** | **1.048 ± 0.023** | **0.217 ± 0.003** | 0 | **−0.253 ± 0.153** |
+| | AutoTuneNet | 70.78 ± 1.87 | 1.075 ± 0.049 | 0.231 ± 0.006 | 0.7 | −0.139 ± 0.108 |
 
-There is no scheduler config for CIFAR-10 yet.
+AutoTuneNet's controller overhead is about 1 ms per epoch.
 
-**Gradient noise** (Gaussian noise, σ = 0.02, added to every gradient from epoch 5):
+### Stationary training and stress test (`benchmarks/`)
 
-| Task | Controller | Final val acc ↑ | Best val acc ↑ | Final val loss ↓ | Rollbacks | Overhead / epoch |
-|---|---|---|---|---|---|---|
-| MNIST | Fixed LR (1e-2) | 95.98 | 97.25 | 0.147 | 0 | 0.003 ms |
-| MNIST | Cosine scheduler | **98.02** | **98.10** | **0.077** | 0 | 0.017 ms |
-| MNIST | AutoTuneNet | 11.10 | 96.73 | 2.301 | 1 | 0.74 ms |
+| Method | MNIST test acc ↑ | CIFAR-10 test acc ↑ | Training epochs | Restarts |
+|---|---|---|---|---|
+| Fixed LR | 96.33 ± 0.56 | **75.38 ± 0.38** | 10 | 0 |
+| Cosine scheduler | 98.15 ± 0.53 | 73.72 ± 0.85 | 10 | 0 |
+| AutoTuneNet | 98.05 ± 0.61 | 72.86 ± 2.04 | 10 | 0 |
+| Offline HPO (8 trials × 3 epochs, then a 10-epoch run) | **98.98 ± 0.19** | 74.60 ± 0.68 | 34 | 8 |
+| *Stress test, initial LR = 0.1:* Fixed LR / Scheduler / AutoTuneNet | 10.00 / 11.35 / 11.35 | 10.00 / 10.00 / 10.00 | 10 | 0 |
 
-Cumulative regret vs. fixed LR (sum over epochs of the val-loss difference, controller − baseline; negative is better): +0.630 on MNIST with label noise and +10.934 on MNIST with gradient noise (AutoTuneNet's validation loss was higher than fixed LR's at every epoch after warmup), and −0.092 on CIFAR-10 (lower in 4 of the 5 post-shift epochs). ([results/compute_regret/](autotunenet_bench/results/compute_regret/))
-
-> **Note on post-shift metrics.** `stability_metrics.json` also reports post-shift degradation and loss spike. These columns are left out above because the code that computes them uses a contaminated baseline (it includes post-shift losses). They will return once that is fixed.
-
-### Legacy benchmarks (`benchmarks/`)
-
-Stationary MNIST, Adam, batch size 64, 10 epochs, seed 42. Details in [benchmarks/BENCHMARKS.md](benchmarks/BENCHMARKS.md). The scripts in `benchmarks/` are currently set to CIFAR-10. The stored results below come from their earlier MNIST configuration and predate the fixes above. The AutoTuneNet rows in particular were produced before TPE was told the values that actually ran, so treat them as historical.
-
-| Benchmark | Method | Final val acc ↑ | Best val acc ↑ | Final val loss ↓ | Restarts |
-|---|---|---|---|---|---|
-| 1. Baseline | Fixed LR (1e-2) | 97.63 | 97.63 | 0.091 | 0 |
-| 2. Scheduler | CosineAnnealingLR | **98.62** | 98.62 | **0.055** | 0 |
-| 4. Offline HPO | Optuna, 8 trials × 3 epochs | 98.17 | **99.08** | 0.106 | 8 |
-| — | AutoTuneNet (`lr ∈ [1e-4, 1e-1]`, warmup 2, `max_delta` 0.5) | 9.58 | 97.28 | 2.313 | 0 |
-| 3. Stress test (initial LR = 0.1) | Fixed LR / Cosine / AutoTuneNet | 9.58 / 11.10 / 9.58 | 11.10 (all) | 2.31 / 2.30 / 2.31 | 0 |
+The four figures from the original paper, regenerated from these runs (MNIST shown; CIFAR-10 versions are in [`benchmarks/final_results_graph/images/paper_figures/`](benchmarks/final_results_graph/images/paper_figures/)):
 
 <p align="center">
-  <img src="benchmarks/final_results_graph/images/plot_val_accuracy.png" width="45%" alt="Validation accuracy" />
-  <img src="benchmarks/final_results_graph/images/plot_lr_history.png" width="45%" alt="Learning-rate history" />
+  <img src="benchmarks/final_results_graph/images/paper_figures/mnist_fig1_val_loss.png" width="45%" alt="MNIST validation loss vs epoch, mean and std over 3 seeds" />
+  <img src="benchmarks/final_results_graph/images/paper_figures/mnist_fig2_val_accuracy.png" width="45%" alt="MNIST validation accuracy vs epoch, mean and std over 3 seeds" />
+  <img src="benchmarks/final_results_graph/images/paper_figures/mnist_fig3_learning_rate.png" width="45%" alt="MNIST learning rate vs epoch for the scheduler and AutoTuneNet" />
+  <img src="benchmarks/final_results_graph/images/paper_figures/mnist_fig4_stress_test.png" width="45%" alt="MNIST stress test validation loss with a bad initial learning rate" />
 </p>
 
 **Observations.**
-1. **The cosine scheduler is the strongest controller in every MNIST setting.** It has the best final accuracy and loss under both label noise and gradient noise.
-2. **On CIFAR-10, AutoTuneNet beat fixed LR.** It finished at 70.54% against 69.16%, with lower validation loss in 4 of the 5 epochs after the shift. Its search range sits below the starting learning rate, so its proposals moved the learning rate down (0.001 to about 0.0005), which suits noisy labels.
-3. **Learning-rate drift is AutoTuneNet's main failure mode on MNIST.** In both MNIST runs the learning rate climbed from 0.01 to 0.034 in three tuning steps (`max_delta = 0.5` allows ×1.5 per step) and validation loss doubled before the shift. The stability monitor rolled back once, but only one step (to 0.0225). Under gradient noise the model then diverged to chance and did not recover.
-4. **The tuner has not left its random phase.** Optuna's TPE sampler makes random proposals for its first 10 trials (`n_startup_trials`). A 10-epoch run with 2 warmup epochs gets at most 8 tuning steps, so every proposal in these benchmarks is a random draw, not a model-based one. The Bayesian part of the method is not exercised at this run length.
-5. **Rollback can't repair lost capacity.** Restoring hyperparameters doesn't recover weights that have already diverged (gradient-noise run, legacy stress test).
+1. **Under a shift, AutoTuneNet beats a fixed learning rate on MNIST and matches it on CIFAR-10.** Its regret against fixed LR is negative in all three settings, by +1.6 and +1.7 points of test accuracy on MNIST.
+2. **The cosine scheduler is still the strongest controller in every shift setting.** Under gradient noise AutoTuneNet is within one standard deviation of it (97.26 ± 0.71 vs 97.58 ± 0.53).
+3. **AutoTuneNet learns a decaying schedule.** On stationary MNIST it lowers the learning rate from 0.01 to about 0.001 (Fig. 3), much like the cosine schedule, and reaches the same accuracy (98.05 vs 98.15) without being told the schedule.
+4. **On stationary CIFAR-10 a fixed learning rate wins.** Ten epochs are too few for this model to benefit from decay; AutoTuneNet lowers the learning rate early and has the lowest mean and the largest spread (72.86 ± 2.04).
+5. **Offline HPO finds the best MNIST configuration, at 3.4× the training cost and 8 restarts.**
+6. **No method recovers from the stress test.** Every method ends at chance accuracy. Rolling back hyperparameters can't repair weights that have already diverged.
 
 ## Reproducing Results
 
@@ -298,28 +293,32 @@ Stationary MNIST, Adam, batch size 64, 10 epochs, seed 42. Details in [benchmark
 # Unit tests
 uv run pytest
 
-# AutoTuneNet-Bench: one config = one run; outputs go to autotunenet_bench/results/<config_name>/
-# The dataset and model are chosen by the `task` field (mnist | cifar10) in each config.
-# --device auto|cpu|cuda|mps (default auto: CUDA, then Apple MPS, then CPU). Compare runs only within one device.
-uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/mnist_fixed_lr.yaml
-uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/mnist_scheduler.yaml
-uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/mnist_autotunenet.yaml
-uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/mnist_gradient_noise_fixed_lr.yaml
-uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/mnist_gradient_noise_scheduler.yaml
-uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/mnist_gradient_noise_autotunenet.yaml
-uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/cifar_fixed_lr.yaml
-uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/cifar_autotunenet.yaml
-uv run python -m autotunenet_bench.metrics.compute_regret
+# AutoTuneNet-Bench: one run per config and seed -> autotunenet_bench/results/<config>/seed_<seed>/
+# The `task` field (mnist | cifar10) in each config picks the dataset and model.
+# --device auto|cpu|cuda|mps (auto: CUDA, then Apple MPS, then CPU). Compare runs only within one device.
+for cfg in mnist_fixed_lr mnist_scheduler mnist_autotunenet \
+           mnist_gradient_noise_fixed_lr mnist_gradient_noise_scheduler mnist_gradient_noise_autotunenet \
+           cifar_fixed_lr cifar_scheduler cifar_autotunenet; do
+  for seed in 42 43 44; do
+    uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/$cfg.yaml --seed $seed
+  done
+done
 
-# Legacy benchmarks
-uv run python -m benchmarks.fixed_lr.run
-uv run python -m benchmarks.scheduler.run
-uv run python -m benchmarks.offline_hpo.run
-uv run python -m benchmarks.autotunenet.run
-uv run python -m benchmarks.stress_test.run
+# Stationary benchmarks: one run per script, task and seed -> benchmarks/<script>/results/<task>/seed_<seed>/
+for task in mnist cifar10; do
+  for script in fixed_lr scheduler autotunenet offline_hpo stress_test; do
+    for seed in 42 43 44; do
+      uv run python -m benchmarks.$script.run --task $task --seed $seed
+    done
+  done
+done
+
+# Mean ± std tables (writes the summary JSON files) and figures
+uv run python -m autotunenet_bench.aggregate
+uv run python -m benchmarks.final_results_graph.plot_results
 ```
 
-Each AutoTuneNet-Bench run writes `epoch_metric.json`, `stability_metrics.json`, `compute_metrics.json` and `run_info.json` (device, PyTorch version, seed). All configs set a fixed seed. MNIST and CIFAR-10 are downloaded by `torchvision` into `data/`.
+Each AutoTuneNet-Bench run writes `epoch_metric.json`, `stability_metrics.json`, `compute_metrics.json`, `test_metrics.json` and `run_info.json` (device, PyTorch version, seed). The full run takes about 2–3 hours on an Apple M-series GPU. MNIST and CIFAR-10 are downloaded by `torchvision` into `data/`.
 
 ## Repository Structure
 
@@ -346,10 +345,10 @@ AutoTuneNet/
 
 ## Limitations
 
-- **Single seed, small models.** The reported numbers come from one seed with lightweight CNNs. Treat them as qualitative evidence.
+- **Three seeds, small models, short runs.** The numbers come from 3 seeds, 10-epoch runs and lightweight CNNs. Several differences are within one standard deviation.
 - **Hyperparameter-only rollback.** Model weights and optimizer state are not restored, so divergence that has already happened is not undone.
 - **Epoch-level control.** Tuning happens at a coarse granularity (per epoch or per `tune_n_steps` calls). Instability inside an epoch isn't detected until the epoch ends.
-- **Short runs keep TPE in its random phase.** With the default 10 start-up trials, runs with fewer than about 10 tuning steps never use the TPE model.
+- **Few tuning steps.** Tuning once per epoch gives TPE at most 8 observations in a 10-epoch run. The benchmarks lower `n_startup_trials` to 3 so the model is used at all; the library default stays at Optuna's 10.
 - **Non-stationary objective.** TPE assumes a stationary objective, but here the score of a configuration depends on *when* it is evaluated. Smoothing and bounded updates reduce this mismatch but don't remove it.
 
 ## Contributing

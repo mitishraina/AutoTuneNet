@@ -1,0 +1,172 @@
+[
+  {
+    "epoch": 0,
+    "train_loss": 0.31816359825644164,
+    "val_loss": 0.24679754036379623,
+    "val_accuracy": 0.9235,
+    "hyperparams": {
+      "lr": 0.009755282581475769,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  },
+  {
+    "epoch": 1,
+    "train_loss": 0.1759551622225104,
+    "val_loss": 0.22603657381965758,
+    "val_accuracy": 0.9318333333333333,
+    "hyperparams": {
+      "lr": 0.009045084971874737,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  },
+  {
+    "epoch": 2,
+    "train_loss": 0.14446785259341946,
+    "val_loss": 0.150814432888589,
+    "val_accuracy": 0.9538333333333333,
+    "hyperparams": {
+      "lr": 0.007938926261462366,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  },
+  {
+    "epoch": 3,
+    "train_loss": 0.12584915658419343,
+    "val_loss": 0.13911659358703393,
+    "val_accuracy": 0.9628333333333333,
+    "hyperparams": {
+      "lr": 0.006545084971874737,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  },
+  {
+    "epoch": 4,
+    "train_loss": 0.1029843078397647,
+    "val_loss": 0.11934224553802546,
+    "val_accuracy": 0.9626666666666667,
+    "hyperparams": {
+      "lr": 0.005,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  },
+  {
+    "epoch": 5,
+    "train_loss": 0.1281685563172898,
+    "val_loss": 0.1368663892189556,
+    "val_accuracy": 0.9581666666666667,
+    "hyperparams": {
+      "lr": 0.003454915028125263,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  },
+  {
+    "epoch": 6,
+    "train_loss": 0.10263759916029226,
+    "val_loss": 0.11220278608751424,
+    "val_accuracy": 0.9656666666666667,
+    "hyperparams": {
+      "lr": 0.0020610737385376348,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  },
+  {
+    "epoch": 7,
+    "train_loss": 0.08489761995626129,
+    "val_loss": 0.10954319277500853,
+    "val_accuracy": 0.9676666666666667,
+    "hyperparams": {
+      "lr": 0.0009549150281252633,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  },
+  {
+    "epoch": 8,
+    "train_loss": 0.07375106647593009,
+    "val_loss": 0.10084581901220248,
+    "val_accuracy": 0.9678333333333333,
+    "hyperparams": {
+      "lr": 0.00024471741852423234,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  },
+  {
+    "epoch": 9,
+    "train_loss": 0.06617064307933736,
+    "val_loss": 0.10006189277950436,
+    "val_accuracy": 0.9688333333333333,
+    "hyperparams": {
+      "lr": 0.0,
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "capturable": false,
+      "differentiable": false,
+      "decoupled_weight_decay": false,
+      "initial_lr": 0.01
+    }
+  }
+]

@@ -1,0 +1,1192 @@
+{
+  "fixed_lr/cifar10": {
+    "method": "fixed_lr",
+    "task": "cifar10",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.7538333333333332,
+        "std": 0.003784617990409778,
+        "n": 3,
+        "values": [
+          0.7582,
+          0.7518,
+          0.7515
+        ]
+      },
+      "test_loss": {
+        "mean": 0.6957595910452589,
+        "std": 0.010147492961698359,
+        "n": 3,
+        "values": [
+          0.6843020866943311,
+          0.6993632999402059,
+          0.7036133865012398
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.7552666666666666,
+        "std": 0.01080987203131161,
+        "n": 3,
+        "values": [
+          0.7594,
+          0.743,
+          0.7634
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.7552666666666666,
+        "std": 0.01080987203131161,
+        "n": 3,
+        "values": [
+          0.7594,
+          0.743,
+          0.7634
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": null
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "test_accuracy": 0.7582,
+        "test_loss": 0.6843020866943311,
+        "final_val_accuracy": 0.7594,
+        "best_val_accuracy": 0.7594,
+        "epochs_trained": 10,
+        "rollbacks": null
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "test_accuracy": 0.7518,
+        "test_loss": 0.6993632999402059,
+        "final_val_accuracy": 0.743,
+        "best_val_accuracy": 0.743,
+        "epochs_trained": 10,
+        "rollbacks": null
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "test_accuracy": 0.7515,
+        "test_loss": 0.7036133865012398,
+        "final_val_accuracy": 0.7634,
+        "best_val_accuracy": 0.7634,
+        "epochs_trained": 10,
+        "rollbacks": null
+      }
+    ]
+  },
+  "fixed_lr/mnist": {
+    "method": "fixed_lr",
+    "task": "mnist",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.9632999999999999,
+        "std": 0.00555607775323564,
+        "n": 3,
+        "values": [
+          0.9687,
+          0.9576,
+          0.9636
+        ]
+      },
+      "test_loss": {
+        "mean": 0.12169181863033864,
+        "std": 0.013137358580822567,
+        "n": 3,
+        "values": [
+          0.11100346367408753,
+          0.13635852214640043,
+          0.11771347007052795
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.9622222222222222,
+        "std": 0.0017821127702606348,
+        "n": 3,
+        "values": [
+          0.9633333333333334,
+          0.9601666666666666,
+          0.9631666666666666
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.9692777777777778,
+        "std": 0.008126317556989626,
+        "n": 3,
+        "values": [
+          0.9785,
+          0.9661666666666666,
+          0.9631666666666666
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": null
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "test_accuracy": 0.9687,
+        "test_loss": 0.11100346367408753,
+        "final_val_accuracy": 0.9633333333333334,
+        "best_val_accuracy": 0.9785,
+        "epochs_trained": 10,
+        "rollbacks": null
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "test_accuracy": 0.9576,
+        "test_loss": 0.13635852214640043,
+        "final_val_accuracy": 0.9601666666666666,
+        "best_val_accuracy": 0.9661666666666666,
+        "epochs_trained": 10,
+        "rollbacks": null
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "test_accuracy": 0.9636,
+        "test_loss": 0.11771347007052795,
+        "final_val_accuracy": 0.9631666666666666,
+        "best_val_accuracy": 0.9631666666666666,
+        "epochs_trained": 10,
+        "rollbacks": null
+      }
+    ]
+  },
+  "scheduler/cifar10": {
+    "method": "scheduler",
+    "task": "cifar10",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.7372333333333333,
+        "std": 0.008527797683653922,
+        "n": 3,
+        "values": [
+          0.7417,
+          0.7274,
+          0.7426
+        ]
+      },
+      "test_loss": {
+        "mean": 0.7442216345026523,
+        "std": 0.028528816033465392,
+        "n": 3,
+        "values": [
+          0.7275663667087313,
+          0.7771631848963001,
+          0.7279353519029255
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.7353333333333333,
+        "std": 0.0184719607333205,
+        "n": 3,
+        "values": [
+          0.7406,
+          0.7148,
+          0.7506
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.7374,
+        "std": 0.01628619046922887,
+        "n": 3,
+        "values": [
+          0.7424,
+          0.7192,
+          0.7506
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": null
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "test_accuracy": 0.7417,
+        "test_loss": 0.7275663667087313,
+        "final_val_accuracy": 0.7406,
+        "best_val_accuracy": 0.7424,
+        "epochs_trained": 10,
+        "rollbacks": null
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "test_accuracy": 0.7274,
+        "test_loss": 0.7771631848963001,
+        "final_val_accuracy": 0.7148,
+        "best_val_accuracy": 0.7192,
+        "epochs_trained": 10,
+        "rollbacks": null
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "test_accuracy": 0.7426,
+        "test_loss": 0.7279353519029255,
+        "final_val_accuracy": 0.7506,
+        "best_val_accuracy": 0.7506,
+        "epochs_trained": 10,
+        "rollbacks": null
+      }
+    ]
+  },
+  "scheduler/mnist": {
+    "method": "scheduler",
+    "task": "mnist",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.9814666666666666,
+        "std": 0.005326662494783539,
+        "n": 3,
+        "values": [
+          0.9876,
+          0.9788,
+          0.978
+        ]
+      },
+      "test_loss": {
+        "mean": 0.06874378600089937,
+        "std": 0.012192585280408381,
+        "n": 3,
+        "values": [
+          0.054665324185814324,
+          0.07570043052381696,
+          0.07586560329306681
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.981388888888889,
+        "std": 0.004726795171423499,
+        "n": 3,
+        "values": [
+          0.9868333333333333,
+          0.9783333333333334,
+          0.979
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.981388888888889,
+        "std": 0.004726795171423499,
+        "n": 3,
+        "values": [
+          0.9868333333333333,
+          0.9783333333333334,
+          0.979
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": null
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "test_accuracy": 0.9876,
+        "test_loss": 0.054665324185814324,
+        "final_val_accuracy": 0.9868333333333333,
+        "best_val_accuracy": 0.9868333333333333,
+        "epochs_trained": 10,
+        "rollbacks": null
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "test_accuracy": 0.9788,
+        "test_loss": 0.07570043052381696,
+        "final_val_accuracy": 0.9783333333333334,
+        "best_val_accuracy": 0.9783333333333334,
+        "epochs_trained": 10,
+        "rollbacks": null
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "test_accuracy": 0.978,
+        "test_loss": 0.07586560329306681,
+        "final_val_accuracy": 0.979,
+        "best_val_accuracy": 0.979,
+        "epochs_trained": 10,
+        "rollbacks": null
+      }
+    ]
+  },
+  "offline_hpo/cifar10": {
+    "method": "offline_hpo",
+    "task": "cifar10",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.7460333333333332,
+        "std": 0.006767815994346586,
+        "n": 3,
+        "values": [
+          0.7513,
+          0.7484,
+          0.7384
+        ]
+      },
+      "test_loss": {
+        "mean": 0.7220617302610904,
+        "std": 0.021187733695568815,
+        "n": 3,
+        "values": [
+          0.7065530838091162,
+          0.7134291235404678,
+          0.7462029834336872
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.7474666666666666,
+        "std": 0.0035795716689756723,
+        "n": 3,
+        "values": [
+          0.7514,
+          0.7444,
+          0.7466
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.7479333333333334,
+        "std": 0.004355838993045263,
+        "n": 3,
+        "values": [
+          0.7528,
+          0.7444,
+          0.7466
+        ]
+      },
+      "epochs_trained": {
+        "mean": 34.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          34,
+          34,
+          34
+        ]
+      },
+      "rollbacks": null
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "test_accuracy": 0.7513,
+        "test_loss": 0.7065530838091162,
+        "final_val_accuracy": 0.7514,
+        "best_val_accuracy": 0.7528,
+        "epochs_trained": 34,
+        "rollbacks": null
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "test_accuracy": 0.7484,
+        "test_loss": 0.7134291235404678,
+        "final_val_accuracy": 0.7444,
+        "best_val_accuracy": 0.7444,
+        "epochs_trained": 34,
+        "rollbacks": null
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "test_accuracy": 0.7384,
+        "test_loss": 0.7462029834336872,
+        "final_val_accuracy": 0.7466,
+        "best_val_accuracy": 0.7466,
+        "epochs_trained": 34,
+        "rollbacks": null
+      }
+    ]
+  },
+  "offline_hpo/mnist": {
+    "method": "offline_hpo",
+    "task": "mnist",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.9897666666666667,
+        "std": 0.0019087517736293665,
+        "n": 3,
+        "values": [
+          0.9905,
+          0.9912,
+          0.9876
+        ]
+      },
+      "test_loss": {
+        "mean": 0.03946377175451627,
+        "std": 0.007005891196375972,
+        "n": 3,
+        "values": [
+          0.03238959390934498,
+          0.039602402597821815,
+          0.04639931875638201
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.9888333333333333,
+        "std": 0.0022912878474779463,
+        "n": 3,
+        "values": [
+          0.9893333333333333,
+          0.9908333333333333,
+          0.9863333333333333
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.9901111111111112,
+        "std": 0.0007515416254705104,
+        "n": 3,
+        "values": [
+          0.9893333333333333,
+          0.9908333333333333,
+          0.9901666666666666
+        ]
+      },
+      "epochs_trained": {
+        "mean": 34.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          34,
+          34,
+          34
+        ]
+      },
+      "rollbacks": null
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "test_accuracy": 0.9905,
+        "test_loss": 0.03238959390934498,
+        "final_val_accuracy": 0.9893333333333333,
+        "best_val_accuracy": 0.9893333333333333,
+        "epochs_trained": 34,
+        "rollbacks": null
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "test_accuracy": 0.9912,
+        "test_loss": 0.039602402597821815,
+        "final_val_accuracy": 0.9908333333333333,
+        "best_val_accuracy": 0.9908333333333333,
+        "epochs_trained": 34,
+        "rollbacks": null
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "test_accuracy": 0.9876,
+        "test_loss": 0.04639931875638201,
+        "final_val_accuracy": 0.9863333333333333,
+        "best_val_accuracy": 0.9901666666666666,
+        "epochs_trained": 34,
+        "rollbacks": null
+      }
+    ]
+  },
+  "autotunenet/cifar10": {
+    "method": "autotunenet",
+    "task": "cifar10",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.7286,
+        "std": 0.02042669821581553,
+        "n": 3,
+        "values": [
+          0.7421,
+          0.7051,
+          0.7386
+        ]
+      },
+      "test_loss": {
+        "mean": 0.7625744483641933,
+        "std": 0.05902083407945687,
+        "n": 3,
+        "values": [
+          0.7230650601507742,
+          0.8304198384284973,
+          0.7342384465133087
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.7267999999999999,
+        "std": 0.029478127484628323,
+        "n": 3,
+        "values": [
+          0.7424,
+          0.6928,
+          0.7452
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.7284,
+        "std": 0.02755431000769206,
+        "n": 3,
+        "values": [
+          0.7434,
+          0.6966,
+          0.7452
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "test_accuracy": 0.7421,
+        "test_loss": 0.7230650601507742,
+        "final_val_accuracy": 0.7424,
+        "best_val_accuracy": 0.7434,
+        "epochs_trained": 10,
+        "rollbacks": 0
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "test_accuracy": 0.7051,
+        "test_loss": 0.8304198384284973,
+        "final_val_accuracy": 0.6928,
+        "best_val_accuracy": 0.6966,
+        "epochs_trained": 10,
+        "rollbacks": 0
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "test_accuracy": 0.7386,
+        "test_loss": 0.7342384465133087,
+        "final_val_accuracy": 0.7452,
+        "best_val_accuracy": 0.7452,
+        "epochs_trained": 10,
+        "rollbacks": 0
+      }
+    ]
+  },
+  "autotunenet/mnist": {
+    "method": "autotunenet",
+    "task": "mnist",
+    "devices": [
+      "mps"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.9805,
+        "std": 0.006104916051838919,
+        "n": 3,
+        "values": [
+          0.9874,
+          0.9783,
+          0.9758
+        ]
+      },
+      "test_loss": {
+        "mean": 0.0695438486672615,
+        "std": 0.013566663765131153,
+        "n": 3,
+        "values": [
+          0.054230827513670976,
+          0.07433890802511399,
+          0.08006181046299957
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.9791111111111112,
+        "std": 0.005210388483419254,
+        "n": 3,
+        "values": [
+          0.9846666666666667,
+          0.9783333333333334,
+          0.9743333333333334
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.9796666666666667,
+        "std": 0.004645786621588781,
+        "n": 3,
+        "values": [
+          0.9848333333333333,
+          0.9783333333333334,
+          0.9758333333333333
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.3333333333333333,
+        "std": 0.5773502691896257,
+        "n": 3,
+        "values": [
+          1,
+          0,
+          0
+        ]
+      }
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "device": "mps",
+        "test_accuracy": 0.9874,
+        "test_loss": 0.054230827513670976,
+        "final_val_accuracy": 0.9846666666666667,
+        "best_val_accuracy": 0.9848333333333333,
+        "epochs_trained": 10,
+        "rollbacks": 1
+      },
+      {
+        "seed": 43,
+        "device": "mps",
+        "test_accuracy": 0.9783,
+        "test_loss": 0.07433890802511399,
+        "final_val_accuracy": 0.9783333333333334,
+        "best_val_accuracy": 0.9783333333333334,
+        "epochs_trained": 10,
+        "rollbacks": 0
+      },
+      {
+        "seed": 44,
+        "device": "mps",
+        "test_accuracy": 0.9758,
+        "test_loss": 0.08006181046299957,
+        "final_val_accuracy": 0.9743333333333334,
+        "best_val_accuracy": 0.9758333333333333,
+        "epochs_trained": 10,
+        "rollbacks": 0
+      }
+    ]
+  },
+  "stress_test/cifar10/fixed_lr": {
+    "method": "stress_test:fixed_lr",
+    "task": "cifar10",
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.10000000000000002,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      },
+      "test_loss": {
+        "mean": 2.3097170193990073,
+        "std": 0.00193386367753189,
+        "n": 3,
+        "values": [
+          2.31168206130402,
+          2.309653076944472,
+          2.3078159199485295
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.09746666666666666,
+        "std": 0.0028448784391135796,
+        "n": 3,
+        "values": [
+          0.0942,
+          0.0988,
+          0.0994
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.10553333333333333,
+        "std": 0.0018583146486355114,
+        "n": 3,
+        "values": [
+          0.1064,
+          0.1068,
+          0.1034
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "stress_test/cifar10/scheduler": {
+    "method": "stress_test:scheduler",
+    "task": "cifar10",
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.10000000000000002,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      },
+      "test_loss": {
+        "mean": 2.3026664377767827,
+        "std": 3.521879744692929e-05,
+        "n": 3,
+        "values": [
+          2.3026369523398484,
+          2.3027054358132277,
+          2.3026569251772724
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.09533333333333334,
+        "std": 0.001973153144926503,
+        "n": 3,
+        "values": [
+          0.0976,
+          0.0944,
+          0.094
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.10546666666666667,
+        "std": 0.0018147543451754928,
+        "n": 3,
+        "values": [
+          0.1062,
+          0.1068,
+          0.1034
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "stress_test/cifar10/autotunenet": {
+    "method": "stress_test:autotunenet",
+    "task": "cifar10",
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.10000000000000002,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0.1,
+          0.1,
+          0.1
+        ]
+      },
+      "test_loss": {
+        "mean": 2.3025997318798983,
+        "std": 2.2572450172455848e-05,
+        "n": 3,
+        "values": [
+          2.302593665786936,
+          2.302624717543397,
+          2.302580812309362
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.09613333333333333,
+        "std": 0.003354598833442437,
+        "n": 3,
+        "values": [
+          0.1,
+          0.0944,
+          0.094
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.10546666666666667,
+        "std": 0.0018147543451754928,
+        "n": 3,
+        "values": [
+          0.1062,
+          0.1068,
+          0.1034
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "stress_test/mnist/fixed_lr": {
+    "method": "stress_test:fixed_lr",
+    "task": "mnist",
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.09999999999999999,
+        "std": 0.003800000000000003,
+        "n": 3,
+        "values": [
+          0.1032,
+          0.101,
+          0.0958
+        ]
+      },
+      "test_loss": {
+        "mean": 2.3145571544671513,
+        "std": 0.007304256322474103,
+        "n": 3,
+        "values": [
+          2.310478552131896,
+          2.310203028332656,
+          2.322989882936903
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.09633333333333334,
+        "std": 0.0022912878474779146,
+        "n": 3,
+        "values": [
+          0.09583333333333334,
+          0.09433333333333334,
+          0.09883333333333333
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.11155555555555556,
+        "std": 0.0006938886664887056,
+        "n": 3,
+        "values": [
+          0.111,
+          0.11133333333333334,
+          0.11233333333333333
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "stress_test/mnist/scheduler": {
+    "method": "stress_test:scheduler",
+    "task": "mnist",
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.1135,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0.1135,
+          0.1135,
+          0.1135
+        ]
+      },
+      "test_loss": {
+        "mean": 2.3012580785528614,
+        "std": 0.00011133870654049694,
+        "n": 3,
+        "values": [
+          2.301130250760704,
+          2.3013338814875124,
+          2.3013101034103687
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.11155555555555556,
+        "std": 0.0006938886664887056,
+        "n": 3,
+        "values": [
+          0.111,
+          0.11133333333333334,
+          0.11233333333333333
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.11155555555555556,
+        "std": 0.0006938886664887056,
+        "n": 3,
+        "values": [
+          0.111,
+          0.11133333333333334,
+          0.11233333333333333
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "stress_test/mnist/autotunenet": {
+    "method": "stress_test:autotunenet",
+    "task": "mnist",
+    "metrics": {
+      "test_accuracy": {
+        "mean": 0.1135,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0.1135,
+          0.1135,
+          0.1135
+        ]
+      },
+      "test_loss": {
+        "mean": 2.301122691221298,
+        "std": 3.782587509675896e-05,
+        "n": 3,
+        "values": [
+          2.301113087660188,
+          2.3010905927913203,
+          2.3011643932123853
+        ]
+      },
+      "final_val_accuracy": {
+        "mean": 0.11155555555555556,
+        "std": 0.0006938886664887056,
+        "n": 3,
+        "values": [
+          0.111,
+          0.11133333333333334,
+          0.11233333333333333
+        ]
+      },
+      "best_val_accuracy": {
+        "mean": 0.11155555555555556,
+        "std": 0.0006938886664887056,
+        "n": 3,
+        "values": [
+          0.111,
+          0.11133333333333334,
+          0.11233333333333333
+        ]
+      },
+      "epochs_trained": {
+        "mean": 10.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          10,
+          10,
+          10
+        ]
+      },
+      "rollbacks": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 3,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  }
+}

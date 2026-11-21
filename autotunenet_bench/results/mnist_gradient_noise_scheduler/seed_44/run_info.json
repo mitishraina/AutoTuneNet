@@ -1,0 +1,8 @@
+{
+  "config": "mnist_gradient_noise_scheduler.yaml",
+  "task": "mnist",
+  "seed": 44,
+  "device": "mps",
+  "torch_version": "2.15.0",
+  "epochs_trained": 10
+}
