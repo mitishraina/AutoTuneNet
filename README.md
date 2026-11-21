@@ -289,6 +289,26 @@ The four figures from the original paper, regenerated from these runs (MNIST sho
 
 ## Reproducing Results
 
+### Datasets
+
+Datasets are not stored in the repository. Each benchmark downloads what it needs the first time it runs, into `data/` at the repository root (set `AUTOTUNENET_DATA_DIR` to use another folder). The terminal shows which dataset is being fetched, its size, and a progress bar with percentage, speed and time remaining:
+
+```text
+[data] CIFAR-10 (training split) not found in /path/to/AutoTuneNet/data.
+[data] Downloading CIFAR-10 (about 170 MB) from www.cs.toronto.edu (this server can be slow). This happens once.
+ 43%|████▎     | 73.4M/170M [00:41<00:52, 1.85MB/s]
+[data] CIFAR-10 ready in /path/to/AutoTuneNet/data
+```
+
+To fetch everything before running anything:
+
+```bash
+uv run python -m benchmarks.download_data                 # MNIST (~11 MB) and CIFAR-10 (~170 MB)
+uv run python -m benchmarks.download_data --task cifar10  # just one
+```
+
+### Running
+
 ```bash
 # Unit tests
 uv run pytest
@@ -318,7 +338,7 @@ uv run python -m autotunenet_bench.aggregate
 uv run python -m benchmarks.final_results_graph.plot_results
 ```
 
-Each AutoTuneNet-Bench run writes `epoch_metric.json`, `stability_metrics.json`, `compute_metrics.json`, `test_metrics.json` and `run_info.json` (device, PyTorch version, seed). The full run takes about 2–3 hours on an Apple M-series GPU. MNIST and CIFAR-10 are downloaded by `torchvision` into `data/`.
+Each AutoTuneNet-Bench run writes `epoch_metric.json`, `stability_metrics.json`, `compute_metrics.json`, `test_metrics.json` and `run_info.json` (device, PyTorch version, seed). The full run takes about 2–3 hours on an Apple M-series GPU.
 
 ## Repository Structure
 
