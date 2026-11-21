@@ -1,0 +1,17 @@
+# Fast end-to-end check of every method and scenario on the synthetic toy task.
+# Runs in seconds on a CPU; used by the test suite.
+name: smoke
+epochs: 4
+seeds: [1]
+tasks: [toy]
+
+scenarios:
+  stationary: {}
+  label_noise: {start_epoch: 2, noise_ratio: 0.3}
+  gradient_noise: {start_epoch: 2, std: 0.05}
+  bad_initial_lr: {initial_lr: 0.5}
+
+methods:
+  fixed_lr: {}
+  cosine: {}
+  autotunenet: {n_startup_trials: 1, warmup_epochs: 1}

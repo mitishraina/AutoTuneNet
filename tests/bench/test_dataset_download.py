@@ -1,4 +1,4 @@
-import benchmarks.common.dataset as ds
+import benchmarks.tasks.data as ds
 
 
 class _FakeDataset:

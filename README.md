@@ -238,7 +238,9 @@ Every tuned name must be a setting of your optimizer's param groups (`lr`, `weig
 
 ## Benchmarks
 
-All numbers are **mean ± std over 3 seeds (42, 43, 44)**, 10-epoch runs with small CNNs, trained on Apple MPS. **Test accuracy** is measured on the held-out test split, which no method uses for tuning or model selection. These results describe controller behaviour (stability, adaptation, overhead); they are not state-of-the-art claims. Per-seed values: [`autotunenet_bench/results/summary.json`](autotunenet_bench/results/summary.json) and [`benchmarks/results_summary.json`](benchmarks/results_summary.json).
+> These results were produced by the previous benchmark scripts (archived in [`benchmarks/results/legacy/`](benchmarks/results/legacy/)). They will be replaced by the head-to-head comparison run with the new harness.
+
+All numbers are **mean ± std over 3 seeds (42, 43, 44)**, 10-epoch runs with small CNNs, trained on Apple MPS. **Test accuracy** is measured on the held-out test split, which no method uses for tuning or model selection. These results describe controller behaviour (stability, adaptation, overhead); they are not state-of-the-art claims. Per-seed values: [`benchmarks/results/legacy/autotunenet_bench/summary.json`](benchmarks/results/legacy/autotunenet_bench/summary.json) and [`benchmarks/results/legacy/results_summary.json`](benchmarks/results/legacy/results_summary.json).
 
 AutoTuneNet uses the same settings everywhere: log-scale `lr` search (`[1e-4, 1e-1]` on MNIST, `[1e-4, 1e-3]` on CIFAR-10), `n_startup_trials = 3`, `warmup_epochs = 2`, `max_delta = 0.5`, `smoothing_window = 3`, `max_regression = 0.2`, `patience = 2`, `cooldown = 3`. All methods use Adam.
 
@@ -270,13 +272,13 @@ AutoTuneNet's controller overhead is about 1 ms per epoch.
 | Offline HPO (8 trials × 3 epochs, then a 10-epoch run) | **98.98 ± 0.19** | 74.60 ± 0.68 | 34 | 8 |
 | *Stress test, initial LR = 0.1:* Fixed LR / Scheduler / AutoTuneNet | 10.00 / 11.35 / 11.35 | 10.00 / 10.00 / 10.00 | 10 | 0 |
 
-The four figures from the original paper, regenerated from these runs (MNIST shown; CIFAR-10 versions are in [`benchmarks/final_results_graph/images/paper_figures/`](benchmarks/final_results_graph/images/paper_figures/)):
+The four figures from the original paper, regenerated from these runs (MNIST shown; CIFAR-10 versions are in [`benchmarks/results/legacy/figures/paper_figures/`](benchmarks/results/legacy/figures/paper_figures/)):
 
 <p align="center">
-  <img src="benchmarks/final_results_graph/images/paper_figures/mnist_fig1_val_loss.png" width="45%" alt="MNIST validation loss vs epoch, mean and std over 3 seeds" />
-  <img src="benchmarks/final_results_graph/images/paper_figures/mnist_fig2_val_accuracy.png" width="45%" alt="MNIST validation accuracy vs epoch, mean and std over 3 seeds" />
-  <img src="benchmarks/final_results_graph/images/paper_figures/mnist_fig3_learning_rate.png" width="45%" alt="MNIST learning rate vs epoch for the scheduler and AutoTuneNet" />
-  <img src="benchmarks/final_results_graph/images/paper_figures/mnist_fig4_stress_test.png" width="45%" alt="MNIST stress test validation loss with a bad initial learning rate" />
+  <img src="benchmarks/results/legacy/figures/paper_figures/mnist_fig1_val_loss.png" width="45%" alt="MNIST validation loss vs epoch, mean and std over 3 seeds" />
+  <img src="benchmarks/results/legacy/figures/paper_figures/mnist_fig2_val_accuracy.png" width="45%" alt="MNIST validation accuracy vs epoch, mean and std over 3 seeds" />
+  <img src="benchmarks/results/legacy/figures/paper_figures/mnist_fig3_learning_rate.png" width="45%" alt="MNIST learning rate vs epoch for the scheduler and AutoTuneNet" />
+  <img src="benchmarks/results/legacy/figures/paper_figures/mnist_fig4_stress_test.png" width="45%" alt="MNIST stress test validation loss with a bad initial learning rate" />
 </p>
 
 **Observations.**
@@ -309,36 +311,27 @@ uv run python -m benchmarks.download_data --task cifar10  # just one
 
 ### Running
 
+All benchmarks run through one harness. An experiment file lists the methods, tasks, scenarios and seeds; each combination is one *cell*.
+
 ```bash
-# Unit tests
+# Unit tests (include an end-to-end run of every method and scenario on a tiny synthetic task)
 uv run pytest
 
-# AutoTuneNet-Bench: one run per config and seed -> autotunenet_bench/results/<config>/seed_<seed>/
-# The `task` field (mnist | cifar10) in each config picks the dataset and model.
-# --device auto|cpu|cuda|mps (auto: CUDA, then Apple MPS, then CPU). Compare runs only within one device.
-for cfg in mnist_fixed_lr mnist_scheduler mnist_autotunenet \
-           mnist_gradient_noise_fixed_lr mnist_gradient_noise_scheduler mnist_gradient_noise_autotunenet \
-           cifar_fixed_lr cifar_scheduler cifar_autotunenet; do
-  for seed in 42 43 44; do
-    uv run python -m autotunenet_bench.run_benchmarks --config autotunenet_bench/configs/$cfg.yaml --seed $seed
-  done
-done
+# Run an experiment. Results: benchmarks/results/<experiment>/<method>/<task>/<scenario>/seed_<s>.json
+uv run python -m benchmarks.run --experiment benchmarks/experiments/comparison.yaml
 
-# Stationary benchmarks: one run per script, task and seed -> benchmarks/<script>/results/<task>/seed_<seed>/
-for task in mnist cifar10; do
-  for script in fixed_lr scheduler autotunenet offline_hpo stress_test; do
-    for seed in 42 43 44; do
-      uv run python -m benchmarks.$script.run --task $task --seed $seed
-    done
-  done
-done
+# Useful options
+#   --list                 show the cells (and which are done) without running anything
+#   --shard 2/4            run a quarter of the cells, e.g. on four machines or notebooks
+#   --method autotunenet   only some methods (also --task, --scenario; all repeatable)
+#   --device auto|cpu|cuda|mps
+# Finished cells are skipped, so an interrupted run resumes where it stopped.
 
-# Mean ± std tables (writes the summary JSON files) and figures
-uv run python -m autotunenet_bench.aggregate
-uv run python -m benchmarks.final_results_graph.plot_results
+# Mean ± std over seeds -> benchmarks/results/<experiment>/summary.json
+uv run python -m benchmarks.aggregate --experiment comparison
 ```
 
-Each AutoTuneNet-Bench run writes `epoch_metric.json`, `stability_metrics.json`, `compute_metrics.json`, `test_metrics.json` and `run_info.json` (device, PyTorch version, seed). The full run takes about 2–3 hours on an Apple M-series GPU.
+`benchmarks/experiments/smoke.yaml` runs every method and scenario on the toy task in about a second, a quick way to check a change. How the harness is organised, and how to add a method, task or scenario: [docs/BENCHMARKING.md](docs/BENCHMARKING.md).
 
 ## Repository Structure
 
@@ -353,8 +346,14 @@ AutoTuneNet/
 │   ├── adapters/pytorch/       # PyTorchHyperParameterAdapter + hooks
 │   ├── config/                 # Config schema, loader, defaults.yaml
 │   └── logging/                # Structured logging and tracking
-├── autotunenet_bench/          # AutoTuneNet-Bench: tasks, regimes, controllers, metrics, configs, results
-├── benchmarks/                 # Legacy benchmarks: fixed_lr, scheduler, offline_hpo, stress_test, autotunenet
+├── benchmarks/                 # Benchmark harness
+│   ├── core/                   # Trainer, compute ledger, result schema, registries, experiment files
+│   ├── tasks/                  # mnist, cifar10, toy (synthetic, for tests)
+│   ├── scenarios/              # stationary, label_noise, gradient_noise, bad_initial_lr
+│   ├── methods/                # fixed_lr, cosine, autotunenet, ...
+│   ├── experiments/            # comparison.yaml, smoke.yaml
+│   ├── run.py · aggregate.py · download_data.py
+│   └── results/                # outputs; legacy/ holds the previous results
 ├── docs/                       # Quickstart, configuration, PyTorch guide, OHA definition, FAQ
 ├── examples/                   # Minimal runnable examples
 ├── tests/                      # Unit tests (core, safeguards, adapter, config, factory)

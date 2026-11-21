@@ -13,7 +13,7 @@ import argparse
 
 from torchvision import datasets
 
-from benchmarks.common.dataset import DATA_DIR, load_dataset
+from benchmarks.tasks.data import DATA_DIR, load_dataset
 
 TASK_DATASETS = {"mnist": datasets.MNIST, "cifar10": datasets.CIFAR10}
 
