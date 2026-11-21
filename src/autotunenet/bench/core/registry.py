@@ -15,11 +15,24 @@ T = TypeVar("T")
 
 
 class Registry(Generic[T]):
+    """
+    A name-to-object table for one kind of component (method, task or scenario).
+
+    Attributes:
+        kind: The kind, used in error messages.
+    """
+
     def __init__(self, kind: str):
         self.kind = kind
         self._items: Dict[str, T] = {}
 
     def register(self, name: str):
+        """
+        Decorator that registers a class or function under `name`.
+
+        Raises:
+            ValueError: `name` is already registered.
+        """
         def decorator(obj: T) -> T:
             if name in self._items:
                 raise ValueError(f"{self.kind} '{name}' is already registered")
@@ -28,9 +41,21 @@ class Registry(Generic[T]):
         return decorator
 
     def add(self, name: str, obj: T) -> T:
+        """
+        Register `obj` under `name` and return it.
+
+        Raises:
+            ValueError: `name` is already registered.
+        """
         return self.register(name)(obj)
 
     def get(self, name: str) -> T:
+        """
+        Return what is registered under `name`.
+
+        Raises:
+            KeyError: Unknown name; the message lists the registered names.
+        """
         try:
             return self._items[name]
         except KeyError:
@@ -39,6 +64,7 @@ class Registry(Generic[T]):
             ) from None
 
     def names(self) -> List[str]:
+        """Registered names, sorted."""
         return sorted(self._items)
 
     def __contains__(self, name: str) -> bool:

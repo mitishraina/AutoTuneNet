@@ -1,3 +1,4 @@
+"""Connects AutoTuneNet to a PyTorch optimizer: reads metrics, writes hyperparameters into its param groups."""
 from typing import Dict
 import torch
 
@@ -5,11 +6,41 @@ from autotunenet.bayesian_optimizer import BayesianOptimizer
 from autotunenet.optimizer import to_score
 from autotunenet.safeguards.rollback import Rollback
 from autotunenet.logging.tracker import Tracker
-from autotunenet.safeguards.stability import StabilityMonitor
 from autotunenet.config.loader import load_config
-from autotunenet.parameters import ParameterSpace
 
 class PyTorchHyperParameterAdapter:
+    """
+    Tunes the hyperparameters of a PyTorch optimizer while it trains.
+
+    Call one of the hooks (usually `on_epoch_end`) with a higher-is-better
+    metric such as `-val_loss`. Each tuning call:
+
+    1. scores the configuration that ran since the previous tuning call,
+       using the `BayesianOptimizer` and its stability guard; if it is
+       rejected, the last good configuration is restored exactly and the
+       call ends there;
+    2. otherwise asks for the next configuration and writes it into
+       `optimizer.param_groups`, clipped to `current * (1 +/- max_delta)`.
+
+    Values refer to the first param group; other groups keep their original
+    ratio to it, so layer-wise settings (e.g. a lower backbone learning rate)
+    survive tuning. Categorical values are applied without clipping.
+
+    Attributes:
+        last_rollback: Whether the latest hook call rolled back.
+        last_instability: Same as `last_rollback`.
+
+    Examples:
+        >>> space = ParameterSpace({"lr": {"low": 1e-4, "high": 1e-1, "log": True}})
+        >>> adapter = PyTorchHyperParameterAdapter(
+        ...     optimizer, BayesianOptimizer(space, seed=42),
+        ...     warmup_epochs=2, max_delta=0.5,
+        ... )
+        >>> for epoch in range(20):
+        ...     train_one_epoch(model, optimizer)
+        ...     adapter.on_epoch_end(metric=-evaluate(model))
+    """
+
     def __init__(self, 
                  torch_optimizer: torch.optim.Optimizer,
                  autotune_optimizer: BayesianOptimizer,
@@ -19,13 +50,21 @@ class PyTorchHyperParameterAdapter:
                  max_delta: float | None = None):
         """
         Args:
-            torch_optimizer: PyTorch Optimizer instance(eg., Adam, SGD)
-            autotune_optimizer: BayesianOptimizer from AutoTuneNet
-            tune_n_steps: How often to tune hyperparameters
-            warmup_epochs: Number of steps/epochs before tuning starts
+            torch_optimizer: The `torch.optim.Optimizer` to tune (Adam, SGD, ...).
+            autotune_optimizer: The `BayesianOptimizer` that proposes and judges configurations.
+            tune_n_steps: Tune on every n-th hook call (1 = every call).
+            warmup_epochs: Number of hook calls ignored before tuning starts.
             warmup_metric_threshold: Start tuning once the loss is at or below this
                 value, i.e. once metric >= -warmup_metric_threshold. Must be > 0.
-            max_delta: Maximum relative change allowed per tuning step (e.g. 0.5 = +-50%, postive or negative 50% change)
+                Once passed, the warmup is not checked again.
+            max_delta: Maximum relative change per tuning step, in (0, 1);
+                0.5 allows +/-50%. `None` applies proposals unclipped. From a
+                value of 0, a step may move by `max_delta * (high - low)`.
+
+        Raises:
+            ValueError: An argument is out of range, or a name in the search
+                space is not a setting of every param group (the message lists
+                the settings that exist).
         """
         if isinstance(tune_n_steps, bool) or not isinstance(tune_n_steps, int) or tune_n_steps <= 0:
             raise ValueError(
@@ -81,17 +120,30 @@ class PyTorchHyperParameterAdapter:
     # were in effect since the previous call; it is credited to those.
 
     def on_epoch_end(self, metric: float):
-        """Call once per epoch with a higher-is-better metric (e.g. -val_loss)."""
+        """
+        Tuning hook for the end of an epoch.
+
+        Args:
+            metric: Higher-is-better metric measured with the hyperparameters in
+                effect since the previous call, e.g. `-val_loss`. A float, NumPy
+                scalar or one-element tensor.
+
+        Raises:
+            ValueError: `metric` is not a single number.
+        """
         self._epoch += 1
         self._tuning_call(metric)
 
     def on_step_end(self, metric: float):
+        """Tuning hook for the end of a training step; same behaviour as `on_epoch_end`."""
         self._tuning_call(metric)
 
     def on_validation_end(self, metric: float):
+        """Tuning hook for the end of a validation pass; same behaviour as `on_epoch_end`."""
         self._tuning_call(metric)
 
     def step(self, metric: float):
+        """Generic tuning call, for loops that are not epoch-based; same behaviour as `on_epoch_end`."""
         self._tuning_call(metric)
 
     def step_tuning_metric(self, metric: float):
@@ -264,10 +316,26 @@ class PyTorchHyperParameterAdapter:
     
                     
     @classmethod
-    def from_config(cls, torch_optimizer, config_path: str, seed: int | None = None):
+    def from_config(cls, torch_optimizer: torch.optim.Optimizer, config_path: str,
+                    seed: int | None = None) -> "PyTorchHyperParameterAdapter":
         """
         Build an adapter from a YAML config file.
-        Uses the same schema and defaults as autotunenet.factory.build_pytorch_autotunenet.
+
+        Uses the same schema and defaults as `build_pytorch_autotunenet`.
+
+        Args:
+            torch_optimizer: The `torch.optim.Optimizer` to tune.
+            config_path: Path to the YAML file.
+            seed: Seed for the TPE sampler.
+
+        Returns:
+            A configured `PyTorchHyperParameterAdapter`.
+
+        Raises:
+            ValueError: The configuration is invalid.
+
+        Examples:
+            >>> adapter = PyTorchHyperParameterAdapter.from_config(optimizer, "autotune.yaml", seed=42)
         """
         # Local import: factory imports this module.
         from autotunenet.factory import build_pytorch_autotunenet

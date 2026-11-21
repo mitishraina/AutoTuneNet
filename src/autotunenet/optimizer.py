@@ -1,6 +1,10 @@
+"""Base class shared by AutoTuneNet optimizers, and metric-to-score conversion."""
 from abc import ABC, abstractmethod
 import math
-from typing import Dict, List, Tuple, Any
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
+
+if TYPE_CHECKING:
+    from autotunenet.parameters import ParameterSpace
 
 
 def to_score(value: Any) -> float:
@@ -8,8 +12,16 @@ def to_score(value: Any) -> float:
     Convert a metric to a Python float.
 
     Accepts int/float, NumPy scalars (e.g. np.float32) and one-element
-    tensors (e.g. torch.tensor(-0.1) or -loss.detach()). Booleans and
-    anything that is not a single number raise ValueError.
+    tensors (e.g. torch.tensor(-0.1) or -loss.detach()).
+
+    Args:
+        value: The metric to convert.
+
+    Returns:
+        The value as a float (NaN and infinity are passed through).
+
+    Raises:
+        ValueError: `value` is a bool, or is not a single number.
     """
     if isinstance(value, bool):
         raise ValueError("Score must be a numeric value, not a bool")
@@ -23,12 +35,19 @@ def to_score(value: Any) -> float:
 
 class Optimizer(ABC):
     '''
-    Abstract base class for all optimizers.
+    Abstract base class for optimizers that propose hyperparameters and learn from scores.
+
+    Subclasses implement `suggest()`. Scores are higher-is-better (pass
+    `-val_loss`, not `val_loss`).
+
+    Attributes:
+        param_space: The search space.
+        history: `(params, score)` pairs accepted so far, in order.
     '''
-    def __init__(self, param_space):
+    def __init__(self, param_space: "ParameterSpace"):
         '''
         Args:
-            param_space: Object responsible for sampling and vaidating hyperparameters config
+            param_space: The search space, usually a `ParameterSpace`.
         '''
         self.param_space = param_space
         self.history: List[Tuple[Dict[str, Any], float]] = []
@@ -37,19 +56,23 @@ class Optimizer(ABC):
     @abstractmethod
     def suggest(self) -> Dict[str, Any]:
         '''
-        Suggest a new set of hyperparameters.
+        Propose the next configuration to try.
+
         Returns:
-            A dictionary of hyperparameters.
+            Hyperparameter name to value.
         '''
         pass
 
     def observe(self, params: Dict[str, Any], score: float) -> None:
         '''
-        Observe the result of a hyperparameter configuration.
-        
+        Record the score of a configuration.
+
         Args:
-            params: A dictionary of hyperparameters.
-            score: The score (e.g., validation loss) obtained with these hyperparameters. Overall Performance metrics
+            params: The hyperparameters that produced the score.
+            score: Higher-is-better metric (e.g. `-val_loss`); converted with `to_score`.
+
+        Raises:
+            ValueError: `score` is not a single number.
         '''
         score = to_score(score)
         
@@ -57,6 +80,12 @@ class Optimizer(ABC):
         self.history.append((params, score))
         
     def best_result(self) -> Tuple[Dict[str, Any], float]:
+        """
+        Return the best `(params, score)` in `history`, ignoring non-finite scores.
+
+        Raises:
+            RuntimeError: No finite observation has been recorded yet.
+        """
         # Non-finite scores never count as "best": NaN compares False with
         # everything, so a NaN entry would otherwise stick as the maximum.
         finite = [item for item in self.history if math.isfinite(item[1])]
@@ -65,16 +94,13 @@ class Optimizer(ABC):
         return max(finite, key=lambda item: item[1])
 
     def best_params(self) -> Dict[str, Any]:
+        """Return the hyperparameters of `best_result()`."""
         return self.best_result()[0]
     
     def best_score(self) -> float:
-        """
-        Convenience method to return only the best score.
-        """
+        """Return the score of `best_result()`."""
         return self.best_result()[1]
 
     def num_observations(self) -> int:
-        """
-        Number of observations collected so far.
-        """
+        """Return the number of entries in `history`."""
         return len(self.history)
