@@ -35,7 +35,9 @@ from autotunenet.bench.runtimes.base import Runtime
 from autotunenet.bench.tasks.data import DATA_DIR
 
 JOB_TEMPLATE = Path(__file__).with_name("kaggle_job.py")
-ACCELERATOR = "NvidiaTeslaT4"            # "GPU T4 x2"
+# enable_gpu alone gets "GPU T4 x2". Passing --accelerator NvidiaTeslaT4 explicitly sends
+# batch runs to a separate queue where they can wait for hours.
+MAX_GPU_SESSIONS = 2                      # Kaggle runs at most 2 batch GPU sessions per account
 GPUS_PER_NOTEBOOK = 2
 FINISHED = ("complete", "error", "cancelled")
 TOKEN_HELP = ("Create a token at kaggle.com -> profile picture -> Settings -> API -> Create New Token. "
@@ -164,6 +166,7 @@ class Kaggle(Runtime):
             if self._dataset_exists(task.name) and not force:
                 print(f"[data] {task.name}: already on Kaggle ({self.user}/{slug})")
                 continue
+            print(f"[data] {task.name}: uploading to {self.user}/{slug} (private)", flush=True)
             if task.prepare_data:
                 task.prepare_data()
             with tempfile.TemporaryDirectory() as tmp:
@@ -200,6 +203,10 @@ class Kaggle(Runtime):
             if not spec.endswith(".py"):
                 raise SystemExit(f"--plugins {spec}: Kaggle needs plugin files (.py), not module names")
 
+        if parallel > MAX_GPU_SESSIONS:
+            print(f"[prepare] Kaggle runs at most {MAX_GPU_SESSIONS} GPU notebooks at once; "
+                  f"using --parallel {MAX_GPU_SESSIONS}")
+            parallel = MAX_GPU_SESSIONS
         groups = [[] for _ in range(parallel * GPUS_PER_NOTEBOOK)]
         for i, cell in enumerate(todo):
             groups[i % len(groups)].append(cell.to_dict())
@@ -240,7 +247,7 @@ class Kaggle(Runtime):
                     "kernel_type": "notebook", "is_private": True, "enable_gpu": True, "enable_tpu": False,
                     "enable_internet": True, "dataset_sources": nb["datasets"], "competition_sources": [],
                     "kernel_sources": [], "model_sources": []}))
-                kaggle("kernels", "push", "-p", str(folder), "--accelerator", ACCELERATOR, capture=True)
+                kaggle("kernels", "push", "-p", str(folder), capture=True)
             nb["pushed"] = True
             self._save(exp, results_dir, state)
             print(f"[start] https://www.kaggle.com/code/{nb['id']} ({nb['cells']} cells)")

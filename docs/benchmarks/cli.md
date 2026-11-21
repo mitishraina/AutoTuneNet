@@ -37,13 +37,13 @@ Runs every stage for the cells without a result: check the runtime, fetch data, 
 | Option | Default | Meaning |
 |---|---|---|
 | `--device {auto,cpu,cuda,mps}` | `auto` | Device on this machine |
-| `--parallel N` | `3` | Kaggle notebooks at once (2 GPUs each) |
+| `--parallel N` | `2` | Kaggle notebooks at once, 2 GPUs each (Kaggle allows at most 2) |
 | `--no-report` | off | Skip the report at the end |
 
 ```bash
 autotunenet run --experiment smoke                                   # seconds, toy task
 autotunenet run --experiment comparison --method pbt --task cifar10
-autotunenet run --experiment comparison --runtime kaggle --parallel 3
+autotunenet run --experiment comparison --runtime kaggle --parallel 2
 autotunenet run --experiment my_experiment.yaml --plugins my_tasks.py
 ```
 

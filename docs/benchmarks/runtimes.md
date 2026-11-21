@@ -5,7 +5,7 @@ A runtime is where the cells of an experiment train. Choose one with `--runtime`
 | Runtime | `--runtime` | Needs | Parallelism |
 |---|---|---|---|
 | This machine | *(omit)* | nothing | one cell at a time, on the best device (CUDA → MPS → CPU) |
-| Kaggle | `kaggle` | a Kaggle account with a verified phone and an API token | `--parallel` notebooks × 2 T4 GPUs |
+| Kaggle | `kaggle` | a Kaggle account with a verified phone and an API token | up to 2 notebooks × 2 T4 GPUs (Kaggle's limit per account) |
 
 ## How resuming works
 
@@ -33,7 +33,7 @@ Kaggle gives free GPU time ("GPU T4 x2", about 30 hours a week). Everything runs
 2. Run one command:
 
 ```bash
-autotunenet run --experiment comparison --runtime kaggle --parallel 3
+autotunenet run --experiment comparison --runtime kaggle --parallel 2
 ```
 
 It checks the Kaggle CLI and token, uploads each task's data once as a private dataset `autotunenet-<task>`, writes the notebooks for the cells without results (two GPUs each, `--parallel` notebooks at once), starts them, prints progress every minute, downloads each notebook's results as it finishes and prints the support matrix. Stop it whenever you like: running it again follows the notebooks still running, and once they are done plans a new round with whatever is still missing (failed or timed-out cells).
@@ -43,7 +43,7 @@ The same stages one at a time:
 ```bash
 autotunenet setup   --runtime kaggle
 autotunenet data    --runtime kaggle --experiment comparison   # --force to upload again
-autotunenet prepare --runtime kaggle --experiment comparison --parallel 3
+autotunenet prepare --runtime kaggle --experiment comparison --parallel 2
 autotunenet start   --runtime kaggle --experiment comparison
 autotunenet status  --runtime kaggle --experiment comparison
 autotunenet pull    --runtime kaggle --experiment comparison

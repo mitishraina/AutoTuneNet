@@ -35,7 +35,7 @@ def test_prepare_spreads_every_pending_cell_over_the_gpus_once(tmp_path, monkeyp
     monkeypatch.setattr(Kaggle, "_dataset_exists", lambda self, task: True)
     exp = Experiment.load("smoke")
     from autotunenet.bench.core.experiment import resolve_experiment
-    Kaggle().prepare(exp, resolve_experiment("smoke"), exp.cells(), tmp_path, [], parallel=2)
+    Kaggle().prepare(exp, resolve_experiment("smoke"), exp.cells(), tmp_path, [], parallel=5)   # capped at 2
 
     state = json.loads((tmp_path / "smoke" / ".runtime" / "kaggle.json").read_text())
     assert state["round"] == 1 and len(state["notebooks"]) <= 2
