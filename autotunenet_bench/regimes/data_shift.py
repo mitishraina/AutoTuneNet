@@ -1,62 +1,64 @@
-import torch
 import random
+
+import torch
+
 from .base import NonStationarityRegime
+
 
 class LabelNoiseShift(NonStationarityRegime):
     """
-    Introduces label noise into the training dataset at a fixed epoch
+    Replaces the labels of a fraction of the training set with a different,
+    uniformly chosen class, starting at a fixed epoch.
+
+    Randomness comes from a local generator seeded with `seed`, so the global
+    Python/torch RNG state (and with it data-loader shuffling) is unaffected.
     """
     def __init__(self, start_epoch: int, noise_ratio: float, seed: int = 42):
         super().__init__(start_epoch)
         self.noise_ratio = noise_ratio
         self.seed = seed
 
+    @staticmethod
+    def _unwrap(train_dataset):
+        """Follow wrappers (Subset, transform wrappers) down to the base dataset.
+
+        Returns (base_dataset, indices into the base dataset that belong to
+        the training split).
+        """
+        base = train_dataset
+        indices = None
+        while hasattr(base, "dataset"):
+            if hasattr(base, "indices"):
+                sub = list(base.indices)
+                indices = sub if indices is None else [sub[i] for i in indices]
+            base = base.dataset
+        if indices is None:
+            indices = list(range(len(base)))
+        return base, indices
+
     def apply(self, train_dataset, **_):
-        random.seed(self.seed)
-        torch.manual_seed(self.seed)
+        rng = random.Random(self.seed)
+        base, indices = self._unwrap(train_dataset)
 
-        base_dataset = train_dataset
-        indices = list(range(len(train_dataset)))
-
-        #this is for cifar
-        while hasattr(base_dataset, "dataset"):
-            if hasattr(base_dataset, "indices"):
-                indices = base_dataset.indices
-            base_dataset = base_dataset.dataset
-
-        # enable this when using mnist
-        # Handle Subset datasets
-        # if hasattr(train_dataset, "dataset") and hasattr(train_dataset, "indices"):
-        #     base_dataset = train_dataset.dataset
-        #     indices = train_dataset.indices
-        # else:
-        #     base_dataset = train_dataset
-        #     indices = list(range(len(train_dataset)))
-
-        # Access labels safely
-        if hasattr(base_dataset, "targets"):
-            labels = base_dataset.targets
-        elif hasattr(base_dataset, "labels"):
-            labels = base_dataset.labels
+        if hasattr(base, "targets"):
+            labels = base.targets
+        elif hasattr(base, "labels"):
+            labels = base.labels
         else:
-            raise AttributeError(
-                "Dataset does not expose targets or labels"
-            )
-        
-        #mnist
-        # num_classes = int(torch.max(labels).item() + 1) 
+            raise AttributeError("Dataset does not expose targets or labels")
 
-        #cifar
-        num_classes = max(labels) + 1
+        is_tensor = isinstance(labels, torch.Tensor)
+        num_classes = int(labels.max().item() if is_tensor else max(labels)) + 1
 
         num_noisy = int(self.noise_ratio * len(indices))
-        noisy_indices = random.sample(indices, num_noisy)
+        noisy_indices = rng.sample(indices, num_noisy)
 
         for idx in noisy_indices:
-            original_label = labels[idx]
-            new_label = random.randint(0, num_classes - 1)
-            while new_label == original_label:
-                new_label = random.randint(0, num_classes - 1)
+            original = int(labels[idx])
+            # Uniform over the other num_classes - 1 classes, without retries.
+            new_label = rng.randrange(num_classes - 1)
+            if new_label >= original:
+                new_label += 1
             labels[idx] = new_label
 
         print(
