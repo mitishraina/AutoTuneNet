@@ -214,3 +214,7 @@ data/
 
 # Optional AutoTuneNet log files (enable_file_logging / AUTOTUNENET_LOG_FILE)
 logs/
+
+# Local Kaggle launch records and logs (contain your Kaggle username)
+benchmarks/results/**/.kaggle_launch.json
+benchmarks/results/**/.kaggle_logs/

@@ -1,0 +1,13 @@
+# Short timing pilot on hosted GPUs: per-epoch cost of a single model and of PBT
+# on both tasks, used to size the shards for the full comparison run.
+name: pilot
+epochs: 10
+seeds: [42]
+tasks: [mnist, cifar10]
+
+scenarios:
+  stationary: {}
+
+methods:
+  fixed_lr: {}
+  pbt: {population: 4, perturbation_interval: 2}
