@@ -1,10 +1,36 @@
 name: Docs
 
+# Builds only when something on the site changes: pages, docstrings (src), examples,
+# the changelog and contributing guide (included by snippets) or result figures.
 on:
   push:
     branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "tools/mkdocs_hooks.py"
+      - "examples/**"
+      - "src/**"
+      - "CHANGELOG.md"
+      - "CONTRIBUTING.md"
+      - "benchmarks/results/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/docs.yml"
   pull_request:
     branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "tools/mkdocs_hooks.py"
+      - "examples/**"
+      - "src/**"
+      - "CHANGELOG.md"
+      - "CONTRIBUTING.md"
+      - "benchmarks/results/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/docs.yml"
   workflow_dispatch:
 
 permissions:
