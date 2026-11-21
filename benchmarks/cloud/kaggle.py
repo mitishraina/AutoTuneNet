@@ -1,6 +1,15 @@
 """
 Run a benchmark experiment on Kaggle GPUs with your own Kaggle account.
 
+One command does everything (upload data if missing, launch, wait with
+progress, download results as notebooks finish, build the report):
+
+    uv run python -m benchmarks.cloud.kaggle run --experiment benchmarks/experiments/comparison.yaml
+
+Running it again while notebooks are still going attaches to them instead of
+relaunching (use --relaunch to start over). The individual steps are also
+available:
+
     uv run python -m benchmarks.cloud.kaggle upload-data                     # once: datasets -> private Kaggle dataset
     uv run python -m benchmarks.cloud.kaggle launch --experiment benchmarks/experiments/comparison.yaml --notebooks 3
     uv run python -m benchmarks.cloud.kaggle status --experiment comparison
@@ -23,13 +32,13 @@ is tracked, for the runs behind published results.
 """
 import argparse
 import json
-import math
 import re
 import shutil
 import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 from pathlib import Path
 
 from benchmarks.core.experiment import Experiment
@@ -126,6 +135,10 @@ def render_notebook(job: dict, title: str) -> dict:
 
 # ---------------------------------------------------------------- commands
 
+def dataset_exists(user: str) -> bool:
+    return kaggle("datasets", "status", f"{user}/{DATASET_SLUG}", check=False, capture=True).returncode == 0
+
+
 def upload_data(args):
     """Upload MNIST and CIFAR-10 (downloading them locally first if needed) as a private dataset."""
     from torchvision import datasets
@@ -150,8 +163,7 @@ def upload_data(args):
             "id": f"{user}/{DATASET_SLUG}",
             "licenses": [{"name": "other"}],
         }))
-        exists = kaggle("datasets", "status", f"{user}/{DATASET_SLUG}", check=False, capture=True).returncode == 0
-        if exists:
+        if dataset_exists(user):
             kaggle("datasets", "version", "-p", str(stage), "-m", "update", "--dir-mode", "tar")
         else:
             kaggle("datasets", "create", "-p", str(stage), "--dir-mode", "tar")
@@ -167,7 +179,7 @@ def launch(args):
     repo, commit = repo_url_and_commit()
 
     shards = args.notebooks * GPUS_PER_NOTEBOOK
-    has_data = kaggle("datasets", "status", f"{user}/{DATASET_SLUG}", check=False, capture=True).returncode == 0
+    has_data = dataset_exists(user)
     if not has_data:
         print("note: no data dataset found; notebooks will download MNIST/CIFAR-10 themselves "
               "(run `upload-data` once to avoid this)")
@@ -229,17 +241,27 @@ def _kernels(experiment):
     return json.loads(path.read_text())["kernels"]
 
 
+def kernel_state(kernel_id: str) -> str:
+    """'running', 'queued', 'complete', 'error', 'cancelled' or 'unknown'."""
+    out = kaggle("kernels", "status", kernel_id, check=False, capture=True)
+    text = (out.stdout + out.stderr).lower()
+    for state in ("complete", "error", "cancel", "running", "queued"):
+        if state in text:
+            return "cancelled" if state == "cancel" else state
+    return "unknown"
+
+
 def status(args):
     for kernel in _kernels(args.experiment):
-        out = kaggle("kernels", "status", kernel["id"], check=False, capture=True)
-        line = (out.stdout or out.stderr).strip().splitlines()
-        print(f"{kernel['id']}: {line[-1] if line else 'unknown'}")
+        print(f"{kernel['id']}: {kernel_state(kernel['id'])}")
 
 
-def download(args):
-    """Fetch every finished notebook's results into benchmarks/results/ (existing files are kept)."""
+def download(args, only=None):
+    """Fetch finished notebooks' results into benchmarks/results/ (existing files are kept)."""
     added = 0
     for kernel in _kernels(args.experiment):
+        if only is not None and kernel["id"] not in only:
+            continue
         with tempfile.TemporaryDirectory() as tmp:
             out = kaggle("kernels", "output", kernel["id"], "-p", tmp, check=False, capture=True)
             archive = Path(tmp) / "autotunenet_results.tar.gz"
@@ -261,6 +283,58 @@ def download(args):
                 shutil.copytree(Path(tmp) / "logs", logs, dirs_exist_ok=True)
             print(f"{kernel['id']}: results merged")
     print(f"{added} result file(s) added under {RESULTS}")
+    return added
+
+
+def _report(exp_path: Path, name: str):
+    from benchmarks.report import build_report, load_plan
+    if not list((RESULTS / name).glob("*/*/*/seed_*.json")):
+        return None
+    return build_report(RESULTS, name, "Support matrix", load_plan(exp_path))
+
+
+def run(args):
+    """Upload data if needed, launch (or attach), follow progress, download, report."""
+    load_plugins()
+    exp_path = Path(args.experiment).resolve()
+    name = Experiment.load(exp_path).name
+    user = kaggle_username()
+
+    attach = manifest_path(name).exists() and not args.relaunch and any(
+        kernel_state(k["id"]) in ("running", "queued") for k in _kernels(name))
+    if attach:
+        print(f"attaching to the running notebooks of '{name}' (use --relaunch to start over)")
+    else:
+        if not dataset_exists(user):
+            upload_data(args)
+        launch(args)
+
+    kernels = _kernels(name)
+    fetched, started = set(), time.time()
+    while True:
+        states = {k["id"]: kernel_state(k["id"]) for k in kernels}
+        finished = [k for k, s in states.items() if s in ("complete", "error", "cancelled")]
+        new = [k for k in finished if k not in fetched]
+        if new:
+            download(argparse.Namespace(experiment=name, force=False), only=set(new))
+            fetched.update(new)
+            out = _report(exp_path, name)
+            if out:
+                print(f"progress matrix: {out / 'support_matrix.svg'}")
+        elapsed = (time.time() - started) / 60
+        print(f"[{elapsed:5.1f} min] " + "  ".join(f"{k.split('/')[-1]}: {s}" for k, s in states.items()),
+              flush=True)
+        if len(finished) == len(kernels):
+            break
+        time.sleep(args.poll)
+
+    out = _report(exp_path, name)
+    failed = [k for k, s in states.items() if s != "complete"]
+    if failed:
+        print(f"\nnot completed: {', '.join(failed)} (rerun this command with --relaunch for the missing cells)")
+    if out:
+        print(f"\nreport: {out}")
+        print((out / "support_matrix.md").read_text())
 
 
 def main(argv=None):
@@ -269,14 +343,19 @@ def main(argv=None):
 
     sub.add_parser("upload-data", help="upload MNIST and CIFAR-10 as a private Kaggle dataset (once)")
 
-    p = sub.add_parser("launch", help="push one notebook per pair of shards and start them")
-    p.add_argument("--experiment", required=True, help="experiment YAML file in this repository")
-    p.add_argument("--notebooks", type=int, default=3, help="notebooks to run (each runs 2 shards on 2 GPUs)")
-    p.add_argument("--record", action="store_true",
-                   help="save the notebooks under benchmarks/notebooks/<experiment>/ (tracked) instead of "
-                        "benchmarks/notebooks/local/ (git-ignored); use for runs behind published results")
-    for flag in ("method", "task", "scenario"):
-        p.add_argument(f"--{flag}", action="append", help=f"only this {flag} (repeatable)")
+    for name, helptext in (("run", "everything: upload data if missing, launch, follow, download, report"),
+                           ("launch", "push one notebook per pair of shards and start them")):
+        p = sub.add_parser(name, help=helptext)
+        p.add_argument("--experiment", required=True, help="experiment YAML file in this repository")
+        p.add_argument("--notebooks", type=int, default=3, help="notebooks to run (each runs 2 shards on 2 GPUs)")
+        p.add_argument("--record", action="store_true",
+                       help="save the notebooks under benchmarks/notebooks/<experiment>/ (tracked) instead of "
+                            "benchmarks/notebooks/local/ (git-ignored); use for runs behind published results")
+        for flag in ("method", "task", "scenario"):
+            p.add_argument(f"--{flag}", action="append", help=f"only this {flag} (repeatable)")
+        if name == "run":
+            p.add_argument("--relaunch", action="store_true", help="start new notebooks even if some are running")
+            p.add_argument("--poll", type=int, default=60, help="seconds between progress checks")
 
     for name, helptext in (("status", "show each notebook's state"),
                            ("download", "merge finished notebooks' results into benchmarks/results/")):
@@ -286,7 +365,8 @@ def main(argv=None):
             p.add_argument("--force", action="store_true", help="overwrite results that already exist locally")
 
     args = parser.parse_args(argv)
-    {"upload-data": upload_data, "launch": launch, "status": status, "download": download}[args.command](args)
+    {"upload-data": upload_data, "run": run, "launch": launch, "status": status,
+     "download": download}[args.command](args)
 
 
 if __name__ == "__main__":

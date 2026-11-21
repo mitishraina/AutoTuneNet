@@ -348,10 +348,10 @@ uv run python -m benchmarks.report --experiment comparison
 To run on Kaggle's free GPUs with your own Kaggle account (token setup in [docs/BENCHMARKING.md](docs/BENCHMARKING.md#running-on-kaggle-your-own-account)):
 
 ```bash
-uv run python -m benchmarks.cloud.kaggle upload-data
-uv run python -m benchmarks.cloud.kaggle launch --experiment benchmarks/experiments/comparison.yaml --notebooks 3
-uv run python -m benchmarks.cloud.kaggle download --experiment comparison
+uv run python -m benchmarks.cloud.kaggle run --experiment benchmarks/experiments/comparison.yaml
 ```
+
+It uploads the data if needed, launches the notebooks, shows progress, downloads results as notebooks finish and prints the final support matrix.
 
 `benchmarks/experiments/smoke.yaml` runs every method and scenario on the toy task in about a second, a quick way to check a change. How the harness is organised, and how to add a method, task or scenario: [docs/BENCHMARKING.md](docs/BENCHMARKING.md).
 

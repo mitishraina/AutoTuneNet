@@ -90,7 +90,13 @@ Kaggle gives free GPU time ("GPU T4 x2", about 30 hours a week). The launcher ru
 
 1. Create a token: kaggle.com → your profile picture → **Settings** → **API** → **Create New Token**. Kaggle saves it under `~/.kaggle/` (`access_token`, or a downloaded `kaggle.json` you move there and `chmod 600`). Never commit it or paste it anywhere.
 2. Push the commit you want to run (the notebooks clone it from GitHub).
-3. Run:
+3. Run one command. It uploads the datasets if they are not on your account yet, launches the notebooks, prints progress, downloads each notebook's results as it finishes (updating the support matrix), and prints the final table:
+
+```bash
+uv run python -m benchmarks.cloud.kaggle run --experiment benchmarks/experiments/comparison.yaml
+```
+
+If you stop it, running it again attaches to the notebooks still running instead of starting new ones (`--relaunch` starts over). The steps are also available on their own:
 
 ```bash
 uv run python -m benchmarks.cloud.kaggle upload-data                                   # once: MNIST + CIFAR-10 -> private dataset
