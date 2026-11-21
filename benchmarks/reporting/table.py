@@ -22,6 +22,7 @@ class Cell:
     n: int = 0                          # seeds with results
     planned: int = 0                    # seeds planned (0 when there is no plan)
     rank: Optional[int] = None          # 1 = best in its column (among cells with results)
+    delta: Optional[float] = None       # percentage points vs the baseline in the same column
     worse_than_baseline: bool = False
 
 
@@ -78,9 +79,11 @@ def build_matrix(summary: dict, plan: Optional[dict] = None) -> Matrix:
         for m, c in present:
             c.rank = 1 + sum(v > shown[m] for v in shown.values())
         base = cells.get((BASELINE, task, scenario))
-        if base is not None:
+        if base is not None and base.mean is not None:
             for m, c in present:
-                c.worse_than_baseline = m != BASELINE and c.mean < base.mean
+                if m != BASELINE:
+                    c.delta = c.mean - base.mean
+                    c.worse_than_baseline = c.delta < 0
 
     cost = {}
     for m in methods:

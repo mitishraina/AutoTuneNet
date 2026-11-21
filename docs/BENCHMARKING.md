@@ -78,7 +78,7 @@ uv run python -m benchmarks.report --experiment comparison \
     --plan benchmarks/experiments/comparison.yaml                                      # ... with progress
 ```
 
-With `--plan`, the support matrix draws every planned cell: cells without results show **—** (not run yet), cells with only some seeds show "2/3 seeds", and the subtitle counts complete cells, so the matrix doubles as a progress tracker while a run is in flight (for example across Kaggle shards).
+With `--plan`, the support matrix draws every planned cell: cells without results show as hatched **pending**, cells with only some seeds show "2/3 seeds", and the subtitle counts complete cells, so the matrix doubles as a progress tracker while a run is in flight (for example across Kaggle shards).
 
 `uv run python -m benchmarks.legacy_import` converts the results of the previous benchmark scripts (fixed LR, cosine, AutoTuneNet; `benchmarks/results/legacy/`) into the `previous` experiment, which the README's matrix shows until the comparison run is complete.
 
@@ -153,7 +153,7 @@ Subclass `Scenario` in a new module under `benchmarks/scenarios/`, register it, 
 
 `report.py` writes to `benchmarks/results/<experiment>/report/`:
 
-- `support_matrix.svg`: one row per method, one column per task and scenario, plus the cost of each method. Each cell is the test accuracy (mean ± std over seeds) with its rank in the column. Colour codes: the cell shade is the rank (lightest = best; equal scores share a rank), a red triangle means worse than Fixed LR in that column, grey n/a means the scenario does not apply, and Fixed LR is the dashed baseline row. Hovering a cell shows its details. `support_matrix.md` is the same table as Markdown, and `support_matrix.html` a page embedding the SVG.
+- `support_matrix.svg`: Fixed LR as the reference row at the top, then one row per method; one column per task and scenario, plus each method's training cost (a log-scale bar of epochs trained, with models in parallel and restarts). Each cell shows the test accuracy (mean ± std over seeds), its difference from Fixed LR in percentage points and its rank in the column (equal scores share a rank). The colour is that difference: teal = better, rose = worse, grey = within ±0.25 pp. Hatched "pending" cells are planned but not run yet; "2/3 seeds" marks a partly done cell; empty "n/a" cells are scenarios that do not apply. Hovering a cell shows its details, and the SVG follows the viewer's light or dark theme. `support_matrix.md` is the same table as Markdown, and `support_matrix.html` a page embedding the SVG.
 - `accuracy_vs_compute/`: test accuracy against total epochs trained, per task and scenario.
 - `curves/`: validation loss and learning rate per epoch (mean ± std band, shift marked).
 - `paper_figures/`: the four figures from the AutoTuneNet paper, per task.
