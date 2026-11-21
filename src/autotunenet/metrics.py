@@ -1,8 +1,12 @@
 from collections import deque
 from typing import Deque, Optional
 
+# Single default used by MetricSmoother, BayesianOptimizer and the config factory.
+DEFAULT_SMOOTHING_WINDOW = 3
+
+
 class MetricSmoother:
-    def __init__(self, window_size: int = 5):
+    def __init__(self, window_size: int = DEFAULT_SMOOTHING_WINDOW):
         self.window_size = window_size
         self._values: Deque[float] = deque(maxlen = window_size)
         

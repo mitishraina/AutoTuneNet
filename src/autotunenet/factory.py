@@ -1,5 +1,6 @@
 from autotunenet.parameters import ParameterSpace
 from autotunenet.bayesian_optimizer import BayesianOptimizer
+from autotunenet.metrics import DEFAULT_SMOOTHING_WINDOW
 from autotunenet.adapters.pytorch.adapter import PyTorchHyperParameterAdapter
 from autotunenet.config.schema import AutoTuneConfig
 from autotunenet.safeguards.stability import StabilityMonitor
@@ -27,7 +28,7 @@ def build_pytorch_autotunenet(
     autotune_optimizer = BayesianOptimizer(
         param_space=param_space,
         seed=seed,
-        smoothing_window=config.metrics.get("smoothing_window", 3),
+        smoothing_window=config.metrics.get("smoothing_window", DEFAULT_SMOOTHING_WINDOW),
         n_startup_trials=config.search.get("n_startup_trials", 10),
     )
 

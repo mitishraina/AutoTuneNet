@@ -3,8 +3,8 @@ from typing import Dict, Any
 import optuna
 from optuna.distributions import CategoricalDistribution, FloatDistribution
 from optuna.trial import TrialState
-from .optimizer import Optimizer
-from .metrics import MetricSmoother
+from .optimizer import Optimizer, to_score
+from .metrics import MetricSmoother, DEFAULT_SMOOTHING_WINDOW
 from autotunenet.safeguards.stability import StabilityMonitor
 from autotunenet.safeguards.rollback import Rollback
 from autotunenet.logging.tracker import Tracker
@@ -18,7 +18,7 @@ class BayesianOptimizer(Optimizer):
         self,
         param_space,
         seed: int | None = None,
-        smoothing_window: int = 5,
+        smoothing_window: int = DEFAULT_SMOOTHING_WINDOW,
         n_startup_trials: int = 10,
     ):
         """
@@ -78,8 +78,7 @@ class BayesianOptimizer(Optimizer):
         self.last_instability = False
         self.last_rollback = False
 
-        if isinstance(score, bool) or not isinstance(score, (int, float)):
-            raise ValueError("Score must be a numeric value")
+        score = to_score(score)
 
         if math.isfinite(score):
             smoothed_score = self.smoother.add(score)

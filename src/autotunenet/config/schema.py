@@ -75,6 +75,11 @@ def normalize_parameter_space(
     return normalized
 
 
+def _is_int(value) -> bool:
+    """True for ints but not bools (YAML `true` is a bool, and bool is an int subclass)."""
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
 class AutoTuneConfig:
     """
     Strongly typed representation for the AutoTuneNet configuration.
@@ -95,12 +100,12 @@ class AutoTuneConfig:
     def _validate(self):
         tune_n_steps = self.tuning.get("tune_n_steps")
         if tune_n_steps is not None:
-            if not isinstance(tune_n_steps, int) or tune_n_steps <= 0:
+            if not _is_int(tune_n_steps) or tune_n_steps <= 0:
                 raise ValueError("tune_n_steps must be a positive integer")
             
         warmup_epochs = self.tuning.get("warmup_epochs")
         if warmup_epochs is not None:
-            if not isinstance(warmup_epochs, int) or warmup_epochs < 0:
+            if not _is_int(warmup_epochs) or warmup_epochs < 0:
                 raise ValueError("warmup_epochs must be a non-negative integer")
             
         warmup_metric_threshold = self.tuning.get("warmup_metric_threshold")
@@ -122,7 +127,7 @@ class AutoTuneConfig:
 
         smoothing_window = self.metrics.get("smoothing_window")
         if smoothing_window is not None:
-            if not isinstance(smoothing_window, int) or smoothing_window <= 0:
+            if not _is_int(smoothing_window) or smoothing_window <= 0:
                 raise ValueError("smoothing_window must be a positive integer")
 
         max_regression = self.stability.get("max_regression")
@@ -132,15 +137,15 @@ class AutoTuneConfig:
 
         n_startup_trials = self.search.get("n_startup_trials")
         if n_startup_trials is not None:
-            if not isinstance(n_startup_trials, int) or isinstance(n_startup_trials, bool) or n_startup_trials < 0:
+            if not _is_int(n_startup_trials) or n_startup_trials < 0:
                 raise ValueError("n_startup_trials must be a non-negative integer")
 
         patience = self.stability.get("patience")
         if patience is not None:
-            if not isinstance(patience, int) or patience <= 0:
+            if not _is_int(patience) or patience <= 0:
                 raise ValueError("patience must be a positive integer")
 
         cooldown = self.stability.get("cooldown")
         if cooldown is not None:
-            if not isinstance(cooldown, int) or cooldown < 0:
+            if not _is_int(cooldown) or cooldown < 0:
                 raise ValueError("cooldown must be a non-negative integer")
