@@ -18,9 +18,26 @@ So every result records both **quality** (test accuracy, behaviour after a shift
 |---|---|
 | **Task** | A dataset and model with training defaults: batch size, initial learning rate, and the learning-rate range every tuning method searches (log scale). Built in: `mnist`, `cifar10`, `toy`. |
 | **Scenario** | What happens to training besides the method's own decisions: `stationary`, `label_noise` (30% of training labels randomised from epoch 5), `gradient_noise` (noise added to every gradient from epoch 5), `bad_initial_lr` (start at 0.1). |
-| **Method** | How the learning rate is chosen: `fixed_lr`, `cosine`, `autotunenet`, … |
-| **Experiment** | A YAML file listing methods, tasks, scenarios, seeds and epochs. Every combination is one **cell**. |
+| **Method** | How the learning rate is chosen (see the table below). |
+| **Experiment** | A YAML file listing methods, tasks, scenarios, seeds and epochs. Every combination is one **cell**. A scenario can be limited with `tasks: [...]` or `methods: [...]`. |
 | **RunResult** | The JSON every cell produces: test metrics, per-epoch history, compute, environment and config. |
+
+## Methods
+
+| Name | Kind | What it does | Cost per cell (defaults) |
+|---|---|---|---|
+| `fixed_lr` | baseline | keeps the initial learning rate | 10 epochs |
+| `cosine` | schedule | cosine annealing to 0 over the run | 10 epochs |
+| `plateau` | reactive rule | halves the LR after 2 epochs in a row without improvement | 10 epochs |
+| `autotunenet` | online, single run | Bayesian (TPE) proposals each epoch with a stability guard and rollback | 10 epochs |
+| `optuna_tpe` | offline search | 8 full trials, TPE-proposed LRs, best on validation reported | 80 epochs, 7 restarts |
+| `asha` | offline search | 16 trials, weak ones stopped early (successive halving) | depends on pruning |
+| `hyperband` | offline search | 16 trials with Hyperband early stopping | depends on pruning |
+| `pbt` | population | 4 models in parallel; every 2 epochs the weakest copy the best and perturb the LR (Ray Tune) | 40 epochs, 4 in parallel |
+
+Offline search methods sample their own learning rates, so the bad-initial-LR stress test does not apply to them (n/a in the support matrix). In it, PBT members all start from the bad learning rate.
+
+PBT runs its members concurrently, as Ray's PBT is designed to; which results it compares at a synchronisation point can depend on scheduling, so two runs with the same seed can differ slightly. Every other method is bit-reproducible for a given seed and hardware.
 
 ## Layout
 
@@ -40,8 +57,10 @@ benchmarks/
 ├── scenarios/          # one module per scenario
 ├── methods/            # one module per method
 ├── experiments/        # comparison.yaml (the real run), smoke.yaml (toy task, seconds)
+├── reporting/          # support matrix (data model + SVG/Markdown/HTML) and figures
 ├── run.py              # CLI: run an experiment, or one shard of it
 ├── aggregate.py        # mean ± std over seeds -> summary.json
+├── report.py           # summary + support matrix + figures
 └── download_data.py    # fetch datasets ahead of time
 ```
 
@@ -53,7 +72,8 @@ The runner only talks to the registries and the `Method` interface, so adding a 
 uv run python -m benchmarks.run --experiment benchmarks/experiments/comparison.yaml   # everything
 uv run python -m benchmarks.run --experiment ... --list                               # what would run
 uv run python -m benchmarks.run --experiment ... --shard 2/4                          # a quarter of the cells
-uv run python -m benchmarks.aggregate --experiment comparison                         # summary
+uv run python -m benchmarks.aggregate --experiment comparison                         # summary table
+uv run python -m benchmarks.report --experiment comparison                            # matrix + figures
 ```
 
 Results go to `benchmarks/results/<experiment>/<method>/<task>/<scenario>/seed_<s>.json`. Finished cells are skipped, so a run can be interrupted and restarted, or split across machines with `--shard` and merged by copying the result folders together. Datasets download automatically on first use (see the README).
@@ -124,6 +144,13 @@ Load torchvision datasets with `benchmarks.tasks.data.load_dataset` so they down
 Subclass `Scenario` in a new module under `benchmarks/scenarios/`, register it, import it in `benchmarks/scenarios/__init__.py`, and add it to `smoke.yaml`. A scenario sets `shift_epoch` (the first epoch trained under the change, or `None`), can override `initial_lr(task)`, and acts in `on_epoch_start(epoch, trainer)`. If its constructor takes a `seed`, it receives the run's seed automatically.
 
 ## Reporting
+
+`report.py` writes to `benchmarks/results/<experiment>/report/`:
+
+- `support_matrix.svg`: one row per method, one column per task and scenario, plus the cost of each method. Each cell is the test accuracy (mean ± std over seeds) with its rank in the column. Colour codes: the cell shade is the rank (lightest = best; equal scores share a rank), a red triangle means worse than Fixed LR in that column, grey n/a means the scenario does not apply, and Fixed LR is the dashed baseline row. Hovering a cell shows its details. `support_matrix.md` is the same table as Markdown, and `support_matrix.html` a page embedding the SVG.
+- `accuracy_vs_compute/`: test accuracy against total epochs trained, per task and scenario.
+- `curves/`: validation loss and learning rate per epoch (mean ± std band, shift marked).
+- `paper_figures/`: the four figures from the AutoTuneNet paper, per task.
 
 `aggregate.py` reports, per method, task and scenario, the mean ± std over seeds of:
 
