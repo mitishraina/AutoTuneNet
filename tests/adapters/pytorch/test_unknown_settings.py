@@ -1,7 +1,6 @@
 import optuna
 import pytest
 import torch
-import yaml
 
 from autotunenet.parameters import ParameterSpace
 from autotunenet.bayesian_optimizer import BayesianOptimizer
@@ -32,14 +31,13 @@ def test_sgd_momentum_is_accepted():
     build_pytorch_autotunenet(optimizer, {"parameter_space": {"momentum": [0.8, 0.99]}})
 
 
-@pytest.mark.parametrize("config", [
-    "autotunenet_bench/configs/mnist_autotunenet.yaml",
-    "autotunenet_bench/configs/mnist_gradient_noise_autotunenet.yaml",
-    "autotunenet_bench/configs/cifar_autotunenet.yaml",
-])
-def test_benchmark_configs_only_tune_adam_settings(config):
-    with open(config) as f:
-        space = yaml.safe_load(f)["controller"]["parameter_space"]
+@pytest.mark.parametrize("task", ["mnist", "cifar10", "toy"])
+def test_benchmark_autotunenet_config_builds_against_adam(task):
+    from benchmarks.core.registry import TASKS, load_plugins
+    from benchmarks.methods.autotunenet import AutoTuneNet
+
+    load_plugins()
+    config = AutoTuneNet().config_for(TASKS.get(task))
     model = torch.nn.Linear(2, 1)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    build_pytorch_autotunenet(optimizer, {"parameter_space": space})
+    build_pytorch_autotunenet(optimizer, config)
