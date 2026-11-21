@@ -9,7 +9,9 @@ from autotunenet_bench.runners.train_runner import train
 
 from autotunenet.factory import build_pytorch_autotunenet
 
-from benchmarks.common.tasks import build_task, resolve_task
+from benchmarks.common.device import resolve_device
+from benchmarks.common.tasks import build_task, build_test_loader, resolve_task
+from benchmarks.common.train_utils import evaluate
 
 from autotunenet_bench.controllers.factory import build_controller
 
@@ -29,21 +31,13 @@ def parse_args():
         help="Device to train on. 'auto' picks CUDA, then Apple MPS, then CPU. "
              "Compare runs only when they used the same device.",
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Override the config's seed. Results go to results/<config>/seed_<seed>/.",
+    )
     return parser.parse_args()
-
-
-def resolve_device(name: str) -> torch.device:
-    if name == "auto":
-        if torch.cuda.is_available():
-            return torch.device("cuda")
-        if torch.backends.mps.is_available():
-            return torch.device("mps")
-        return torch.device("cpu")
-    if name == "cuda" and not torch.cuda.is_available():
-        raise RuntimeError("--device cuda requested but CUDA is not available")
-    if name == "mps" and not torch.backends.mps.is_available():
-        raise RuntimeError("--device mps requested but Apple MPS is not available")
-    return torch.device(name)
 
 
 def main():
@@ -51,11 +45,11 @@ def main():
     config = load_benchmark_config(args.config)
 
     device = resolve_device(args.device)
-    seed = config.get("seed", config["training"].get("seed", 42))
+    seed = args.seed if args.seed is not None else config.get("seed", config["training"].get("seed", 42))
     torch.manual_seed(seed)
 
     run_name = Path(args.config).stem
-    output_dir = Path("autotunenet_bench/results") / run_name
+    output_dir = Path("autotunenet_bench/results") / run_name / f"seed_{seed}"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Task is read from the config; older configs without `task` are inferred from the file name.
@@ -76,6 +70,11 @@ def main():
     )
 
     controller_cfg = config["controller"]
+
+    non_stationarity = config.get("non_stationarity")
+    if non_stationarity is not None and "seed" not in non_stationarity:
+        # Label noise and gradient noise follow the run seed unless pinned.
+        non_stationarity = {**non_stationarity, "seed": seed}
 
     # Only the AutoTuneNet controller needs an adapter. It is built through the
     # library factory so that parameter_space, tuning, metrics and stability
@@ -109,7 +108,7 @@ def main():
     )
 
 
-    regime = build_regime(config.get("non_stationarity"))
+    regime = build_regime(non_stationarity)
 
     train(
         model=model,
@@ -123,6 +122,11 @@ def main():
         output_dir=output_dir,
     )
 
+    # Held-out test split: reported only, never used for tuning or selection.
+    test_loss, test_acc = evaluate(model, build_test_loader(task, config["training"]["batch_size"]), device)
+    with open(output_dir / "test_metrics.json", "w") as f:
+        json.dump({"test_loss": test_loss, "test_accuracy": test_acc}, f, indent=2)
+
     with open(output_dir / "run_info.json", "w") as f:
         json.dump(
             {
@@ -131,6 +135,7 @@ def main():
                 "seed": seed,
                 "device": device.type,
                 "torch_version": torch.__version__,
+                "epochs_trained": config["training"]["epochs"],
             },
             f,
             indent=2,

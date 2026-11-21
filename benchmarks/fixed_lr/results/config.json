@@ -1,7 +1,0 @@
-{
-  "batch_size": 64,
-  "epochs": 10,
-  "learning_rate": 0.01,
-  "seed": 42,
-  "optimizer": "Adam"
-}

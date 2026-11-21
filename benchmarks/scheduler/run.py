@@ -1,72 +1,34 @@
+"""Cosine-annealing scheduler baseline. Usage: python -m benchmarks.scheduler.run --task mnist|cifar10 --seed 42"""
 import torch
-import json
-from pathlib import Path
 
-from benchmarks.common.model import CNN
-from benchmarks.common.dataset import get_cifar_loaders
+from benchmarks.common.legacy import LegacyRun
 from benchmarks.common.train_utils import train_model
 
+
 def main():
-    config = {
-        "batch_size": 64,
-        "epochs": 10,
-        "initial_lr": 0.01,
-        "seed": 42,
-        "optimizer": "Adam",
-        "scheduler": "CosineAnnealingLR"
-    }
-    
-    torch.manual_seed(config["seed"])
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    train_loader, val_loader = get_cifar_loaders(
-        batch_size=config["batch_size"],
-        seed=config["seed"]
-    )
-    
-    model = CNN().to(device)
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=config["initial_lr"]
-    )
-    
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-        optimizer,
-        T_max=config["epochs"]
-    )
-    
+    run = LegacyRun(__file__, "Cosine-annealing scheduler baseline")
+    lr = run.defaults["lr"]
+
+    model = run.new_model()
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=run.epochs)
     lr_history = []
-    
+
     def on_epoch_end(epoch, val_loss, val_accuracy):
         scheduler.step()
-        lr_history.append(optimizer.param_groups[0]['lr'])
-        
+        lr_history.append(optimizer.param_groups[0]["lr"])
+
     history = train_model(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        optimizer=optimizer,
-        device=device,
-        epochs=config["epochs"],
-        on_epoch_end=on_epoch_end
+        model, run.train_loader, run.val_loader, optimizer, run.device, run.epochs,
+        on_epoch_end=on_epoch_end,
     )
-    
-    output_dir = Path(__file__).parent / "results"
-    output_dir.mkdir(exist_ok=True)
-    
-    with open(output_dir / "config.json", "w") as f:
-        json.dump(config, f, indent=2)
-        
-    with open(output_dir / "metrics.json", "w") as f:
-        json.dump(history, f, indent=2)
-        
-    with open(output_dir / "lr_history.json", "w") as f:
-        json.dump(lr_history, f, indent=2)
-        
-    print("Scheduler benchmark completed.")
-    print(f"Final validation loss: {history['val_loss'][-1]:.4f}")
-    print(f"Final validation accuracy: {history['val_accuracy'][-1]:.4f}")
-    print(f"Final Learning Rate: {lr_history[-1]:.6f}")
-    
+
+    test = run.test_metrics(model)
+    run.save("metrics.json", {**history, **test, "epochs_trained": run.epochs})
+    run.save("lr_history.json", lr_history)
+    run.save("run_info.json", run.run_info(method="scheduler", initial_lr=lr, scheduler="CosineAnnealingLR"))
+    print(f"Scheduler: test_accuracy={test['test_accuracy']:.4f} test_loss={test['test_loss']:.4f}")
+
+
 if __name__ == "__main__":
     main()

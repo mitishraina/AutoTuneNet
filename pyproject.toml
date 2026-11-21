@@ -24,6 +24,7 @@ dev = [
     "pytest>=8",
     "black",
     "ruff",
+    "matplotlib>=3.10.9",
 ]
 
 [project.urls]

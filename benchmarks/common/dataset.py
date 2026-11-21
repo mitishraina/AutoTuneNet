@@ -117,3 +117,23 @@ def get_cifar_loaders(
     )
 
     return train_loader, val_loader
+
+
+def get_mnist_test_loader(batch_size: int = 64):
+    """Held-out MNIST test split (10k images), never used for tuning."""
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+    ])
+    test_ds = datasets.MNIST(root="./data", train=False, download=True, transform=transform)
+    return DataLoader(test_ds, batch_size=batch_size, shuffle=False)
+
+
+def get_cifar_test_loader(batch_size: int = 128):
+    """Held-out CIFAR-10 test split (10k images), never used for tuning."""
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=(0.4914, 0.4822, 0.4465), std=(0.2023, 0.1994, 0.2010))
+    ])
+    test_ds = datasets.CIFAR10(root="./data", train=False, download=True, transform=transform)
+    return DataLoader(test_ds, batch_size=batch_size, shuffle=False)
