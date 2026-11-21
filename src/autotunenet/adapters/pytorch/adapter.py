@@ -54,6 +54,9 @@ class PyTorchHyperParameterAdapter:
         
         self._epoch = 0
         self._step = 0
+        # Each param group keeps its ratio to the first (reference) group, so
+        # layer-wise settings such as a lower backbone LR survive tuning.
+        self._group_ratios = self._compute_group_ratios()
         self._last_good_params: Dict[str, float] = self._read_current_params()
         # Fallback rollback target when nothing has been accepted yet
         # (e.g. the first tuned epoch diverges).
@@ -150,42 +153,78 @@ class PyTorchHyperParameterAdapter:
         self._apply_params(params)
         self._pending_observation = True
 
-    # read current hyperparameters from the PyTorch optimizer
+    # ------------------------------------------------------------ helpers
+
+    @staticmethod
+    def _is_number(value) -> bool:
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+    def _space(self):
+        space = getattr(getattr(self.autotune_optimizer, "param_space", None), "space", None)
+        return space if isinstance(space, dict) else None
+
+    def _tuned_keys(self):
+        """Names being tuned; every numeric setting if the search space is unknown."""
+        space = self._space()
+        if space is not None:
+            return list(space)
+        reference = self.torch_optimizer.param_groups[0]
+        return [k for k, v in reference.items() if self._is_number(v)]
+
+    def _is_categorical(self, key) -> bool:
+        space = self._space()
+        return space is not None and isinstance(space.get(key), list)
+
+    def _compute_group_ratios(self):
+        groups = self.torch_optimizer.param_groups
+        reference = groups[0]
+        ratios = []
+        for group in groups:
+            r = {}
+            for key in self._tuned_keys():
+                if key in group and key in reference and not self._is_categorical(key):
+                    ref, val = reference[key], group[key]
+                    if self._is_number(ref) and self._is_number(val):
+                        r[key] = val / ref if ref != 0 else 1.0
+            ratios.append(r)
+        return ratios
+
     def _read_current_params(self) -> Dict[str, float]:
-        params = {}
-        for group in self.torch_optimizer.param_groups:
-            for key, value in group.items():
-                if isinstance(value, (int, float)):
-                    params[key] = value
-        return params
+        """Current values of the tuned hyperparameters, read from the reference group."""
+        reference = self.torch_optimizer.param_groups[0]
+        return {k: reference[k] for k in self._tuned_keys() if k in reference}
     
-    # apply new hyperparameters to the PyTorch optimizer
     def _apply_params(self, params: Dict[str, float], bounded: bool = True):
         """
         Write hyperparameters into the optimizer's param groups.
 
-        With bounded=True (proposals), numeric values are clipped to
-        current * (1 +/- max_delta). Rollbacks pass bounded=False so the
-        saved configuration is restored exactly.
+        Values refer to the first (reference) group; other groups get the value
+        scaled by their original ratio to it. With bounded=True (proposals),
+        numeric values are clipped to current * (1 +/- max_delta). Rollbacks
+        pass bounded=False so the saved configuration is restored exactly.
         """
-        space = getattr(getattr(self.autotune_optimizer, "param_space", None), "space", None)
-        for group in self.torch_optimizer.param_groups:
-            for key, proposed_value in params.items():
+        groups = self.torch_optimizer.param_groups
+        reference = groups[0]
+        for key, proposed_value in params.items():
+            if key not in reference:
+                continue
+
+            current_value = reference[key]
+            value = proposed_value
+
+            # Categorical values are applied exactly: clipping could produce a
+            # value that is not one of the allowed choices.
+            if (bounded and self.max_delta is not None and not self._is_categorical(key)
+                    and self._is_number(current_value) and self._is_number(proposed_value)):
+                lower = current_value * (1 - self.max_delta)
+                upper = current_value * (1 + self.max_delta)
+                value = max(min(lower, upper), min(max(lower, upper), proposed_value))
+
+            for index, group in enumerate(groups):
                 if key not in group:
                     continue
-
-                current_value = group[key]
-
-                # Categorical values are applied exactly: clipping could produce a
-                # value that is not one of the allowed choices.
-                is_categorical = isinstance(space, dict) and isinstance(space.get(key), list)
-
-                if (bounded and self.max_delta is not None and not is_categorical and isinstance(current_value,(int, float)) and isinstance(proposed_value,(int, float))):
-                    lower = current_value * (1 - self.max_delta)
-                    upper = current_value * (1 + self.max_delta)
-                    proposed_value = max(lower, min(upper, proposed_value))
-                    
-                group[key] = proposed_value
+                ratio = self._group_ratios[index].get(key, 1.0) if index < len(self._group_ratios) else 1.0
+                group[key] = value * ratio if self._is_number(value) and ratio != 1.0 else value
     
                     
     @classmethod
