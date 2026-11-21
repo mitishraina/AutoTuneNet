@@ -2,6 +2,10 @@
 import math
 from typing import Optional
 
+from autotunenet.logging.logger import get_logger
+
+_logger = get_logger()
+
 class StabilityMonitor:
     """
     Detects unstable or harmful oprimization steps
@@ -43,7 +47,7 @@ class StabilityMonitor:
         the regression count is below `patience`, or during cooldown. Such a
         step must not become the rollback target.
         """
-        print(
+        _logger.debug(
             f"[STABILITY] score={score:.6f}, "
             f"best={best_score}, "
             f"bad_count={self._patience}, "

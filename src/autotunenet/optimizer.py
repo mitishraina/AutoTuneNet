@@ -1,5 +1,3 @@
-from autotunenet.logging.logger import logging
-from autotunenet.exceptions.exception import CustomException
 from abc import ABC, abstractmethod
 import math
 from typing import Dict, List, Tuple, Any
@@ -63,7 +61,6 @@ class Optimizer(ABC):
         # everything, so a NaN entry would otherwise stick as the maximum.
         finite = [item for item in self.history if math.isfinite(item[1])]
         if not finite:
-            logging.info("No observations available yet")
             raise RuntimeError("No observations available yet")
         return max(finite, key=lambda item: item[1])
 
