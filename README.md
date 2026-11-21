@@ -203,8 +203,8 @@ The same config can live in a YAML file:
 ```yaml
 parameter_space:
   lr: {low: 1e-4, high: 1e-1, log: true}   # continuous range, log scale
-  momentum: {low: 0.8, high: 0.99}     # continuous range, explicit form
-  # batch_size: {choices: [32, 64]}    # categorical
+  weight_decay: {low: 1e-5, high: 1e-3, log: true}
+  # momentum: {choices: [0.8, 0.9, 0.95]}  # categorical (SGD only: Adam has no momentum)
 tuning:
   tune_n_steps: 1
   warmup_epochs: 2
@@ -221,7 +221,7 @@ stability:
 adapter = PyTorchHyperParameterAdapter.from_config(optimizer, "autotune.yaml", seed=42)
 ```
 
-In a config, `[low, high]` always means a continuous range on a linear scale, `{low, high, log: true}` a log-scale range, and categorical values must be written as `{choices: [...]}`. In the Python `ParameterSpace` API, a tuple is a linear range, a `{"low", "high", "log"}` mapping a (log-scale) range, and a list is categorical. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+Every tuned name must be a setting of your optimizer's param groups (`lr`, `weight_decay`, `momentum` for SGD, and so on); an unknown name raises an error listing the settings that exist. In a config, `[low, high]` always means a continuous range on a linear scale, `{low, high, log: true}` a log-scale range, and categorical values must be written as `{choices: [...]}`. In the Python `ParameterSpace` API, a tuple is a linear range, a `{"low", "high", "log"}` mapping a (log-scale) range, and a list is categorical. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
 
 ## Hyperparameters of AutoTuneNet
 

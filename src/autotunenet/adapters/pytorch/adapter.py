@@ -52,6 +52,8 @@ class PyTorchHyperParameterAdapter:
         self.rollback = Rollback()
         self.tracker = Tracker()
         
+        self._validate_tuned_keys()
+
         self._epoch = 0
         self._step = 0
         # Each param group keeps its ratio to the first (reference) group, so
@@ -170,6 +172,20 @@ class PyTorchHyperParameterAdapter:
             return list(space)
         reference = self.torch_optimizer.param_groups[0]
         return [k for k, v in reference.items() if self._is_number(v)]
+
+    def _validate_tuned_keys(self) -> None:
+        """Every tuned name must be a setting of every param group."""
+        space = self._space()
+        if space is None:
+            return
+        groups = self.torch_optimizer.param_groups
+        missing = [k for k in space if any(k not in g for g in groups)]
+        if missing:
+            available = sorted(k for k, v in groups[0].items() if self._is_number(v))
+            raise ValueError(
+                f"Cannot tune {missing}: not a setting of this optimizer "
+                f"({type(self.torch_optimizer).__name__}). Tunable settings: {available}"
+            )
 
     def _is_categorical(self, key) -> bool:
         space = self._space()

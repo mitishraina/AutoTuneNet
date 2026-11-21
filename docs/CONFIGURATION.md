@@ -8,8 +8,8 @@ AutoTuneNet can be configured from a YAML file or a Python dict. Both go through
 parameter_space:
   lr: {low: 1e-4, high: 1e-1, log: true}   # continuous range, log scale
   weight_decay: {low: 1e-5, high: 1e-3, log: true}
-  # momentum: [0.8, 0.99]                  # continuous range, linear scale
-  # batch_size: {choices: [32, 64]}    # categorical
+  # momentum: [0.8, 0.99]                  # continuous range, linear scale (SGD only)
+  #   or categorical: momentum: {choices: [0.8, 0.9, 0.95]}
 
 tuning:
   tune_n_steps: 1
@@ -30,6 +30,8 @@ stability:
 ```
 
 ## Parameter space syntax
+
+Every tuned name must be a setting of the optimizer's param groups (`lr`, `weight_decay`, `momentum` for SGD, `eps`, and so on). An unknown name, such as `momentum` with Adam, raises an error that lists the settings that exist.
 
 | Form | Meaning |
 |---|---|
