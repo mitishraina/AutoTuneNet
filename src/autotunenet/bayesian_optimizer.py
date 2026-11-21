@@ -3,7 +3,7 @@ from typing import Dict, Any
 import optuna
 from optuna.distributions import CategoricalDistribution, FloatDistribution
 from optuna.trial import TrialState
-from .optimizer import Optimizer
+from .optimizer import Optimizer, to_score
 from .metrics import MetricSmoother
 from autotunenet.safeguards.stability import StabilityMonitor
 from autotunenet.safeguards.rollback import Rollback
@@ -78,8 +78,7 @@ class BayesianOptimizer(Optimizer):
         self.last_instability = False
         self.last_rollback = False
 
-        if isinstance(score, bool) or not isinstance(score, (int, float)):
-            raise ValueError("Score must be a numeric value")
+        score = to_score(score)
 
         if math.isfinite(score):
             smoothed_score = self.smoother.add(score)

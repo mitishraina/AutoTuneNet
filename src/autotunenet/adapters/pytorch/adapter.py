@@ -2,6 +2,7 @@ from typing import Dict
 import torch
 
 from autotunenet.bayesian_optimizer import BayesianOptimizer
+from autotunenet.optimizer import to_score
 from autotunenet.safeguards.rollback import Rollback
 from autotunenet.logging.tracker import Tracker
 from autotunenet.safeguards.stability import StabilityMonitor
@@ -114,6 +115,7 @@ class PyTorchHyperParameterAdapter:
            (stability check; roll back if unstable).
         2. Propose and apply the configuration for the next interval.
         """
+        metric = to_score(metric)
         self._step += 1
         self.last_instability = False
         self.last_rollback = False

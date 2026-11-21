@@ -5,6 +5,24 @@ import math
 from typing import Dict, List, Tuple, Any
 
 
+def to_score(value: Any) -> float:
+    """
+    Convert a metric to a Python float.
+
+    Accepts int/float, NumPy scalars (e.g. np.float32) and one-element
+    tensors (e.g. torch.tensor(-0.1) or -loss.detach()). Booleans and
+    anything that is not a single number raise ValueError.
+    """
+    if isinstance(value, bool):
+        raise ValueError("Score must be a numeric value, not a bool")
+    try:
+        return float(value)
+    except (TypeError, ValueError, RuntimeError):
+        raise ValueError(
+            f"Score must be a single numeric value (got {type(value).__name__})"
+        ) from None
+
+
 class Optimizer(ABC):
     '''
     Abstract base class for all optimizers.
@@ -35,9 +53,7 @@ class Optimizer(ABC):
             params: A dictionary of hyperparameters.
             score: The score (e.g., validation loss) obtained with these hyperparameters. Overall Performance metrics
         '''
-        if not isinstance(score, (int, float)):
-            logging.info("Score must be a numeric value")
-            raise ValueError("Score must be a numeric value")
+        score = to_score(score)
         
         self._step += 1
         self.history.append((params, score))
