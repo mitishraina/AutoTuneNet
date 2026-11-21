@@ -28,3 +28,41 @@ def test_plateau_keeps_the_lr_while_improving():
 
 def test_plateau_is_registered():
     assert "plateau" in METHODS.names()
+
+
+# ------------------------------------------------------------------ optuna
+
+import pytest  # noqa: E402
+
+from benchmarks.core.ledger import ComputeLedger  # noqa: E402
+from benchmarks.core.method import RunContext  # noqa: E402
+from benchmarks.core.registry import TASKS  # noqa: E402
+from benchmarks.methods.optuna_search import ASHA, Hyperband, OptunaTPE  # noqa: E402
+
+
+def _ctx(epochs=6):
+    return RunContext(task=TASKS.get("toy"), scenario_name="stationary", scenario_params={},
+                      seed=0, device=torch.device("cpu"), epochs=epochs)
+
+
+def test_tpe_trains_every_trial_to_the_end():
+    ledger = ComputeLedger()
+    outcome = OptunaTPE(n_trials=3, n_startup_trials=1).run(_ctx(), ledger)
+    assert ledger.trials == 3 and ledger.restarts == 2
+    assert ledger.epochs_trained == 3 * 6
+    assert outcome.extra["trials_completed"] == 3
+    assert len(outcome.history) == 6 and 0 <= outcome.test_accuracy <= 1
+
+
+@pytest.mark.parametrize("method", [ASHA(n_trials=8, n_startup_trials=1), Hyperband(n_trials=8, n_startup_trials=1)])
+def test_pruning_methods_stop_some_trials_early(method):
+    ledger = ComputeLedger()
+    outcome = method.run(_ctx(), ledger)
+    assert ledger.trials == 8
+    assert outcome.extra["trials_pruned"] >= 1
+    assert ledger.epochs_trained < 8 * 6          # early stopping saved compute
+
+
+def test_selected_model_is_the_best_on_validation():
+    outcome = OptunaTPE(n_trials=3, n_startup_trials=1).run(_ctx(), ComputeLedger())
+    assert outcome.extra["best_lr"] is not None

@@ -42,5 +42,6 @@ def test_aggregate_summarises_the_smoke_run(smoke_results):
     aggregate.main(["--experiment", "smoke", "--results-dir", str(smoke_results)])
     import json
     summary = json.load(open(smoke_results / "smoke" / "summary.json"))
-    assert len(summary["groups"]) == len(METHODS.names()) * len(SCENARIOS.names())
+    groups = {(c.method, c.task, c.scenario) for c in Experiment.load(SMOKE).cells()}
+    assert len(summary["groups"]) == len(groups)
     assert summary["warnings"] == []

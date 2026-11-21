@@ -11,7 +11,7 @@ reuse ctx.new_trainer() / ctx.new_scenario().
 import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import torch
 
@@ -68,19 +68,13 @@ class Controller(ABC):
         return {}
 
 
-def train_single_run(ctx: RunContext, ledger: ComputeLedger, make_controller, trainer=None,
-                     optimizer=None, scenario=None) -> RunOutcome:
+def train_epochs(ctx: RunContext, ledger: ComputeLedger, trainer: Trainer, optimizer,
+                 scenario, controller: Controller) -> List[Dict[str, Any]]:
     """
-    Train one model for ctx.epochs with a controller acting after every epoch.
-
-    Shared by every single-run method; also usable by multi-run methods to
-    train one candidate.
+    Train `trainer.model` for ctx.epochs, calling the scenario before and the
+    controller after every epoch. Returns the per-epoch history. The test
+    split is not touched here.
     """
-    scenario = scenario or ctx.new_scenario()
-    trainer = trainer or ctx.new_trainer()
-    optimizer = optimizer or torch.optim.Adam(trainer.model.parameters(), lr=scenario.initial_lr(ctx.task))
-    controller = make_controller(optimizer, ctx)
-
     history = []
     for epoch in range(ctx.epochs):
         scenario.on_epoch_start(epoch, trainer)
@@ -92,7 +86,16 @@ def train_single_run(ctx: RunContext, ledger: ComputeLedger, make_controller, tr
                         "val_loss": val_loss, "val_accuracy": val_accuracy})
         with ledger.time_controller():
             controller.on_epoch_end(epoch, val_loss)
+    return history
 
+
+def train_single_run(ctx: RunContext, ledger: ComputeLedger, make_controller) -> RunOutcome:
+    """One model from the scenario's initial learning rate, then the test split once."""
+    scenario = ctx.new_scenario()
+    trainer = ctx.new_trainer()
+    optimizer = torch.optim.Adam(trainer.model.parameters(), lr=scenario.initial_lr(ctx.task))
+    controller = make_controller(optimizer, ctx)
+    history = train_epochs(ctx, ledger, trainer, optimizer, scenario, controller)
     test_loss, test_accuracy = trainer.test()
     return RunOutcome(test_loss, test_accuracy, history, controller.extra())
 
