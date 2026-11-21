@@ -1,7 +1,7 @@
 import torch
 
-from benchmarks.core.registry import METHODS
-from benchmarks.methods.plateau import _Plateau
+from autotunenet.bench.core.registry import METHODS
+from autotunenet.bench.methods.plateau import _Plateau
 
 
 def _optimizer(lr=0.1):
@@ -34,10 +34,10 @@ def test_plateau_is_registered():
 
 import pytest  # noqa: E402
 
-from benchmarks.core.ledger import ComputeLedger  # noqa: E402
-from benchmarks.core.method import RunContext  # noqa: E402
-from benchmarks.core.registry import TASKS  # noqa: E402
-from benchmarks.methods.optuna_search import ASHA, Hyperband, OptunaTPE  # noqa: E402
+from autotunenet.bench.core.ledger import ComputeLedger  # noqa: E402
+from autotunenet.bench.core.method import RunContext  # noqa: E402
+from autotunenet.bench.core.registry import TASKS  # noqa: E402
+from autotunenet.bench.methods.optuna_search import ASHA, Hyperband, OptunaTPE  # noqa: E402
 
 
 def _ctx(epochs=6):

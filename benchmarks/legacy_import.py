@@ -3,7 +3,7 @@ Convert the archived results of the previous benchmark scripts
 (benchmarks/results/legacy/) into RunResult files, so the support matrix can
 show them alongside the methods that still have to run.
 
-    uv run python -m benchmarks.legacy_import          # -> benchmarks/results/previous/
+    uv run python benchmarks/legacy_import.py          # -> benchmarks/results/previous/
 
 Covered: fixed LR, cosine schedule and AutoTuneNet on MNIST and CIFAR-10, in
 the stationary, label-noise, gradient-noise (MNIST) and bad-initial-LR
@@ -15,7 +15,7 @@ import argparse
 import json
 from pathlib import Path
 
-from benchmarks.core.result import RunResult, result_path
+from autotunenet.bench.core.result import RunResult, result_path
 
 RESULTS = Path(__file__).resolve().parent / "results"
 LEGACY = RESULTS / "legacy"
@@ -49,7 +49,7 @@ def _result(method, task, scenario, seed, test_loss, test_accuracy, history, shi
         test_loss=test_loss, test_accuracy=test_accuracy, history=history, shift_epoch=shift_epoch,
         compute={"epochs_trained": len(history), "max_parallel_models": 1, "trials": 1, "restarts": 0,
                  "wall_time_sec": 0.0, "controller_time_sec": 0.0},
-        environment={"device": device, "accelerator": f"Apple MPS (previous benchmark scripts)",
+        environment={"device": device, "accelerator": "Apple MPS (previous benchmark scripts)",
                      "torch": None, "cuda": None, "python": None, "platform": None, "git_commit": None},
         config={"epochs": len(history), "source": source},
         extra={"imported_from": source, **(extra or {})},

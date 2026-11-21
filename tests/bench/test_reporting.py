@@ -1,8 +1,9 @@
 import xml.dom.minidom
 
-from benchmarks import report, run
-from benchmarks.reporting.matrix import render_markdown, render_svg
-from benchmarks.reporting.table import build_matrix
+from autotunenet import cli
+from autotunenet.bench import report
+from autotunenet.bench.reporting.matrix import render_markdown, render_svg
+from autotunenet.bench.reporting.table import build_matrix
 
 
 def _group(method, task, scenario, acc, epochs=10, parallel=1, restarts=0):
@@ -47,9 +48,8 @@ def test_missing_cells_are_not_applicable():
 
 
 def test_report_end_to_end_on_the_smoke_run(tmp_path):
-    assert run.main(["--experiment", "benchmarks/experiments/smoke.yaml", "--results-dir", str(tmp_path),
-                     "--device", "cpu", "--method", "fixed_lr", "--method", "cosine",
-                     "--method", "autotunenet"]) == 0
+    assert cli.main(["run", "--experiment", "smoke", "--results-dir", str(tmp_path), "--device", "cpu",
+                     "--method", "fixed_lr", "--method", "cosine", "--method", "autotunenet", "--no-report"]) == 0
     out = report.build_report(tmp_path, "smoke", "Support matrix")
     svg = (out / "support_matrix.svg").read_text()
     xml.dom.minidom.parseString(svg)                      # well-formed SVG

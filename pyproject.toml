@@ -19,17 +19,24 @@ dependencies = [
     "pyyaml"
 ]
 
-[dependency-groups]
+[project.optional-dependencies]
+# pip install "autotunenet[bench]": PBT (Ray Tune), the Kaggle runtime, and report figures.
 bench = [
     "kaggle>=1.7.4.5",
     "ray[tune]>=2.60.0",
-    "six>=1.17.0",
+    "six>=1.17.0",          # kaggle 2.2.x imports it without declaring it
+    "matplotlib>=3.10.9",
 ]
+
+[project.scripts]
+autotunenet = "autotunenet.cli:main"
+
+[dependency-groups]
 dev = [
+    "autotunenet[bench]",
     "pytest>=8",
     "black",
     "ruff",
-    "matplotlib>=3.10.9",
 ]
 
 [project.urls]
@@ -38,16 +45,16 @@ Repository = "https://github.com/mitishraina/AutoTuneNet"
 Issues = "https://github.com/mitishraina/AutoTuneNet/issues"
 
 [tool.uv]
-# `uv sync` installs the development tools and the benchmark extras (Ray Tune for PBT).
-# `pip install autotunenet` installs only the library.
-default-groups = ["dev", "bench"]
+# `uv sync` installs the development tools and the `bench` extra, so contributors get everything.
+# `pip install autotunenet` installs the library and the CLI; add [bench] for PBT, Kaggle and figures.
+default-groups = ["dev"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 include-package-data = true
 
 [tool.setuptools.package-data]
-autotunenet = ["config/*.yaml"]
+autotunenet = ["config/*.yaml", "bench/experiments/*.yaml"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

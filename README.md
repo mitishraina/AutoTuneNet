@@ -106,17 +106,18 @@ Requires Python ≥ 3.10.
 
 ```bash
 # From PyPI
-pip install autotunenet          # or: uv add autotunenet
+pip install autotunenet                 # the library and the `autotunenet` command
+pip install "autotunenet[bench]"        # + PBT (Ray Tune), the Kaggle runtime and report figures
 
 # From source (recommended for research / reproducing benchmarks)
 git clone https://github.com/mitishraina/AutoTuneNet.git
 cd AutoTuneNet
-uv sync                          # creates .venv from uv.lock, installs the package + dev tools
+uv sync                          # creates .venv from uv.lock: the package, [bench] and dev tools
 ```
 
 Development uses [uv](https://docs.astral.sh/uv/). `uv sync` installs the exact versions pinned in `uv.lock`, and `uv run <cmd>` runs a command inside the project environment. If you don't use uv, `pip install -e .` still works.
 
-Dependencies: `optuna`, `torch`, `torchvision`, `pyyaml`.
+Dependencies: `optuna`, `torch`, `torchvision`, `pyyaml`; the `bench` extra adds `ray[tune]`, `kaggle` and `matplotlib`.
 
 ## Quick Start
 
@@ -244,10 +245,10 @@ Every tuned name must be a setting of your optimizer's param groups (`lr`, `weig
   <img src="benchmarks/results/previous/report/support_matrix.svg" width="100%" alt="Support matrix: test accuracy of AutoTuneNet and seven other learning-rate strategies on MNIST and CIFAR-10 across four scenarios, coloured by the difference from a fixed learning rate; cells not run yet are hatched" />
 </p>
 
-Fixed LR is the reference row at the top. Every other cell shows the test accuracy on the held-out split (mean ± std over 3 seeds), its difference from Fixed LR in percentage points and its rank in the column; the colour is that difference (teal = better, rose = worse, grey = about the same). Hatched **pending** cells have not been run yet, and n/a marks a scenario that does not apply to the method. The filled cells are the earlier runs (Apple MPS), imported with `uv run python -m benchmarks.legacy_import`; the remaining methods are run with the new harness (see [docs/BENCHMARKING.md](docs/BENCHMARKING.md)). To redraw it with progress against the full plan:
+Fixed LR is the reference row at the top. Every other cell shows the test accuracy on the held-out split (mean ± std over 3 seeds), its difference from Fixed LR in percentage points and its rank in the column; the colour is that difference (teal = better, rose = worse, grey = about the same). Hatched **pending** cells have not been run yet, and n/a marks a scenario that does not apply to the method. The filled cells are the earlier runs (Apple MPS), imported with `uv run python benchmarks/legacy_import.py`; the remaining methods are run with the new harness (see [docs/BENCHMARKING.md](docs/BENCHMARKING.md)). To redraw it with progress against the full plan:
 
 ```bash
-uv run python -m benchmarks.report --experiment previous --plan benchmarks/experiments/comparison.yaml
+autotunenet report --experiment previous --plan comparison
 ```
 
 ### Previous results
@@ -305,47 +306,36 @@ The four figures from the original paper, regenerated from these runs (MNIST sho
 
 ## Reproducing Results
 
-### Datasets
-
-Datasets are not stored in the repository. Each benchmark downloads what it needs the first time it runs, into `data/` at the repository root (set `AUTOTUNENET_DATA_DIR` to use another folder). The terminal shows which dataset is being fetched, its size, and a progress bar with percentage, speed and time remaining:
-
-```text
-[data] CIFAR-10 (training split) not found in /path/to/AutoTuneNet/data.
-[data] Downloading CIFAR-10 (about 170 MB) from www.cs.toronto.edu (this server can be slow). This happens once.
- 43%|████▎     | 73.4M/170M [00:41<00:52, 1.85MB/s]
-[data] CIFAR-10 ready in /path/to/AutoTuneNet/data
-```
-
-To fetch everything before running anything:
+Every benchmark runs through the `autotunenet` command, installed with the package. An experiment lists methods, tasks, scenarios and seeds; each combination is one *cell*, and each cell's result is saved as soon as it finishes.
 
 ```bash
-uv run python -m benchmarks.download_data                 # MNIST (~11 MB) and CIFAR-10 (~170 MB)
-uv run python -m benchmarks.download_data --task cifar10  # just one
+autotunenet run --experiment smoke                       # every method and scenario on a toy task, seconds
+autotunenet run --experiment comparison                  # the full comparison, on this machine
+autotunenet run --experiment comparison --runtime kaggle # the same on Kaggle's GPUs, with your account
 ```
 
-### Running
+`run` does every stage: it checks the runtime, fetches (and for Kaggle uploads) the datasets, plans the cells without a result, trains them, collects the results and draws the support matrix. Stop it at any point and run the same command again: finished cells are never run twice. Without `--runtime` it trains on this machine's best device (CUDA GPU, Apple GPU or CPU).
 
-All benchmarks run through one harness. An experiment file lists the methods, tasks, scenarios and seeds; each combination is one *cell*.
+The stages are also separate commands, for when you want to look before you leap:
 
-```bash
-# Unit tests (include an end-to-end run of every method and scenario on a tiny synthetic task)
-uv run pytest
+| Command | What it does |
+|---|---|
+| `autotunenet list` | built-in experiments, tasks, scenarios, methods and runtimes |
+| `autotunenet setup` | checks a runtime is ready (device here; Kaggle CLI and token) |
+| `autotunenet data` | fetches datasets, and uploads them as private Kaggle datasets with `--runtime kaggle` |
+| `autotunenet prepare` | plans unfinished cells; for Kaggle, writes the notebooks so you can read them first |
+| `autotunenet start` | starts the prepared notebooks |
+| `autotunenet status` | cells done and left, and each notebook's state |
+| `autotunenet pull` | downloads results of finished notebooks |
+| `autotunenet report` | support matrix (SVG, Markdown, HTML) and figures |
 
-# Run an experiment. Results: benchmarks/results/<experiment>/<method>/<task>/<scenario>/seed_<s>.json
-uv run python -m benchmarks.run --experiment benchmarks/experiments/comparison.yaml
+`autotunenet --help` lists the commands; `autotunenet <command> --help` explains one, with examples. Useful options: `--method`, `--task`, `--scenario` (repeatable filters), `--device`, `--parallel` (Kaggle notebooks at once, two GPUs each) and `--plugins my_tasks.py` for your own tasks, scenarios or methods.
 
-# Useful options
-#   --list                 show the cells (and which are done) without running anything
-#   --shard 2/4            run a quarter of the cells, e.g. on four machines or notebooks
-#   --method autotunenet   only some methods (also --task, --scenario; all repeatable)
-#   --device auto|cpu|cuda|mps
-# Finished cells are skipped, so an interrupted run resumes where it stopped.
+**Where things go.** In this repository, results go to `benchmarks/results/<experiment>/`; only the published experiments (and the Kaggle notebooks that produced them) are tracked, so anyone can check what ran. Anywhere else they go to `./autotunenet_results/` (or `$AUTOTUNENET_RESULTS`). Datasets are downloaded on first use into `./data` (or `$AUTOTUNENET_DATA_DIR`), with a progress bar showing size, speed and time left.
 
-# Mean ± std over seeds, support matrix (SVG) and figures -> benchmarks/results/<experiment>/report/
-uv run python -m benchmarks.report --experiment comparison
-```
+**Kaggle** runs under your own account: create a token at kaggle.com → Settings → API and save it as `~/.kaggle/access_token`. Details in [docs/BENCHMARKING.md](docs/BENCHMARKING.md#running-on-kaggle-your-own-account).
 
-`benchmarks/experiments/smoke.yaml` runs every method and scenario on the toy task in about a second, a quick way to check a change. How the harness is organised, and how to add a method, task or scenario: [docs/BENCHMARKING.md](docs/BENCHMARKING.md).
+How the harness is organised, and how to add a task (any dataset and model), scenario or method: [docs/BENCHMARKING.md](docs/BENCHMARKING.md).
 
 ## Repository Structure
 
@@ -359,15 +349,17 @@ AutoTuneNet/
 │   ├── safeguards/             # StabilityMonitor, Rollback
 │   ├── adapters/pytorch/       # PyTorchHyperParameterAdapter + hooks
 │   ├── config/                 # Config schema, loader, defaults.yaml
-│   └── logging/                # Structured logging and tracking
-├── benchmarks/                 # Benchmark harness
-│   ├── core/                   # Trainer, compute ledger, result schema, registries, experiment files
-│   ├── tasks/                  # mnist, cifar10, toy (synthetic, for tests)
-│   ├── scenarios/              # stationary, label_noise, gradient_noise, bad_initial_lr
-│   ├── methods/                # fixed_lr, cosine, autotunenet, ...
-│   ├── experiments/            # comparison.yaml, smoke.yaml
-│   ├── run.py · aggregate.py · download_data.py
-│   └── results/                # outputs; legacy/ holds the previous results
+│   ├── logging/                # Structured logging and tracking
+│   ├── cli.py                  # the `autotunenet` command
+│   └── bench/                  # Benchmark harness
+│       ├── core/               # Trainer, compute ledger, result schema, registries, experiment files
+│       ├── tasks/              # mnist, cifar10, toy (synthetic, for tests)
+│       ├── scenarios/          # stationary, label_noise, gradient_noise, bad_initial_lr
+│       ├── methods/            # fixed_lr, cosine, plateau, autotunenet, optuna_tpe, asha, hyperband, pbt
+│       ├── runtimes/           # machine (this computer), kaggle
+│       ├── reporting/          # support matrix and figures
+│       └── experiments/        # comparison.yaml, pilot.yaml, smoke.yaml
+├── benchmarks/results/         # published results and notebooks; legacy/ holds the previous scripts' output
 ├── docs/                       # Quickstart, configuration, PyTorch guide, OHA definition, FAQ
 ├── examples/                   # Minimal runnable examples
 ├── tests/                      # Unit tests (core, safeguards, adapter, config, factory)

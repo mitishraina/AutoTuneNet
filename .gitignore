@@ -209,8 +209,21 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Benchmark datasets are downloaded on demand (see benchmarks/download_data.py)
+# Benchmark datasets are downloaded on demand (`autotunenet data`)
 data/
 
 # Optional AutoTuneNet log files (enable_file_logging / AUTOTUNENET_LOG_FILE)
 logs/
+
+# Runtime state and logs (contain your Kaggle username)
+benchmarks/results/**/.runtime/
+
+# Only the published experiments' results (and their notebooks) are tracked;
+# any other experiment stays local. Outside this repository, results go to
+# ./autotunenet_results, which is never part of anyone's repository.
+benchmarks/results/*
+!benchmarks/results/legacy/
+!benchmarks/results/previous/
+!benchmarks/results/comparison/
+!benchmarks/results/pilot/
+autotunenet_results/

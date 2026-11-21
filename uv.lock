@@ -52,7 +52,6 @@ wheels = [
 name = "autotunenet"
 version = "1.0.2"
 source = { editable = "." }
-default-groups = ["bench", "dev"]
 dependencies = [
     { name = "optuna" },
     { name = "pyyaml" },
@@ -61,38 +60,41 @@ dependencies = [
     { name = "torchvision" },
 ]
 
-[package.dev-dependencies]
+[package.optional-dependencies]
 bench = [
     { name = "kaggle", version = "1.7.4.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "kaggle", version = "2.2.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "matplotlib", version = "3.10.9", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "matplotlib", version = "3.11.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "ray", extra = ["tune"] },
     { name = "six" },
 ]
+
+[package.dev-dependencies]
 dev = [
+    { name = "autotunenet", extra = ["bench"] },
     { name = "black" },
-    { name = "matplotlib", version = "3.10.9", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "matplotlib", version = "3.11.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pytest" },
     { name = "ruff" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "kaggle", marker = "extra == 'bench'", specifier = ">=1.7.4.5" },
+    { name = "matplotlib", marker = "extra == 'bench'", specifier = ">=3.10.9" },
     { name = "optuna" },
     { name = "pyyaml" },
+    { name = "ray", extras = ["tune"], marker = "extra == 'bench'", specifier = ">=2.60.0" },
+    { name = "six", marker = "extra == 'bench'", specifier = ">=1.17.0" },
     { name = "torch" },
     { name = "torchvision" },
 ]
+provides-extras = ["bench"]
 
 [package.metadata.requires-dev]
-bench = [
-    { name = "kaggle", specifier = ">=1.7.4.5" },
-    { name = "ray", extras = ["tune"], specifier = ">=2.60.0" },
-    { name = "six", specifier = ">=1.17.0" },
-]
 dev = [
+    { name = "autotunenet", extras = ["bench"] },
     { name = "black" },
-    { name = "matplotlib", specifier = ">=3.10.9" },
     { name = "pytest", specifier = ">=8" },
     { name = "ruff" },
 ]
