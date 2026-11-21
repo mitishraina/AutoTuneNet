@@ -9,7 +9,11 @@ scenarios:
   stationary: {}
   label_noise: {start_epoch: 5, noise_ratio: 0.3}            # 30% of training labels randomised
   gradient_noise: {start_epoch: 5, std: 0.02, tasks: [mnist]} # noise added to every gradient
-  bad_initial_lr: {initial_lr: 0.1}                          # stress test
+  # Stress test. Offline search methods have no starting learning rate (each
+  # trial samples its own), so it does not apply to them.
+  bad_initial_lr:
+    initial_lr: 0.1
+    methods: [fixed_lr, cosine, plateau, autotunenet]
 
 # Each method's keyword arguments. All tuning methods search the task's lr_range on a log scale.
 methods:
@@ -24,3 +28,7 @@ methods:
     max_regression: 0.2
     patience: 2
     cooldown: 3
+  # Offline search: separate trials, each a full run with its own LR; best on validation is reported.
+  optuna_tpe: {n_trials: 8, n_startup_trials: 3}           # 8 full trials
+  asha: {n_trials: 16, n_startup_trials: 3}                # stops weak trials early
+  hyperband: {n_trials: 16, n_startup_trials: 3}

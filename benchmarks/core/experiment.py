@@ -32,6 +32,7 @@ class Experiment:
         scenarios:
           stationary: {}
           gradient_noise: {start_epoch: 5, std: 0.02, tasks: [mnist]}  # `tasks` limits a scenario
+          bad_initial_lr: {initial_lr: 0.1, methods: [fixed_lr]}       # and so does `methods`
         methods:
           fixed_lr: {}
           autotunenet: {n_startup_trials: 3}                            # constructor arguments
@@ -65,11 +66,14 @@ class Experiment:
             SCENARIOS.get(name)
             for task in params.get("tasks", []):
                 TASKS.get(task)
+            for method in params.get("methods", []):
+                if method not in self.methods:
+                    raise KeyError(f"Scenario '{name}' lists method '{method}', which this experiment does not run")
         for name in self.methods:
             METHODS.get(name)
 
     def scenario_params(self, name: str) -> dict:
-        return {k: v for k, v in self.scenarios[name].items() if k != "tasks"}
+        return {k: v for k, v in self.scenarios[name].items() if k not in ("tasks", "methods")}
 
     def build_method(self, name: str):
         return METHODS.get(name)(**self.methods[name])
@@ -82,6 +86,8 @@ class Experiment:
                 if "tasks" in params and task not in params["tasks"]:
                     continue
                 for method in self.methods:
+                    if "methods" in params and method not in params["methods"]:
+                        continue
                     for seed in self.seeds:
                         cell = Cell(task, scenario, method, seed)
                         if methods and method not in methods:

@@ -38,8 +38,12 @@ def test_comparison_experiment_grid():
     cells = exp.cells()
     # gradient_noise is limited to MNIST
     assert not any(c.task == "cifar10" and c.scenario == "gradient_noise" for c in cells)
-    per_method = len(cells) // len(exp.methods)
-    assert per_method == (4 + 3) * len(exp.seeds)
+    # every method on MNIST (4 scenarios) and CIFAR-10 (3), except the stress test,
+    # which only applies to methods that start from a learning rate
+    stress = set(exp.scenarios["bad_initial_lr"]["methods"])
+    for method in exp.methods:
+        n = sum(c.method == method for c in cells)
+        assert n == ((4 + 3) if method in stress else (3 + 2)) * len(exp.seeds), method
 
 
 def test_shards_partition_the_grid():
@@ -117,3 +121,21 @@ def test_result_round_trip(tmp_path):
     r.save(path)
     assert RunResult.load(path) == r
     assert not list(path.parent.glob("*.tmp"))
+
+
+def test_scenario_method_filter(tmp_path):
+    path = tmp_path / "e.yaml"
+    path.write_text("name: x\nepochs: 1\nseeds: [1]\ntasks: [toy]\n"
+                    "scenarios: {stationary: {}, bad_initial_lr: {methods: [fixed_lr]}}\n"
+                    "methods: {fixed_lr: {}, cosine: {}}\n")
+    cells = Experiment.load(path).cells()
+    assert {(c.method, c.scenario) for c in cells} == {
+        ("fixed_lr", "stationary"), ("cosine", "stationary"), ("fixed_lr", "bad_initial_lr")}
+
+
+def test_scenario_method_filter_must_name_known_methods(tmp_path):
+    path = tmp_path / "e.yaml"
+    path.write_text("name: x\nepochs: 1\nseeds: [1]\ntasks: [toy]\n"
+                    "scenarios: {stationary: {methods: [nope]}}\nmethods: {fixed_lr: {}}\n")
+    with pytest.raises(KeyError, match="nope"):
+        Experiment.load(path)
