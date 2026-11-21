@@ -38,9 +38,14 @@ dev = [
     "black",
     "ruff",
 ]
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.26",
+]
 
 [project.urls]
 Homepage = "https://github.com/mitishraina/AutoTuneNet"
+Documentation = "https://mitishraina.github.io/AutoTuneNet/"
 Repository = "https://github.com/mitishraina/AutoTuneNet"
 Issues = "https://github.com/mitishraina/AutoTuneNet/issues"
 
