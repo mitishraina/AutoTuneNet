@@ -1,0 +1,8 @@
+{
+  "config": "cifar_fixed_lr.yaml",
+  "task": "cifar10",
+  "seed": 44,
+  "device": "mps",
+  "torch_version": "2.15.0",
+  "epochs_trained": 10
+}

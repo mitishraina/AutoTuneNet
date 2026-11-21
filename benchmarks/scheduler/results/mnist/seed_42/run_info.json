@@ -1,0 +1,10 @@
+{
+  "task": "mnist",
+  "seed": 42,
+  "device": "mps",
+  "torch_version": "2.15.0",
+  "batch_size": 64,
+  "method": "scheduler",
+  "initial_lr": 0.01,
+  "scheduler": "CosineAnnealingLR"
+}

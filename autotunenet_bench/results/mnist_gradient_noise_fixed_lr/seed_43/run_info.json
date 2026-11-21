@@ -1,0 +1,8 @@
+{
+  "config": "mnist_gradient_noise_fixed_lr.yaml",
+  "task": "mnist",
+  "seed": 43,
+  "device": "mps",
+  "torch_version": "2.15.0",
+  "epochs_trained": 10
+}
