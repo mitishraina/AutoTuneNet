@@ -205,6 +205,25 @@ class PyTorchHyperParameterAdapter:
             ratios.append(r)
         return ratios
 
+    def _step_bounds(self, key, current_value):
+        """
+        Allowed range for one bounded step.
+
+        Normally current * (1 +/- max_delta). A multiplicative bound pins a
+        value of 0 at 0 forever (e.g. Adam's default weight_decay), so from 0
+        a step may move by max_delta * (high - low) of the search range.
+        """
+        if current_value != 0:
+            a = current_value * (1 - self.max_delta)
+            b = current_value * (1 + self.max_delta)
+            return min(a, b), max(a, b)
+        space = self._space()
+        bounds = space.get(key) if space is not None else None
+        if isinstance(bounds, tuple) and len(bounds) == 2:
+            step = self.max_delta * (bounds[1] - bounds[0])
+            return -step, step
+        return float("-inf"), float("inf")
+
     def _read_current_params(self) -> Dict[str, float]:
         """Current values of the tuned hyperparameters, read from the reference group."""
         reference = self.torch_optimizer.param_groups[0]
@@ -232,9 +251,8 @@ class PyTorchHyperParameterAdapter:
             # value that is not one of the allowed choices.
             if (bounded and self.max_delta is not None and not self._is_categorical(key)
                     and self._is_number(current_value) and self._is_number(proposed_value)):
-                lower = current_value * (1 - self.max_delta)
-                upper = current_value * (1 + self.max_delta)
-                value = max(min(lower, upper), min(max(lower, upper), proposed_value))
+                lower, upper = self._step_bounds(key, current_value)
+                value = max(lower, min(upper, proposed_value))
 
             for index, group in enumerate(groups):
                 if key not in group:
