@@ -15,6 +15,7 @@ scenarios:
 methods:
   fixed_lr: {}
   cosine: {}
+  plateau: {factor: 0.5, patience: 1}                       # halve LR after 2 epochs in a row without improvement
   autotunenet:
     n_startup_trials: 3
     warmup_epochs: 2
