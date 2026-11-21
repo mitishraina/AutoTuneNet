@@ -44,8 +44,9 @@ class RunContext:
             params["seed"] = self.seed
         return cls(**params)
 
-    def new_trainer(self, seed: int | None = None) -> Trainer:
-        return Trainer(self.task, self.seed if seed is None else seed, self.device)
+    def new_trainer(self, init_seed: int | None = None) -> Trainer:
+        """A Trainer on the run's split; `init_seed` varies the initial weights and data order."""
+        return Trainer(self.task, self.seed, self.device, init_seed=init_seed)
 
 
 class Method(ABC):

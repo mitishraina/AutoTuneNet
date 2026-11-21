@@ -13,7 +13,7 @@ scenarios:
   # trial samples its own), so it does not apply to them.
   bad_initial_lr:
     initial_lr: 0.1
-    methods: [fixed_lr, cosine, plateau, autotunenet]
+    methods: [fixed_lr, cosine, plateau, autotunenet, pbt]   # PBT members all start from the bad LR
 
 # Each method's keyword arguments. All tuning methods search the task's lr_range on a log scale.
 methods:
@@ -32,3 +32,6 @@ methods:
   optuna_tpe: {n_trials: 8, n_startup_trials: 3}           # 8 full trials
   asha: {n_trials: 16, n_startup_trials: 3}                # stops weak trials early
   hyperband: {n_trials: 16, n_startup_trials: 3}
+  # Population-based training (Ray Tune): 4 models in parallel; every 2 epochs the weakest
+  # copy the best and perturb the LR (x1.2 / x0.8, or resample).
+  pbt: {population: 4, perturbation_interval: 2}

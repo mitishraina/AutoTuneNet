@@ -23,7 +23,13 @@ class Trainer:
     shuffling order.
     """
 
-    def __init__(self, task, seed: int, device: torch.device, batch_size: Optional[int] = None):
+    def __init__(self, task, seed: int, device: torch.device, batch_size: Optional[int] = None,
+                 init_seed: Optional[int] = None):
+        """
+        seed:      decides the train/validation split (and, by default, the rest)
+        init_seed: decides the initial weights and the shuffling order; defaults
+                   to `seed`. Population members share a split but not an init.
+        """
         self.task = task
         self.seed = seed
         self.device = device
@@ -33,7 +39,7 @@ class Trainer:
         self.train_loader, self.val_loader = task.build_loaders(self.batch_size, seed)
         self._test_loader = None
 
-        seed_everything(seed)
+        seed_everything(seed if init_seed is None else init_seed)
         self.model = task.build_model().to(device)
 
     @property
