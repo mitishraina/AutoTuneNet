@@ -58,7 +58,7 @@ plans only those. For Kaggle it writes the notebooks (two GPUs each, --parallel
 notebooks) to <results>/<experiment>/notebooks/ so you can read exactly what
 will run, without starting anything. If a previous round is still running, it
 is kept and continued instead.""",
-        ["autotunenet prepare --experiment comparison --runtime kaggle --parallel 3"],
+        ["autotunenet prepare --experiment comparison --runtime kaggle --parallel 2"],
     ),
     "start": (
         "Start what prepare planned",
@@ -109,7 +109,7 @@ to continue where it stopped. Finished cells are never run twice.""",
         ["autotunenet run --experiment smoke                       (seconds, toy task)",
          "autotunenet run --experiment comparison",
          "autotunenet run --experiment comparison --method pbt --task cifar10",
-         "autotunenet run --experiment comparison --runtime kaggle --parallel 3",
+         "autotunenet run --experiment comparison --runtime kaggle --parallel 2",
          "autotunenet run --experiment my_experiment.yaml --plugins my_tasks.py"],
     ),
 }
@@ -151,8 +151,8 @@ def build_parser() -> argparse.ArgumentParser:
             p.add_argument("--force", action="store_true", help="upload again even if already uploaded")
         elif name in ("prepare", "run"):
             _add_common(p, filters=True)
-            p.add_argument("--parallel", type=int, default=3, metavar="N",
-                           help="Kaggle notebooks to run at once, each on 2 GPUs (default 3)")
+            p.add_argument("--parallel", type=int, default=2, metavar="N",
+                           help="Kaggle notebooks to run at once, each on 2 GPUs (default 2; Kaggle allows at most 2)")
             if name == "run":
                 p.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda", "mps"],
                                help="device on this machine (default: best available)")
