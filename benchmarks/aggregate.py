@@ -57,6 +57,7 @@ def summarise(results):
                 "epochs_trained": r.compute["epochs_trained"],
                 "max_parallel_models": r.compute["max_parallel_models"],
                 "trials": r.compute["trials"],
+                "restarts": r.compute["restarts"],
                 "wall_time_sec": r.compute["wall_time_sec"],
                 "regret_vs_fixed_lr": regret,
                 "post_shift_degradation": shift["degradation"],
