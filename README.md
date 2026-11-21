@@ -100,13 +100,7 @@ Every command can be stopped and rerun; only unfinished runs train. `autotunenet
 
 The same pages are in [`docs/`](docs/) for reading on GitHub.
 
-## Limitations
-
-- **Hyperparameter-only rollback.** Weights and optimizer state are not restored, so damage already done to the weights is not undone.
-- **Few observations.** Tuning once per epoch gives TPE about one point per epoch; short runs need a small `n_startup_trials`.
-- **Non-stationary objective.** TPE assumes a configuration has one score, but here the score depends on when it is measured. Smoothing, bounded steps and rollback limit the effect, but don't remove it.
-- **Coarse control.** Problems inside a tuning interval are seen only at the next call.
-- **Small-scale evidence so far.** Results cover small CNNs, 10-epoch runs and 3 seeds, and several differences are within one standard deviation.
+Known limitations and the work planned for each are tracked in [issue #58](https://github.com/mitishraina/AutoTuneNet/issues/58).
 
 ## Contributing
 
