@@ -90,8 +90,81 @@ def plot_bench(task, setting, title):
         plt.close(ax.figure)
 
 
+# ---------------------------------------------------------------- paper figures
+# Same four figures as the AutoTuneNet paper (Figs. 1-4), regenerated from the
+# multi-seed runs: mean line and +/- 1 std band. Colours follow the paper.
+PAPER_STYLE = {
+    "fixed_lr": ("Fixed LR", "tab:blue"),
+    "scheduler": ("Scheduler", "tab:orange"),
+    "autotunenet": ("AutoTuneNet", "tab:green"),
+}
+
+
+def _paper_band(ax, series, key):
+    if not series:
+        return
+    arr = np.array(series, dtype=float)
+    mean, std = arr.mean(axis=0), arr.std(axis=0)
+    x = np.arange(len(mean))
+    label, color = PAPER_STYLE[key]
+    ax.plot(x, mean, color=color, label=label, linewidth=1.8)
+    ax.fill_between(x, mean - std, mean + std, color=color, alpha=0.18, linewidth=0)
+
+
+def _paper_finish(fig, ax, title, ylabel, path, n):
+    ax.set_title(title)
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel(ylabel)
+    ax.grid(True)
+    ax.legend()
+    fig.text(0.99, 0.01, f"mean ± std over {n} seeds", ha="right", va="bottom", fontsize=8, color="#555555")
+    fig.tight_layout()
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    print("wrote", path)
+
+
+def plot_paper_figures(task):
+    label = TASK_LABEL[task]
+    out = OUT / "paper_figures"
+    out.mkdir(parents=True, exist_ok=True)
+
+    def legacy(method, name):
+        return [_load(f) for f in _seed_files(Path("benchmarks") / method / "results" / task, name)]
+
+    runs = {m: legacy(m, "metrics.json") for m in ("fixed_lr", "scheduler", "autotunenet")}
+    n = min(len(v) for v in runs.values())
+    if n == 0:
+        return
+
+    for key, ylabel, fig_no, fname in [
+        ("val_loss", "Validation Loss", 1, "fig1_val_loss"),
+        ("val_accuracy", "Validation Accuracy", 2, "fig2_val_accuracy"),
+    ]:
+        fig, ax = plt.subplots(figsize=(8, 5))
+        for method, metrics in runs.items():
+            _paper_band(ax, [m[key] for m in metrics], method)
+        _paper_finish(fig, ax, f"{ylabel} vs Epoch ({label})", ylabel, out / f"{task}_{fname}.png", n)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for method in ("scheduler", "autotunenet"):
+        _paper_band(ax, legacy(method, "lr_history.json"), method)
+    _paper_finish(fig, ax, f"Learning Rate vs Epoch ({label})", "Learning Rate",
+                  out / f"{task}_fig3_learning_rate.png", n)
+
+    stress = legacy("stress_test", "results.json")
+    if stress:
+        fig, ax = plt.subplots(figsize=(8, 5))
+        for method in ("fixed_lr", "scheduler", "autotunenet"):
+            _paper_band(ax, [r[method]["val_loss"] for r in stress], method)
+        _paper_finish(fig, ax, f"Stress Test: Validation Loss vs Epoch (Bad Initial LR, {label})",
+                      "Validation Loss", out / f"{task}_fig4_stress_test.png", len(stress))
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    for task in TASKS:
+        plot_paper_figures(task)
     for task in TASKS:
         plot_legacy(task)
     plot_bench("mnist", "mnist", "MNIST: validation loss, 30% label noise from epoch 5")
