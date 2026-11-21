@@ -9,7 +9,7 @@ scenarios:
   stationary: {}
   label_noise: {start_epoch: 2, noise_ratio: 0.3}
   gradient_noise: {start_epoch: 2, std: 0.05}
-  bad_initial_lr: {initial_lr: 0.5, methods: [fixed_lr, cosine, plateau, autotunenet]}
+  bad_initial_lr: {initial_lr: 0.5, methods: [fixed_lr, cosine, plateau, autotunenet, pbt]}
 
 methods:
   fixed_lr: {}
@@ -19,3 +19,4 @@ methods:
   optuna_tpe: {n_trials: 3, n_startup_trials: 1}
   asha: {n_trials: 4, n_startup_trials: 1}
   hyperband: {n_trials: 4, n_startup_trials: 1}
+  pbt: {population: 2, perturbation_interval: 2}

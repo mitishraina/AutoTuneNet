@@ -10,6 +10,7 @@ class Scenario:
     on_epoch_start(epoch, trainer): called before each training epoch.
     """
     shift_epoch: Optional[int] = None
+    overrides_initial_lr: bool = False   # True if every method must start from initial_lr(task)
 
     def initial_lr(self, task) -> float:
         return task.lr

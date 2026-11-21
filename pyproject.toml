@@ -20,6 +20,9 @@ dependencies = [
 ]
 
 [dependency-groups]
+bench = [
+    "ray[tune]>=2.60.0",
+]
 dev = [
     "pytest>=8",
     "black",
@@ -31,6 +34,11 @@ dev = [
 Homepage = "https://github.com/mitishraina/AutoTuneNet"
 Repository = "https://github.com/mitishraina/AutoTuneNet"
 Issues = "https://github.com/mitishraina/AutoTuneNet/issues"
+
+[tool.uv]
+# `uv sync` installs the development tools and the benchmark extras (Ray Tune for PBT).
+# `pip install autotunenet` installs only the library.
+default-groups = ["dev", "bench"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
