@@ -24,15 +24,12 @@ Hyperparameters such as the learning rate are usually fixed before training or f
 
 ## How it works
 
-```mermaid
-flowchart LR
-    T["Train + validate<br/>with current config"] --> S["Score it<br/>tell TPE"]
-    S --> G{"Regressed<br/>patience times?"}
-    G -- no --> P["TPE proposes next<br/>clipped to ±max_delta"]
-    G -- yes --> R["Restore last good<br/>config · cooldown"]
-    P --> T
-    R --> T
-```
+Each time you call `adapter.on_epoch_end(metric)`, AutoTuneNet does four things:
+
+1. **Score** the hyperparameters that ran during the last epoch, using your validation metric (e.g. `-val_loss`).
+2. **Check stability.** It compares the smoothed score with the best so far. With the defaults, if the score has dropped more than 20% for 2 epochs in a row, it **rolls back** to the last hyperparameters that worked and waits a few epochs before judging again.
+3. **Propose** the next hyperparameters with Bayesian optimisation (Optuna TPE), which learns from every epoch scored so far.
+4. **Apply them in small steps.** Each value can move by at most ±`max_delta` per epoch (with `max_delta=0.5`, a learning rate of 0.01 can only move to between 0.005 and 0.015), so training never jumps to an extreme setting.
 
 | | Offline HPO | LR schedules | PBT | **AutoTuneNet** |
 |---|---|---|---|---|
