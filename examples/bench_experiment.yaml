@@ -1,0 +1,16 @@
+# Experiment using the plugin in bench_plugin.py:
+#   autotunenet run --experiment examples/bench_experiment.yaml --plugins examples/bench_plugin.py
+name: fashion
+epochs: 10
+seeds: [0, 1, 2]
+tasks: [fashion_mnist]
+
+scenarios:
+  stationary: {}
+  input_noise: {start_epoch: 5, std: 0.5}
+
+methods:
+  fixed_lr: {}
+  cosine: {}
+  autotunenet: {n_startup_trials: 3, warmup_epochs: 2, max_delta: 0.5}
+  optuna_tpe: {n_trials: 8, n_startup_trials: 3}

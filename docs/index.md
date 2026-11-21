@@ -1,61 +1,59 @@
-# AutoTuneNet Documentation
+# AutoTuneNet
 
-AutoTuneNet is a **safe, Bayesian, self-optimizing hyperparameter tuning framework** designed to work inside real training loops.
-Unlike traditional hyperparameter search, AutoTuneNet:
-- tunes during training
-- reacts to metrisc in real time
-- protects training with rollback and stability guards
-- integrates cleanly with PyTorch
+AutoTuneNet adapts hyperparameters such as the learning rate **during a single training run**. Once per tuning step (usually once per epoch) it scores the last configuration on a validation metric. A Bayesian optimizer (Optuna TPE) proposes the next configuration, which is applied with a bounded change. If the score regresses repeatedly, it rolls back to the last configuration that worked. Training never restarts.
 
+```python
+adapter.on_epoch_end(metric=-val_loss)   # the only line added to your training loop
+```
 
-# Who is this for?
-- ML engineers tired of manual tuning
-- Researchers running long experiments
-- Anyone who wants adaptive learning rates and optimzer parameters without fragile hacks
+## The problem
 
+A learning rate is usually picked before training and then held fixed or decayed on a fixed schedule. Two things go wrong with that:
 
-## Key features:
-- Bayesian Optimization (Optune-backed)
-- Training-time tuning
-- Stability Monitoring and rollback
-- PyTorch Adapter with hooks
-- Multi-parameter support
-- Config-driven tuning
-- Fully unit tested
+- **The best value changes during a run.** Early training tolerates large steps and late training needs small ones. A shift in the data (label noise, a new distribution) can change the optimum again mid-run.
+- **Finding a good value costs whole runs.** Grid search, random search and offline Bayesian optimization each train many models from scratch, which is impractical for long jobs.
 
-## Assumptions and Limitations
-AutoTuneNet is designed as a safe, training-time hyperparameter control system, not a general-purpose AutoML framework.
+This setting is called **Online Hyperparameter Adaptation (OHA)**: choose $\lambda_t$ at each step $t$ from the history observed so far, inside one run, without restarts. See the [formal definition](oha.md).
 
-1. Non-stationary Optimization Objective:
-AutoTuneNet operates inside a live training loop, where metrics such as loss accuracy naturally evolve over time. As a result:
-- The optimization objective is non-stationary
-- Early and late training metrics are not globally comparable
-- Classical Bayesian Optimization assumptions do not strictly hold
+## How AutoTuneNet approaches it
 
-So AutoTuneNet does not treat Bayesian Optimization as a global optimizer.
-Instead Bayesian Optimization is used as a proposal mechanism, while safety is enforced externally via stability guards and rollback. The surrogate model is currently:
-- not reset
-- not explicitly time-decayed
-- not reweighted by observation age
+| Step | What happens | Why |
+|---|---|---|
+| Observe | The adapter receives a higher-is-better metric, e.g. `-val_loss` | The controller sees only a scalar, as in any black-box tuner |
+| Score | The metric is credited to the configuration that produced it and told to TPE | TPE builds a model of which configurations score well |
+| Check | A stability monitor compares the smoothed score with the best so far | One noisy epoch should not trigger a rollback |
+| Act | Either accept and ask TPE for the next configuration, clipped to ±`max_delta` of the current one, or restore the last good configuration and start a cooldown | Bounded steps and rollback keep training out of unstable regions |
 
-This is intentional: surrogate accuracy is not relied upon for safety. Unsafe proposals are rejected by regression detection and rollback. Future versions may explore time-decayed or windowed surrogates, but these are not required for correct behavior.
+Details: [How it works](concepts.md).
 
-2. Scope of Hyperparameter Tuning
-AutoTuneNet is designed to tune continuous or semi-continuous training hyperparameters, such as:
-- learning rate
-- momentum
-- weight decay
-- optimizer coefficients
-It does not really:
-- select activation functions
-- change network depth or width
-- modify architecture structure
-- perform neural architecture search (NAS)
-These problems are discrete, high variance, and unsafe to modify during training.
-AutoTuneNet intentionally focuses on training stability and control, not model design.
+## Where it fits
 
-3. AutoTuneNet prioritizes training safety over aggresive optimization. So exploration is conservative by design.
-The goal is not to find a single globally optimal configuration, but to keep training in a stable, high-performing region over time.
+| | Offline HPO (grid, random, BO, ASHA) | LR schedules (cosine, step, plateau) | Population-based training | AutoTuneNet |
+|---|---|---|---|---|
+| Runs trained | Many | One | Several in parallel | One |
+| Reacts to metrics | Between trials | No (plateau: yes, one rule) | Yes, by copying better members | Yes, every tuning step |
+| Restarts | One per trial | None | Members copy checkpoints | None |
+| Safety mechanism | — | — | — | Warmup, bounded updates, rollback, cooldown |
 
+Use AutoTuneNet when one run is all you can afford, when the run is long or the data changes during it, or when you want a learning-rate policy without hand-designing a schedule.
 
-### Refer **quickstart.md** for quick guide on usage.
+Don't use it when you can afford many full runs and want the best final number (offline HPO wins there), or for architecture choices (layer counts, activations). It tunes numeric optimizer settings only.
+
+## What is in the repository
+
+- **The library** (`autotunenet`): a framework-independent controller (`BayesianOptimizer`, `ParameterSpace`, `StabilityMonitor`) and a PyTorch adapter.
+- **The benchmark harness** (`autotunenet.bench`): compares AutoTuneNet with Fixed LR, cosine, ReduceLROnPlateau, Optuna TPE, ASHA, Hyperband and PBT. Tasks, scenarios and seeds are controlled, and compute is recorded for every run.
+- **The `autotunenet` command**: runs any benchmark experiment on this machine or on Kaggle, resumably.
+
+## Where to go next
+
+| I want to… | Read |
+|---|---|
+| Install it | [Installation](installation.md) |
+| Add it to my training loop | [Quick start](quickstart.md) |
+| Understand the control loop and its guarantees | [How it works](concepts.md) |
+| Tune several parameters, use configs | [Configuration](configuration.md) |
+| Use hooks, param groups, schedulers | [PyTorch guide](pytorch.md) |
+| Look up a class or function | [API reference](api/index.md) |
+| Compare methods on my own task | [Benchmarks](benchmarks/index.md) |
+| See results so far | [Results](benchmarks/results.md) |

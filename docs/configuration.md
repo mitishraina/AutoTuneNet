@@ -1,6 +1,6 @@
 # Configuration
 
-AutoTuneNet can be configured from a YAML file or a Python dict. Both go through the same schema (`autotunenet.config.schema.AutoTuneConfig`), and invalid values raise `ValueError` when the adapter is built.
+Everything the controller does can be set in a YAML file or a Python dict instead of code, which makes runs easy to version and reproduce. AutoTuneNet can be configured from a YAML file or a Python dict. Both go through the same schema (`autotunenet.config.schema.AutoTuneConfig`), and invalid values raise `ValueError` when the adapter is built.
 
 ## Example config
 
@@ -82,6 +82,15 @@ from autotunenet.factory import build_pytorch_autotunenet
 adapter = build_pytorch_autotunenet(optimizer, raw_config={...}, seed=42)
 ```
 
-The packaged defaults live in [`src/autotunenet/config/defaults.yaml`](../src/autotunenet/config/defaults.yaml).
+Runnable: [`examples/from_config.py`](https://github.com/mitishraina/AutoTuneNet/blob/main/examples/from_config.py) with [`examples/autotune.yaml`](https://github.com/mitishraina/AutoTuneNet/blob/main/examples/autotune.yaml). Keys you leave out take the defaults in the table above; nothing else is merged in. [`src/autotunenet/config/defaults.yaml`](https://github.com/mitishraina/AutoTuneNet/blob/main/src/autotunenet/config/defaults.yaml) is a sample config shipped with the package, not a set of defaults (it sets `warmup_metric_threshold: 0.5`, which the code does not).
 
-Configs make it easy to version experiments, share them, and reproduce runs.
+## Without a config
+
+The same settings as constructor arguments:
+
+| Config key | Python |
+|---|---|
+| `parameter_space` | `ParameterSpace({...})` |
+| `tuning.*` | `PyTorchHyperParameterAdapter(..., tune_n_steps=, warmup_epochs=, warmup_metric_threshold=, max_delta=)` |
+| `search.n_startup_trials`, `metrics.smoothing_window` | `BayesianOptimizer(space, seed=, smoothing_window=, n_startup_trials=)` |
+| `stability.*` | `tuner.guard = StabilityMonitor(max_regression=, patience=, cooldown=)` |
