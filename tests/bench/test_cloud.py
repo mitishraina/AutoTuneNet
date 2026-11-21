@@ -1,19 +1,23 @@
-import json
-
-from benchmarks.cloud.kaggle import GPUS_PER_NOTEBOOK, JOB_TEMPLATE, slugify
+from benchmarks.cloud.kaggle import GPUS_PER_NOTEBOOK, render_notebook, slugify
 
 
 def test_slugs_are_kaggle_safe():
     assert slugify("autotunenet Comparison 2 of 3") == "autotunenet-comparison-2-of-3"
 
 
-def test_job_template_renders_to_valid_python_with_the_job():
+def test_notebook_has_readable_steps_and_valid_code():
     job = {"repo": "https://github.com/x/y.git", "ref": "abc123", "experiment": "benchmarks/experiments/pilot.yaml",
            "shards": ["1/4", "2/4"], "filters": ["--method", "pbt"]}
-    source = JOB_TEMPLATE.read_text().replace("__JOB__", json.dumps(job))
-    compile(source, "run.py", "exec")
+    nb = render_notebook(job, "autotunenet pilot 1 of 2")
+    assert nb["nbformat"] == 4
+    kinds = [c["cell_type"] for c in nb["cells"]]
+    assert kinds[0] == "markdown" and kinds.count("code") >= 5
+    title = "".join(nb["cells"][0]["source"])
+    assert "autotunenet pilot 1 of 2" in title and "abc123" in title and "1/4, 2/4" in title
+    code = "\n".join("".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code")
+    compile(code, "run.ipynb", "exec")
     namespace = {}
-    exec(source.split("WORK =")[0], namespace)          # module header up to the JOB constant
+    exec(code.split("WORK =")[0], namespace)
     assert namespace["JOB"] == job
 
 

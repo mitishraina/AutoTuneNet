@@ -218,3 +218,12 @@ logs/
 # Local Kaggle launch records and logs (contain your Kaggle username)
 benchmarks/results/**/.kaggle_launch.json
 benchmarks/results/**/.kaggle_logs/
+
+# Only the published experiments' results are tracked; any other experiment
+# (your own variants) stays local. Same for notebooks launched without --record.
+benchmarks/results/*
+!benchmarks/results/legacy/
+!benchmarks/results/previous/
+!benchmarks/results/comparison/
+!benchmarks/results/pilot/
+benchmarks/notebooks/local/

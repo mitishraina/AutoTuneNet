@@ -15,6 +15,11 @@ Each notebook runs on Kaggle's "GPU T4 x2" and executes two shards at once,
 one per GPU. The notebook clones this repository at the current commit, so
 the commit must be pushed first. Finished cells are skipped on re-runs, so a
 failed or timed-out notebook can simply be launched again.
+
+The generated notebooks are saved locally so you can see exactly what ran:
+by default under benchmarks/notebooks/local/ (git-ignored, for your own
+experiments); with --record under benchmarks/notebooks/<experiment>/, which
+is tracked, for the runs behind published results.
 """
 import argparse
 import json
@@ -34,6 +39,7 @@ from benchmarks.tasks.data import DATA_DIR
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RESULTS = REPO_ROOT / "benchmarks" / "results"
 JOB_TEMPLATE = Path(__file__).with_name("kaggle_job.py")
+NOTEBOOKS = REPO_ROOT / "benchmarks" / "notebooks"
 DATASET_SLUG = "autotunenet-data"
 ACCELERATOR = "NvidiaTeslaT4"          # "GPU T4 x2"
 GPUS_PER_NOTEBOOK = 2
@@ -81,6 +87,41 @@ def manifest_path(experiment: str) -> Path:
 
 def slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
+
+def render_notebook(job: dict, title: str) -> dict:
+    """
+    Build the notebook from kaggle_job.py: `# %%` starts a code cell and
+    `# %% [markdown]` a Markdown cell (its lines lose the leading `# `).
+    """
+    source = (JOB_TEMPLATE.read_text()
+              .replace("__JOB__", json.dumps(job))
+              .replace("__TITLE__", title)
+              .replace("__EXPERIMENT__", job["experiment"])
+              .replace("__COMMIT__", job["ref"])
+              .replace("__SHARDS__", ", ".join(job["shards"])))
+    cells = []
+    for i, chunk in enumerate(re.split(r"^# %%", source, flags=re.M)[1:]):
+        header, _, body = chunk.partition("\n")
+        markdown = header.strip() == "[markdown]"
+        lines = body.strip("\n").splitlines()
+        if markdown:
+            lines = [re.sub(r"^# ?", "", line) for line in lines]
+        text = "\n".join(lines)
+        cells.append({
+            "cell_type": "markdown" if markdown else "code",
+            "id": f"cell-{i}",
+            "metadata": {},
+            "source": text.splitlines(keepends=True),
+            **({} if markdown else {"execution_count": None, "outputs": []}),
+        })
+    return {
+        "cells": cells,
+        "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
+                     "language_info": {"name": "python"}},
+        "nbformat": 4,
+        "nbformat_minor": 5,
+    }
 
 
 # ---------------------------------------------------------------- commands
@@ -139,22 +180,25 @@ def launch(args):
     print(f"experiment {exp.name}: {cells} cells -> {shards} shards on {args.notebooks} notebook(s), "
           f"commit {commit[:8]}")
 
+    saved = NOTEBOOKS / (exp.name if args.record else f"local/{exp.name}")
+    saved.mkdir(parents=True, exist_ok=True)
     kernels = []
-    template = JOB_TEMPLATE.read_text()
     for k in range(args.notebooks):
         own = [f"{k * GPUS_PER_NOTEBOOK + g + 1}/{shards}" for g in range(GPUS_PER_NOTEBOOK)]
         title = f"autotunenet {exp.name} {k + 1} of {args.notebooks}"
         slug = slugify(title)
         job = {"repo": repo, "ref": commit, "experiment": rel_exp, "shards": own, "filters": filters}
+        notebook = json.dumps(render_notebook(job, title), indent=1)
+        (saved / f"{slug}.ipynb").write_text(notebook)
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
-            (folder / "run.py").write_text(template.replace("__JOB__", json.dumps(job)))
+            (folder / "run.ipynb").write_text(notebook)
             (folder / "kernel-metadata.json").write_text(json.dumps({
                 "id": f"{user}/{slug}",
                 "title": title,
-                "code_file": "run.py",
+                "code_file": "run.ipynb",
                 "language": "python",
-                "kernel_type": "script",
+                "kernel_type": "notebook",
                 "is_private": True,
                 "enable_gpu": True,
                 "enable_tpu": False,
@@ -168,9 +212,13 @@ def launch(args):
         kernels.append({"id": f"{user}/{slug}", "shards": own})
         print(f"  launched https://www.kaggle.com/code/{user}/{slug}  (shards {', '.join(own)})")
 
+    record = {"experiment": rel_exp, "commit": commit, "kernels": kernels}
     path = manifest_path(exp.name)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"experiment": rel_exp, "commit": commit, "kernels": kernels}, indent=2))
+    path.write_text(json.dumps(record, indent=2))
+    (saved / "launch.json").write_text(json.dumps(record, indent=2))
+    where = "tracked, commit it with the results" if args.record else "git-ignored"
+    print(f"notebooks saved to {saved.relative_to(REPO_ROOT)} ({where})")
     print(f"\nCheck progress: uv run python -m benchmarks.cloud.kaggle status --experiment {exp.name}")
 
 
@@ -224,6 +272,9 @@ def main(argv=None):
     p = sub.add_parser("launch", help="push one notebook per pair of shards and start them")
     p.add_argument("--experiment", required=True, help="experiment YAML file in this repository")
     p.add_argument("--notebooks", type=int, default=3, help="notebooks to run (each runs 2 shards on 2 GPUs)")
+    p.add_argument("--record", action="store_true",
+                   help="save the notebooks under benchmarks/notebooks/<experiment>/ (tracked) instead of "
+                        "benchmarks/notebooks/local/ (git-ignored); use for runs behind published results")
     for flag in ("method", "task", "scenario"):
         p.add_argument(f"--{flag}", action="append", help=f"only this {flag} (repeatable)")
 

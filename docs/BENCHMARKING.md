@@ -84,6 +84,24 @@ With `--plan`, the support matrix draws every planned cell: cells without result
 
 Results go to `benchmarks/results/<experiment>/<method>/<task>/<scenario>/seed_<s>.json`. Finished cells are skipped, so a run can be interrupted and restarted, or split across machines with `--shard` and merged by copying the result folders together. Datasets download automatically on first use (see the README).
 
+## Running on Kaggle (your own account)
+
+Kaggle gives free GPU time ("GPU T4 x2", about 30 hours a week). The launcher runs everything under **your** account; no credentials are stored in the repository.
+
+1. Create a token: kaggle.com → your profile picture → **Settings** → **API** → **Create New Token**. Kaggle saves it under `~/.kaggle/` (`access_token`, or a downloaded `kaggle.json` you move there and `chmod 600`). Never commit it or paste it anywhere.
+2. Push the commit you want to run (the notebooks clone it from GitHub).
+3. Run:
+
+```bash
+uv run python -m benchmarks.cloud.kaggle upload-data                                   # once: MNIST + CIFAR-10 -> private dataset
+uv run python -m benchmarks.cloud.kaggle launch --experiment benchmarks/experiments/comparison.yaml --notebooks 3
+uv run python -m benchmarks.cloud.kaggle status --experiment comparison
+uv run python -m benchmarks.cloud.kaggle download --experiment comparison
+uv run python -m benchmarks.report --experiment comparison --plan benchmarks/experiments/comparison.yaml
+```
+
+Each notebook runs two shards in parallel, one per GPU, so `--notebooks 3` splits the experiment into 6 shards. The generated notebooks (`.ipynb`, with one cell per step) are saved locally so you can see exactly what ran: under `benchmarks/notebooks/local/` by default (git-ignored), or under `benchmarks/notebooks/<experiment>/` with `--record`, for the runs behind the repository's published results. Results of experiments other than the published ones (`comparison`, `pilot`, `previous`, `legacy`) are git-ignored too, so your own variants never show up in `git status`. A failed or timed-out notebook can be relaunched; finished cells are skipped.
+
 ## Rules every method follows
 
 - Training uses `Trainer`, so every method sees the same data split, initial weights and shuffling for a given seed.
