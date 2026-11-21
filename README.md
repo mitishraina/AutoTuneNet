@@ -231,7 +231,7 @@ Every tuned name must be a setting of your optimizer's param groups (`lr`, `weig
 | `warmup_epochs` | Adapter | `0` | Epochs before tuning starts |
 | `warmup_metric_threshold` | Adapter | `None` | Tuning starts once the validation loss is at or below this value (must be > 0) |
 | `max_delta` | Adapter | `None` | Max relative change per step, in `(0, 1)` |
-| `smoothing_window` | Optimizer | `5` (`3` via config) | Moving-average window over observed metrics |
+| `smoothing_window` | Optimizer | `3` | Moving-average window used by the stability check |
 | `max_regression` | StabilityMonitor | `0.2` | Relative regression threshold |
 | `patience` | StabilityMonitor | `2` | Consecutive bad steps before rollback |
 | `cooldown` | StabilityMonitor | `3` | Steps with rollback suppressed after a rollback |

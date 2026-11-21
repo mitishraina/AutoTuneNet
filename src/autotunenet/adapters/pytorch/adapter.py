@@ -27,14 +27,14 @@ class PyTorchHyperParameterAdapter:
                 value, i.e. once metric >= -warmup_metric_threshold. Must be > 0.
             max_delta: Maximum relative change allowed per tuning step (e.g. 0.5 = +-50%, postive or negative 50% change)
         """
-        if not isinstance(tune_n_steps, int) or tune_n_steps <= 0:
+        if isinstance(tune_n_steps, bool) or not isinstance(tune_n_steps, int) or tune_n_steps <= 0:
             raise ValueError(
                 "tune_n_steps must be a positive integer "
                 "(e.g. 1 = every step/epoch, 5 = every 5 steps/epochs)"
             )
             
-        if warmup_epochs < 0:
-            raise ValueError("warmup_epochs must be non-negative or >= 0")
+        if isinstance(warmup_epochs, bool) or not isinstance(warmup_epochs, int) or warmup_epochs < 0:
+            raise ValueError("warmup_epochs must be a non-negative integer")
         
         if warmup_metric_threshold is not None and warmup_metric_threshold <= 0:
             raise ValueError(
