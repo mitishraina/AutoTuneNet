@@ -1,3 +1,4 @@
+"""TaskSpec: what a benchmark task (a dataset and a model) must provide."""
 from dataclasses import dataclass
 from typing import Callable, Optional, Tuple
 
@@ -8,15 +9,35 @@ from torch.utils.data import DataLoader
 @dataclass(frozen=True)
 class TaskSpec:
     """
-    A dataset + model pair with its training defaults.
+    A dataset and model pair, with its training defaults.
 
-    build_loaders(batch_size, seed) -> (train_loader, val_loader)
-    build_test_loader(batch_size)   -> held-out test loader (reporting only)
-    build_model()                   -> a freshly initialised model
+    Register one with `TASKS.add(name, TaskSpec(...))`, in a plugin file or
+    in `autotunenet.bench.tasks`.
 
-    For running on hosted runtimes (e.g. Kaggle), a task can also say which
-    files it reads, relative to the data directory, and how to fetch them:
-    data_paths=("MNIST/raw",), prepare_data=<function that downloads them>.
+    Attributes:
+        name: Task name, as used in experiment files.
+        build_loaders: `(batch_size, seed) -> (train_loader, val_loader)`. The
+            train/validation split must depend only on `seed`, so every method
+            sees the same split.
+        build_test_loader: `(batch_size) -> test_loader`, the held-out split,
+            used once to report the final model.
+        build_model: `() -> nn.Module`, a freshly initialised model.
+        batch_size: Batch size used by every method.
+        lr: Default initial learning rate.
+        lr_range: `(low, high)` learning-rate range searched (log scale) by
+            every tuning method.
+        data_paths: Files or folders the task reads, relative to the data
+            directory (`autotunenet.bench.paths.data_dir()`). Hosted runtimes
+            upload these, e.g. `("MNIST/raw",)`.
+        prepare_data: `() -> None`, downloads the data into the data directory
+            if missing; used by `autotunenet data`.
+
+    Examples:
+        >>> TASKS.add("my_task", TaskSpec(
+        ...     name="my_task", build_loaders=my_loaders, build_test_loader=my_test_loader,
+        ...     build_model=MyModel, batch_size=64, lr=0.01, lr_range=(1e-4, 1e-1),
+        ...     data_paths=("my_task",), prepare_data=download_my_task,
+        ... ))
     """
     name: str
     build_loaders: Callable[[int, int], Tuple[DataLoader, DataLoader]]

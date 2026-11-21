@@ -1,7 +1,8 @@
+"""Search space definition: the hyperparameters AutoTuneNet may change, and their ranges."""
 import math
 import random
 import warnings
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any
 
 # A range spanning at least this ratio (high / low) is wide enough that a
 # linear scale badly over-samples its top end.
@@ -12,17 +13,49 @@ class ParameterSpace:
     """
     Search space for the tuned hyperparameters.
 
-    Each entry is one of:
-        (low, high)                          continuous range, linear scale
-        {"low": a, "high": b, "log": True}   continuous range; log=True samples
-                                             evenly across orders of magnitude
-        [v1, v2, ...]                        categorical choices
+    Each entry maps a hyperparameter name (a key of the optimizer's
+    `param_groups`, such as `lr`) to one of:
 
-    Ranges are stored as (low, high) tuples in `space`; the scale of each range
-    is in `log` (name -> bool).
+    | Form | Meaning |
+    |---|---|
+    | `(low, high)` | continuous range, linear scale |
+    | `{"low": a, "high": b, "log": True}` | continuous range; `log=True` samples evenly across orders of magnitude (`log` defaults to `False`) |
+    | `[v1, v2, ...]` | categorical choices |
+
+    Numeric strings such as `"1e-4"` are converted to floats.
+
+    Attributes:
+        space: Name to `(low, high)` tuple (ranges) or list (choices).
+        log: Name to `True` if that range uses a log scale.
+
+    Examples:
+        >>> space = ParameterSpace({
+        ...     "lr": {"low": 1e-4, "high": 1e-1, "log": True},
+        ...     "momentum": (0.8, 0.99),
+        ...     "nesterov_like": [0.0, 1.0],
+        ... })
+        >>> space.is_log("lr")
+        True
     """
 
     def __init__(self, space: Dict[str, Any]):
+        """
+        Args:
+            space: Mapping from hyperparameter name to its range or choices
+                (see the class description).
+
+        Raises:
+            ValueError: A range mapping lacks `low` or `high`, `log` is not a
+                bool, a tuple does not have two elements, `low > high`, a log
+                range has `low <= 0`, a list is empty, or a value is a string
+                that is not a number.
+            TypeError: An entry is not a tuple, mapping or list, or a value is
+                not numeric.
+
+        Warns:
+            UserWarning: A linear range with `low > 0` spans 100x or more;
+                use `log=True` for such ranges.
+        """
         self.space: Dict[str, Any] = dict(space)
         self.log: Dict[str, bool] = {}
         self._validate_space()
@@ -87,9 +120,20 @@ class ParameterSpace:
         )
 
     def is_log(self, name: str) -> bool:
+        """Return whether `name` is a log-scale range (`False` for choices and unknown names)."""
         return self.log.get(name, False)
 
     def sample(self) -> Dict[str, Any]:
+        """
+        Draw one random configuration (uniform, or log-uniform for log ranges).
+
+        Uses Python's `random` module, so seed it with `random.seed` for
+        repeatable samples. `BayesianOptimizer` does not use this method; it
+        samples through Optuna.
+
+        Returns:
+            Name to sampled value, for every entry in the space.
+        """
         params = {}
         for name, values in self.space.items():
             if isinstance(values, tuple):

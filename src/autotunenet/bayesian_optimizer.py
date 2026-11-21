@@ -1,9 +1,11 @@
+"""The online optimizer: Optuna TPE (ask/tell) with metric smoothing, a stability guard and rollback."""
 import math
 from typing import Dict, Any
 import optuna
 from optuna.distributions import CategoricalDistribution, FloatDistribution
 from optuna.trial import TrialState
 from .optimizer import Optimizer, to_score
+from .parameters import ParameterSpace
 from .metrics import MetricSmoother, DEFAULT_SMOOTHING_WINDOW
 from autotunenet.safeguards.stability import StabilityMonitor
 from autotunenet.safeguards.rollback import Rollback
@@ -12,24 +14,57 @@ from autotunenet.logging.error_handler import log_errors
 
 class BayesianOptimizer(Optimizer):
     """
-    Bayesian optimizer using Optuna's TPE sampler.(Using ask-tell interface)
+    Proposes hyperparameters with Optuna's TPE sampler and guards against harmful ones.
+
+    Each tuning step is one ask/tell pair: `suggest()` asks TPE for a
+    configuration, and `observe()` reports the score it produced. In
+    `observe()` the score is smoothed (moving average) and passed to the
+    `StabilityMonitor`:
+
+    - **stable**: the configuration is accepted. TPE is told its raw score,
+      the smoothed score goes into `history`, and, unless the step was a
+      tolerated regression, it becomes the rollback target.
+    - **unstable** (a regression for `patience` steps, or a NaN/Inf score at
+      once): the configuration is rejected, TPE is still told its real score
+      (or the worst score seen, for NaN/Inf) so it learns to avoid that
+      region, and `rollback_params` holds the last good configuration.
+
+    Usually driven by `PyTorchHyperParameterAdapter`, which also applies the
+    proposals and rollbacks to the PyTorch optimizer.
+
+    Attributes:
+        study: The underlying Optuna study (direction "maximize").
+        smoother: The `MetricSmoother` applied to scores.
+        guard: The `StabilityMonitor`; replace it to change its settings.
+        rollback: The `Rollback` store of the last good configuration.
+        last_rollback: Whether the latest `observe()` rejected its configuration.
+        last_instability: Same as `last_rollback`.
+
+    Examples:
+        >>> space = ParameterSpace({"lr": {"low": 1e-4, "high": 1e-1, "log": True}})
+        >>> opt = BayesianOptimizer(space, seed=0, n_startup_trials=3)
+        >>> params = opt.suggest()            # {"lr": ...}
+        >>> accepted = opt.observe(params, score=-0.42)   # higher is better
     """
     def __init__(
         self,
-        param_space,
+        param_space: ParameterSpace,
         seed: int | None = None,
         smoothing_window: int = DEFAULT_SMOOTHING_WINDOW,
         n_startup_trials: int = 10,
     ):
         """
         Args:
-            param_space: ParameterSpace to search.
-            seed: Seed for the TPE sampler.
+            param_space: `ParameterSpace` to search.
+            seed: Seed for the TPE sampler (`None` for a random seed).
             smoothing_window: Moving-average window used by the stability check.
             n_startup_trials: Number of completed trials TPE samples at random
                 before it starts using its model. Optuna's default is 10; online
                 runs with few tuning steps should use a smaller value, or every
                 proposal will be random.
+
+        Raises:
+            ValueError: `n_startup_trials` is not a non-negative integer.
         """
         super().__init__(param_space)
 
@@ -52,6 +87,14 @@ class BayesianOptimizer(Optimizer):
         self._rollback_params = None 
     
     def suggest(self) -> Dict[str, Any]:
+        """
+        Ask TPE for the next configuration.
+
+        Each call starts a new trial; the next `observe()` call reports its score.
+
+        Returns:
+            Hyperparameter name to proposed value, one entry per item in the space.
+        """
         self._active_trial = self.study.ask()
         params = {}
         
@@ -72,6 +115,25 @@ class BayesianOptimizer(Optimizer):
     
     @log_errors(context="BayesianOptimizer.observe")
     def observe(self, params: Dict[str, Any], score: float) -> bool:
+        """
+        Report the score of the configuration from the last `suggest()`.
+
+        Args:
+            params: The hyperparameters that actually ran. They may differ
+                from the proposal (for example after `max_delta` clipping);
+                TPE records these values.
+            score: Higher-is-better metric, e.g. `-val_loss`. NaN or infinity
+                triggers an immediate rollback.
+
+        Returns:
+            `True` if the configuration was accepted, `False` if it was
+            rejected; then `rollback_params` holds the configuration to restore
+            (or `None` if no configuration has been accepted yet).
+
+        Raises:
+            RuntimeError: There is no pending `suggest()`.
+            ValueError: `score` is not a single number.
+        """
         if self._active_trial is None:
             raise RuntimeError("No active trial to observe")
         
@@ -188,6 +250,6 @@ class BayesianOptimizer(Optimizer):
 
     @property
     def rollback_params(self):
-        """Returns the params to rollback to, or None if no rollback needed."""
+        """The last good configuration, set when `observe()` rejects a configuration; `None` until then."""
         return self._rollback_params
         

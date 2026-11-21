@@ -1,4 +1,4 @@
-# Decide whether a new result is safe or not.
+"""Decides whether a new score is safe, or whether training should roll back."""
 import math
 from typing import Optional
 
@@ -8,15 +8,38 @@ _logger = get_logger()
 
 class StabilityMonitor:
     """
-    Detects unstable or harmful oprimization steps
+    Detects unstable or harmful tuning steps.
+
+    A step *regresses* when its score is NaN/Inf, or falls more than
+    `max_regression` (relative) below the best score so far. After `patience`
+    consecutive regressing steps, `update()` returns `False` and the monitor
+    enters rollback. For the next `cooldown` steps no rollback is triggered,
+    so the controller does not oscillate; those steps are still judged, and
+    `last_step_regressed` reports the verdict.
+
+    Attributes:
+        max_regression: Relative drop counted as a regression (0.2 = 20%).
+        patience: Consecutive regressions before a rollback.
+        cooldown: Steps with rollback suppressed after a rollback.
+        last_step_regressed: Whether the latest `update()` call saw a regression,
+            even if it returned `True` (within patience, or during cooldown).
+            Such a step should not become the rollback target.
+
+    Examples:
+        >>> guard = StabilityMonitor(max_regression=0.2, patience=2, cooldown=3)
+        >>> guard.update(score=-1.5, best_score=-1.0)   # 50% worse: 1st regression
+        True
+        >>> guard.update(score=-1.5, best_score=-1.0)   # 2nd: roll back
+        False
     """
     
     def __init__(self, max_regression: float = 0.2, patience: int = 2, cooldown: int = 3):
         """
-        Args: 
-            max_regression: Maximum allowed relative regression in performance (e.g., validation loss, 0.2 means 20% drop allowed)
-            patience: Number fo bad steps allowed before rollback
-            cooldown: number of steps to auto-accept after rollback
+        Args:
+            max_regression: Relative drop from the best score counted as a
+                regression; 0.2 means a score more than 20% worse.
+            patience: Consecutive regressing steps that trigger a rollback.
+            cooldown: Steps after a rollback during which no new rollback is triggered.
         """
         self.max_regression = max_regression
         self.patience = patience
@@ -30,6 +53,12 @@ class StabilityMonitor:
         return not (math.isnan(score) or math.isinf(score))
         
     def is_regression(self, score: float, best_score: float) -> bool:
+        """
+        Return whether `score` is more than `max_regression` below `best_score`.
+
+        The drop is relative to `abs(best_score)`. Always `False` when
+        `best_score` is `None`.
+        """
         if best_score is None:
             return False
             
@@ -38,9 +67,16 @@ class StabilityMonitor:
         
     def update(self, score: float, best_score: Optional[float]) -> bool:
         """
-        Update guard state.
+        Judge one step and update the guard's state.
+
+        The first step (`best_score is None`) is always accepted and resets the state.
+
+        Args:
+            score: The (smoothed) score of this step; higher is better.
+            best_score: The best score accepted so far, or `None`.
+
         Returns:
-            True if no rollback is needed, False to trigger a rollback.
+            `True` if no rollback is needed, `False` to trigger a rollback.
 
         After each call, `last_step_regressed` tells whether this step was a
         regression. A step can return True and still have regressed: while
@@ -91,13 +127,16 @@ class StabilityMonitor:
         self._cooldown_remaining = self.cooldown
         
     def exit_rollback(self):
+        """Leave the rollback state (called once a step is accepted again)."""
         self._in_rollback = False
         
     @property
     def in_rollback(self) -> bool:
+        """Whether the last rollback has not yet been followed by an accepted step."""
         return self._in_rollback 
         
     def reset(self) -> None:
+        """Clear the regression count, cooldown and rollback state."""
         self.last_step_regressed = False
         self._patience = 0
         self._cooldown_remaining = 0

@@ -1,4 +1,5 @@
-from typing import Dict, Any, Optional, Tuple, List, Union
+"""Configuration schema: parameter-space syntax and validation of every section."""
+from typing import Dict, Any, Tuple, List, Union
 
 
 def _to_number(value: Any, name: str) -> float:
@@ -27,7 +28,19 @@ def normalize_parameter_space(
         lr: {low: 1e-4, high: 1e-1, log: true}  -> continuous range, log scale
         batch_size: {choices: [32, 64]}         -> categorical choices
 
-    Tuples are passed through unchanged as ranges.
+    Tuples are passed through unchanged as ranges. Numeric strings (such as
+    `1e-4`, which PyYAML reads as a string) are converted to floats.
+
+    Args:
+        raw_space: Name to range or choices, in config syntax.
+
+    Returns:
+        Name to `(low, high)` tuple, `{"low", "high", "log": True}` mapping or list.
+
+    Raises:
+        ValueError: The space is not a dictionary, a range does not have
+            exactly two bounds, a bound is not numeric, `low > high`, a log
+            range has `low <= 0`, `choices` is empty, or an entry has another form.
     """
     if not isinstance(raw_space, dict):
         raise ValueError("parameter_space must be a dictionary")
@@ -82,10 +95,31 @@ def _is_int(value) -> bool:
 
 class AutoTuneConfig:
     """
-    Strongly typed representation for the AutoTuneNet configuration.
+    A validated AutoTuneNet configuration.
+
+    Sections: `parameter_space` (required), `tuning`, `metrics`, `search` and
+    `stability`; see `build_pytorch_autotunenet` for every key and its
+    default. Missing sections become empty dictionaries.
+
+    Attributes:
+        raw_config: The configuration as given.
+        parameter_space: The normalized parameter space.
+        tuning: `tune_n_steps`, `warmup_epochs`, `warmup_metric_threshold`, `max_delta`.
+        metrics: `smoothing_window`.
+        search: `n_startup_trials`.
+        stability: `max_regression`, `patience`, `cooldown`.
     """
 
     def __init__(self, raw_config: Dict[str, Any]):
+        """
+        Args:
+            raw_config: The configuration dictionary.
+
+        Raises:
+            KeyError: `parameter_space` is missing.
+            ValueError: A value has the wrong type or is out of range
+                (e.g. `max_delta` outside (0, 1), `patience` not a positive integer).
+        """
         self.raw_config = raw_config
 
         self.parameter_space = normalize_parameter_space(raw_config["parameter_space"])

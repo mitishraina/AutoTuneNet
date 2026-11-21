@@ -1,0 +1,113 @@
+site_name: AutoTuneNet
+site_description: Online hyperparameter adaptation for PyTorch
+site_url: https://mitishraina.github.io/AutoTuneNet/
+repo_url: https://github.com/mitishraina/AutoTuneNet
+repo_name: mitishraina/AutoTuneNet
+edit_uri: edit/main/docs/
+copyright: MIT License
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle: {icon: material/weather-night, name: Dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle: {icon: material/weather-sunny, name: Light mode}
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Installation: installation.md
+      - Quick start: quickstart.md
+  - User guide:
+      - How it works: concepts.md
+      - Configuration: configuration.md
+      - PyTorch guide: pytorch.md
+      - Problem definition (OHA): oha.md
+  - Benchmarks:
+      - benchmarks/index.md
+      - Command line: benchmarks/cli.md
+      - Runtimes: benchmarks/runtimes.md
+      - Extending: benchmarks/extending.md
+      - Results: benchmarks/results.md
+  - API reference:
+      - api/index.md
+      - Tuning: api/tuning.md
+      - Safeguards: api/safeguards.md
+      - PyTorch adapter: api/pytorch.md
+      - Configuration: api/config.md
+      - Logging: api/logging.md
+      - Benchmark extension points: api/bench.md
+  - FAQ: faq.md
+  - Contributing: contributing.md
+  - Changelog: changelog.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            separate_signature: true
+            merge_init_into_class: true
+            members_order: source
+            filters: ["!^_"]
+            heading_level: 2
+
+hooks:
+  - tools/mkdocs_hooks.py
+
+validation:
+  links:
+    not_found: warn
+    unrecognized_links: info

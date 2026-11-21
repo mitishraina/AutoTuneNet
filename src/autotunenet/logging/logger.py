@@ -1,3 +1,4 @@
+"""The AutoTuneNet logger: console output by default, optional log file."""
 import logging
 import os
 import traceback
@@ -38,7 +39,15 @@ def enable_file_logging(path: str | None = None, name: str = LOGGER_NAME) -> str
     """
     Also write logs to a file and return its path.
 
-    Defaults to ./logs/<timestamp>.log; the directory is created on demand.
+    Calling it again with the same path does not add a second handler.
+
+    Args:
+        path: Log file path. Defaults to `./logs/<timestamp>.log`; the
+            directory is created on demand.
+        name: Logger name.
+
+    Returns:
+        The path written to.
     """
     if path is None:
         path = os.path.join("logs", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log")

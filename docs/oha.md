@@ -1,6 +1,6 @@
-# This refers to AutoTuneNet_bench
+# Online Hyperparameter Adaptation (OHA)
 
-## Formal Definition of Online Hyperparameter Adaptation (OHA)
+A formal statement of the problem AutoTuneNet addresses and the benchmark evaluates. For how AutoTuneNet solves it, see [How it works](concepts.md).
 
 ### 1. Problem Setting
 
@@ -141,9 +141,9 @@ Typical objectives include:
 
 ---
 
-### 7. Scope of AutoTuneNet-Bench
+### 7. Scope of the benchmark
 
-AutoTuneNet-Bench evaluates OHA methods by:
+The [benchmark harness](benchmarks/index.md) evaluates OHA methods by:
 
 - Injecting controlled non-stationarity during training
 - Measuring stability, recovery, and degradation
