@@ -208,3 +208,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Benchmark datasets are downloaded on demand (see benchmarks/download_data.py)
+data/
+
+# Optional AutoTuneNet log files (enable_file_logging / AUTOTUNENET_LOG_FILE)
+logs/

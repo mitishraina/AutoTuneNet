@@ -1,6 +1,52 @@
+"""
+Dataset loaders for the benchmarks.
+
+Datasets are not stored in the repository. The first time a dataset is
+needed it is downloaded into DATA_DIR (<repo>/data, or $AUTOTUNENET_DATA_DIR),
+with a progress bar showing percentage, size, speed and time left. To fetch
+everything up front, run:
+
+    uv run python -m benchmarks.download_data
+"""
+import os
+from pathlib import Path
+
 import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = Path(os.environ.get("AUTOTUNENET_DATA_DIR", REPO_ROOT / "data"))
+
+# torchvision dataset class -> (display name, download size, source)
+DATASET_INFO = {
+    datasets.MNIST: ("MNIST", "about 11 MB", "the PyTorch MNIST mirror"),
+    datasets.CIFAR10: ("CIFAR-10", "about 170 MB", "www.cs.toronto.edu (this server can be slow)"),
+}
+
+
+def load_dataset(dataset_cls, train: bool, transform=None):
+    """
+    Load a torchvision dataset from DATA_DIR, downloading it first if missing.
+
+    The download prints what is being fetched and shows torchvision's progress
+    bar; later runs find the files and skip it.
+    """
+    try:
+        return dataset_cls(root=str(DATA_DIR), train=train, download=False, transform=transform)
+    except RuntimeError:
+        name, size, source = DATASET_INFO.get(dataset_cls, (dataset_cls.__name__, "unknown size", "its source"))
+        split = "training" if train else "test"
+        print(
+            f"[data] {name} ({split} split) not found in {DATA_DIR}.\n"
+            f"[data] Downloading {name} ({size}) from {source}. This happens once.\n"
+            f"[data] Set AUTOTUNENET_DATA_DIR to keep datasets somewhere else.",
+            flush=True,
+        )
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        dataset = dataset_cls(root=str(DATA_DIR), train=train, download=True, transform=transform)
+        print(f"[data] {name} ready in {DATA_DIR}", flush=True)
+        return dataset
 
 def get_mnist_loaders(
     batch_size: int = 64,
@@ -16,12 +62,7 @@ def get_mnist_loaders(
         transforms.Normalize((0.1307,), (0.3081,))
     ])
     
-    full_train = datasets.MNIST(
-        root='./data',
-        train=True,
-        download=True,
-        transform=transform
-    )
+    full_train = load_dataset(datasets.MNIST, train=True, transform=transform)
     
     val_size = int(len(full_train) * val_split)
     train_size = len(full_train) - val_size
@@ -68,12 +109,7 @@ def get_cifar_loaders(
     ])
 
 
-    full_dataset = datasets.CIFAR10(
-        root="./data",
-        train=True,
-        download=True,
-        transform=None
-    )
+    full_dataset = load_dataset(datasets.CIFAR10, train=True, transform=None)
 
     val_size = int(len(full_dataset) * val_split)
     train_size = len(full_dataset) - val_size
@@ -125,7 +161,7 @@ def get_mnist_test_loader(batch_size: int = 64):
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
-    test_ds = datasets.MNIST(root="./data", train=False, download=True, transform=transform)
+    test_ds = load_dataset(datasets.MNIST, train=False, transform=transform)
     return DataLoader(test_ds, batch_size=batch_size, shuffle=False)
 
 
@@ -135,5 +171,5 @@ def get_cifar_test_loader(batch_size: int = 128):
         transforms.ToTensor(),
         transforms.Normalize(mean=(0.4914, 0.4822, 0.4465), std=(0.2023, 0.1994, 0.2010))
     ])
-    test_ds = datasets.CIFAR10(root="./data", train=False, download=True, transform=transform)
+    test_ds = load_dataset(datasets.CIFAR10, train=False, transform=transform)
     return DataLoader(test_ds, batch_size=batch_size, shuffle=False)
