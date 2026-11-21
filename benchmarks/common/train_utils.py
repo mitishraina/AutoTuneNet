@@ -4,6 +4,7 @@ import torch.nn.functional as F
 def train_epoch(model, loader, optimizer, device):
     model.train()
     total_loss = 0.0
+    total = 0
     
     for data, target in loader:
         data, target = data.to(device), target.to(device)
@@ -13,9 +14,11 @@ def train_epoch(model, loader, optimizer, device):
         loss.backward()
         optimizer.step()
         
-        total_loss += loss.item()
+        # Weight by batch size so a short last batch counts per sample.
+        total_loss += loss.item() * target.size(0)
+        total += target.size(0)
         
-    return total_loss / len(loader)
+    return total_loss / total
 
 def evaluate(model, loader, device):
     model.eval()
@@ -28,14 +31,14 @@ def evaluate(model, loader, device):
             data, target = data.to(device), target.to(device)
             output = model(data)
             
-            loss = F.cross_entropy(output, target)
+            loss = F.cross_entropy(output, target, reduction="sum")
             total_loss += loss.item()
             
             pred = output.argmax(dim=1)
             correct += (pred == target).sum().item()
             total += target.size(0)
             
-    avg_loss = total_loss / len(loader)
+    avg_loss = total_loss / total     # mean over samples, not over batches
     accuracy = correct / total
     return avg_loss, accuracy
 

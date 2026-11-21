@@ -57,17 +57,16 @@ def train(
         elapsed = time.perf_counter() - start
         compute.record_controller_time(elapsed)
         
-        #compute metrics
+        # compute metrics: this epoch ran under the previous decision, so count
+        # it before acting on the controller's new decision
         compute.step_epoch()
-        if getattr(controller, "last_trial_start", False):
-            compute.start_trial()
-            
         if getattr(controller, "last_update", False):
             compute.record_update()
-            compute.end_trial()
-            
         if getattr(controller, "last_rollback", False):
             compute.record_rollback()
+            compute.end_trial()
+        if getattr(controller, "last_trial_start", False):
+            compute.start_trial()
 
         #stability
         if controller.last_instability:

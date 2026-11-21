@@ -1,6 +1,13 @@
-import time
-
 class ComputeMetrics:
+    """
+    Controller cost over one run.
+
+    A trial is the stretch of epochs one proposed configuration runs for: it
+    starts when the controller applies a new proposal and ends at the next
+    proposal, a rollback, or the end of the run. An update is an epoch at
+    whose end the tuned values changed (a proposal or a rollback).
+    """
+
     def __init__(self):
         self.num_hparam_updates = 0
         self.num_trials_started = 0
@@ -9,20 +16,27 @@ class ComputeMetrics:
         self.controller_time_sec = 0.0
         self.total_epochs = 0
 
+        self._trial_open = False
         self._current_trial_epochs = 0
         self._trial_lengths = []
 
     def start_trial(self):
+        self.end_trial()
         self.num_trials_started += 1
+        self._trial_open = True
         self._current_trial_epochs = 0
 
     def step_epoch(self):
-        self._current_trial_epochs += 1
+        """Count an epoch that has finished training."""
         self.total_epochs += 1
+        if self._trial_open:
+            self._current_trial_epochs += 1
 
     def end_trial(self):
-        if self._current_trial_epochs > 0:
+        if self._trial_open and self._current_trial_epochs > 0:
             self._trial_lengths.append(self._current_trial_epochs)
+        self._trial_open = False
+        self._current_trial_epochs = 0
 
     def record_update(self):
         self.num_hparam_updates += 1
@@ -34,10 +48,10 @@ class ComputeMetrics:
         self.controller_time_sec += dt
 
     def summary(self):
-        avg_epochs = (
-            sum(self._trial_lengths) / len(self._trial_lengths)
-            if self._trial_lengths else 0
-        )
+        lengths = list(self._trial_lengths)
+        if self._trial_open and self._current_trial_epochs > 0:
+            lengths.append(self._current_trial_epochs)   # trial still running at the end
+        avg_epochs = sum(lengths) / len(lengths) if lengths else 0
 
         return {
             "num_hparam_updates": self.num_hparam_updates,
