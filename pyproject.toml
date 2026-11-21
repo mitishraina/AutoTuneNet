@@ -21,7 +21,9 @@ dependencies = [
 
 [dependency-groups]
 bench = [
+    "kaggle>=1.7.4.5",
     "ray[tune]>=2.60.0",
+    "six>=1.17.0",
 ]
 dev = [
     "pytest>=8",

@@ -1,0 +1,108 @@
+{
+  "experiment": "previous",
+  "method": "cosine",
+  "task": "cifar10",
+  "scenario": "bad_initial_lr",
+  "seed": 44,
+  "test_loss": 2.3026569251772724,
+  "test_accuracy": 0.1,
+  "history": [
+    {
+      "epoch": 0,
+      "lr": 0.1,
+      "train_loss": 42.10454039207914,
+      "val_loss": 2.3047715365886687,
+      "val_accuracy": 0.0982
+    },
+    {
+      "epoch": 1,
+      "lr": 0.09755282581475769,
+      "train_loss": 2.3078339099884033,
+      "val_loss": 2.305104839801788,
+      "val_accuracy": 0.1034
+    },
+    {
+      "epoch": 2,
+      "lr": 0.09045084971874738,
+      "train_loss": 2.3077097765424033,
+      "val_loss": 2.3037004113197326,
+      "val_accuracy": 0.0996
+    },
+    {
+      "epoch": 3,
+      "lr": 0.07938926261462367,
+      "train_loss": 2.307137471031059,
+      "val_loss": 2.3063661575317385,
+      "val_accuracy": 0.103
+    },
+    {
+      "epoch": 4,
+      "lr": 0.06545084971874739,
+      "train_loss": 2.305999976667491,
+      "val_loss": 2.3070955872535706,
+      "val_accuracy": 0.103
+    },
+    {
+      "epoch": 5,
+      "lr": 0.05000000000000001,
+      "train_loss": 2.305914793502201,
+      "val_loss": 2.311571556329727,
+      "val_accuracy": 0.0996
+    },
+    {
+      "epoch": 6,
+      "lr": 0.03454915028125264,
+      "train_loss": 2.3051583861762825,
+      "val_loss": 2.3062494099140167,
+      "val_accuracy": 0.103
+    },
+    {
+      "epoch": 7,
+      "lr": 0.020610737385376353,
+      "train_loss": 2.3040328059684145,
+      "val_loss": 2.304938280582428,
+      "val_accuracy": 0.0996
+    },
+    {
+      "epoch": 8,
+      "lr": 0.009549150281252635,
+      "train_loss": 2.3033846867355434,
+      "val_loss": 2.3027546226978304,
+      "val_accuracy": 0.0994
+    },
+    {
+      "epoch": 9,
+      "lr": 0.002447174185242324,
+      "train_loss": 2.3029250238429415,
+      "val_loss": 2.3027183651924132,
+      "val_accuracy": 0.094
+    }
+  ],
+  "shift_epoch": null,
+  "compute": {
+    "epochs_trained": 10,
+    "max_parallel_models": 1,
+    "trials": 1,
+    "restarts": 0,
+    "wall_time_sec": 0.0,
+    "controller_time_sec": 0.0
+  },
+  "environment": {
+    "device": "mps",
+    "accelerator": "Apple MPS (previous benchmark scripts)",
+    "torch": null,
+    "cuda": null,
+    "python": null,
+    "platform": null,
+    "git_commit": null
+  },
+  "config": {
+    "epochs": 10,
+    "source": "legacy/stress_test/cifar10/seed_44"
+  },
+  "extra": {
+    "imported_from": "legacy/stress_test/cifar10/seed_44",
+    "rollbacks": 0
+  },
+  "schema_version": 1
+}

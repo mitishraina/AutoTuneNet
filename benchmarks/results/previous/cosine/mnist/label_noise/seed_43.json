@@ -1,0 +1,107 @@
+{
+  "experiment": "previous",
+  "method": "cosine",
+  "task": "mnist",
+  "scenario": "label_noise",
+  "seed": 43,
+  "test_loss": 0.48508788711705786,
+  "test_accuracy": 0.9686,
+  "history": [
+    {
+      "epoch": 0,
+      "lr": 0.01,
+      "train_loss": 0.33825496366132773,
+      "val_loss": 0.19688518698069643,
+      "val_accuracy": 0.9378333333333333
+    },
+    {
+      "epoch": 1,
+      "lr": 0.009755282581475769,
+      "train_loss": 0.17128607706647914,
+      "val_loss": 0.1384591650455556,
+      "val_accuracy": 0.956
+    },
+    {
+      "epoch": 2,
+      "lr": 0.009045084971874737,
+      "train_loss": 0.14341750859516844,
+      "val_loss": 0.18551061690804807,
+      "val_accuracy": 0.9435
+    },
+    {
+      "epoch": 3,
+      "lr": 0.007938926261462366,
+      "train_loss": 0.12747739587680953,
+      "val_loss": 0.1403342621955783,
+      "val_accuracy": 0.9546666666666667
+    },
+    {
+      "epoch": 4,
+      "lr": 0.006545084971874737,
+      "train_loss": 0.10765943124281216,
+      "val_loss": 0.11833286624243285,
+      "val_accuracy": 0.9676666666666667
+    },
+    {
+      "epoch": 5,
+      "lr": 0.005,
+      "train_loss": 1.4553702584516381,
+      "val_loss": 0.588526338021806,
+      "val_accuracy": 0.9438333333333333
+    },
+    {
+      "epoch": 6,
+      "lr": 0.003454915028125263,
+      "train_loss": 1.3887582417065498,
+      "val_loss": 0.5475667528015502,
+      "val_accuracy": 0.9591666666666666
+    },
+    {
+      "epoch": 7,
+      "lr": 0.0020610737385376348,
+      "train_loss": 1.3663251013693651,
+      "val_loss": 0.47815009507727113,
+      "val_accuracy": 0.9608333333333333
+    },
+    {
+      "epoch": 8,
+      "lr": 0.0009549150281252633,
+      "train_loss": 1.3533118600952683,
+      "val_loss": 0.5068333748173206,
+      "val_accuracy": 0.9645
+    },
+    {
+      "epoch": 9,
+      "lr": 0.00024471741852423234,
+      "train_loss": 1.3436741098690936,
+      "val_loss": 0.4910983725431118,
+      "val_accuracy": 0.9646666666666667
+    }
+  ],
+  "shift_epoch": 5,
+  "compute": {
+    "epochs_trained": 10,
+    "max_parallel_models": 1,
+    "trials": 1,
+    "restarts": 0,
+    "wall_time_sec": 0.0,
+    "controller_time_sec": 0.0
+  },
+  "environment": {
+    "device": "mps",
+    "accelerator": "Apple MPS (previous benchmark scripts)",
+    "torch": null,
+    "cuda": null,
+    "python": null,
+    "platform": null,
+    "git_commit": null
+  },
+  "config": {
+    "epochs": 10,
+    "source": "legacy/autotunenet_bench/mnist_scheduler/seed_43"
+  },
+  "extra": {
+    "imported_from": "legacy/autotunenet_bench/mnist_scheduler/seed_43"
+  },
+  "schema_version": 1
+}

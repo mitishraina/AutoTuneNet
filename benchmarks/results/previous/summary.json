@@ -1,0 +1,3043 @@
+{
+  "experiment": "previous",
+  "warnings": [],
+  "groups": {
+    "autotunenet/cifar10/bad_initial_lr": {
+      "method": "autotunenet",
+      "task": "cifar10",
+      "scenario": "bad_initial_lr",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.10000000000000002,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.1,
+            0.1,
+            0.1
+          ]
+        },
+        "test_loss": {
+          "mean": 2.3025997318798983,
+          "std": 2.2572450172455848e-05,
+          "n": 3,
+          "values": [
+            2.302593665786936,
+            2.302624717543397,
+            2.302580812309362
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.09613333333333333,
+          "std": 0.003354598833442437,
+          "n": 3,
+          "values": [
+            0.1,
+            0.0944,
+            0.094
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.04297041893005327,
+          "std": 0.009670032235313259,
+          "n": 3,
+          "values": [
+            -0.03450295329093933,
+            -0.04090049862861633,
+            -0.053507804870604136
+          ]
+        },
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.1,
+          "test_loss": 2.302593665786936,
+          "final_val_accuracy": 0.1,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.03450295329093933,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.1,
+          "test_loss": 2.302624717543397,
+          "final_val_accuracy": 0.0944,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.04090049862861633,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.1,
+          "test_loss": 2.302580812309362,
+          "final_val_accuracy": 0.094,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.053507804870604136,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "autotunenet/cifar10/label_noise": {
+      "method": "autotunenet",
+      "task": "cifar10",
+      "scenario": "label_noise",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.7078333333333333,
+          "std": 0.018727608852529287,
+          "n": 3,
+          "values": [
+            0.7098,
+            0.6882,
+            0.7255
+          ]
+        },
+        "test_loss": {
+          "mean": 1.0694239645064632,
+          "std": 0.04734710481994171,
+          "n": 3,
+          "values": [
+            1.036417695540416,
+            1.1236721382865422,
+            1.0481820596924312
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.7065999999999999,
+          "std": 0.02590521183082664,
+          "n": 3,
+          "values": [
+            0.714,
+            0.6778,
+            0.728
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.13860703557729706,
+          "std": 0.10782678890080272,
+          "n": 3,
+          "values": [
+            -0.06763326525688163,
+            -0.08550126105546929,
+            -0.2626865804195403
+          ]
+        },
+        "post_shift_degradation": {
+          "mean": 0.23071573505798973,
+          "std": 0.006282270515285733,
+          "n": 3,
+          "values": [
+            0.2273609027266501,
+            0.22682307511568067,
+            0.23796322733163844
+          ]
+        },
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.7098,
+          "test_loss": 1.036417695540416,
+          "final_val_accuracy": 0.714,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.06763326525688163,
+          "post_shift_degradation": 0.2273609027266501,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.6882,
+          "test_loss": 1.1236721382865422,
+          "final_val_accuracy": 0.6778,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.08550126105546929,
+          "post_shift_degradation": 0.22682307511568067,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.7255,
+          "test_loss": 1.0481820596924312,
+          "final_val_accuracy": 0.728,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.2626865804195403,
+          "post_shift_degradation": 0.23796322733163844,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "autotunenet/cifar10/stationary": {
+      "method": "autotunenet",
+      "task": "cifar10",
+      "scenario": "stationary",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.7286,
+          "std": 0.02042669821581553,
+          "n": 3,
+          "values": [
+            0.7421,
+            0.7051,
+            0.7386
+          ]
+        },
+        "test_loss": {
+          "mean": 0.7625744483641933,
+          "std": 0.05902083407945687,
+          "n": 3,
+          "values": [
+            0.7230650601507742,
+            0.8304198384284973,
+            0.7342384465133087
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.7267999999999999,
+          "std": 0.029478127484628323,
+          "n": 3,
+          "values": [
+            0.7424,
+            0.6928,
+            0.7452
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": 0.14168575629591937,
+          "std": 0.2039501235169985,
+          "n": 3,
+          "values": [
+            0.007369200140237675,
+            0.3763700023293496,
+            0.04131806641817082
+          ]
+        },
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.7421,
+          "test_loss": 0.7230650601507742,
+          "final_val_accuracy": 0.7424,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": 0.007369200140237675,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.7051,
+          "test_loss": 0.8304198384284973,
+          "final_val_accuracy": 0.6928,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": 0.3763700023293496,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.7386,
+          "test_loss": 0.7342384465133087,
+          "final_val_accuracy": 0.7452,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": 0.04131806641817082,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "autotunenet/mnist/bad_initial_lr": {
+      "method": "autotunenet",
+      "task": "mnist",
+      "scenario": "bad_initial_lr",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.1135,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.1135,
+            0.1135,
+            0.1135
+          ]
+        },
+        "test_loss": {
+          "mean": 2.301122691221298,
+          "std": 3.782587509675896e-05,
+          "n": 3,
+          "values": [
+            2.301113087660188,
+            2.3010905927913203,
+            2.3011643932123853
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.11155555555555556,
+          "std": 0.0006938886664887056,
+          "n": 3,
+          "values": [
+            0.111,
+            0.11133333333333334,
+            0.11233333333333333
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.04634038184551459,
+          "std": 0.013733897802241627,
+          "n": 3,
+          "values": [
+            -0.03930761712662667,
+            -0.03754721042957776,
+            -0.062166317980339336
+          ]
+        },
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.1135,
+          "test_loss": 2.301113087660188,
+          "final_val_accuracy": 0.111,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.03930761712662667,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.1135,
+          "test_loss": 2.3010905927913203,
+          "final_val_accuracy": 0.11133333333333334,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.03754721042957776,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.1135,
+          "test_loss": 2.3011643932123853,
+          "final_val_accuracy": 0.11233333333333333,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.062166317980339336,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "autotunenet/mnist/gradient_noise": {
+      "method": "autotunenet",
+      "task": "mnist",
+      "scenario": "gradient_noise",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.9725666666666667,
+          "std": 0.007081195755896935,
+          "n": 3,
+          "values": [
+            0.977,
+            0.9763,
+            0.9644
+          ]
+        },
+        "test_loss": {
+          "mean": 0.08790674038495717,
+          "std": 0.01722089486264794,
+          "n": 3,
+          "values": [
+            0.07722914130654954,
+            0.07871794967969975,
+            0.10777313016862224
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.9698888888888888,
+          "std": 0.011222909769917258,
+          "n": 3,
+          "values": [
+            0.9775,
+            0.9751666666666666,
+            0.957
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.27642830015748,
+          "std": 0.21574666275470517,
+          "n": 3,
+          "values": [
+            -0.13248363334408148,
+            -0.5244874648769644,
+            -0.1723138022513941
+          ]
+        },
+        "post_shift_degradation": {
+          "mean": 0.0005909695128203385,
+          "std": 0.012906394780687063,
+          "n": 3,
+          "values": [
+            0.00552150367640275,
+            -0.014053887089199218,
+            0.010305291951257484
+          ]
+        },
+        "recovery_epochs": {
+          "mean": 1.0,
+          "std": 1.4142135623730951,
+          "n": 2,
+          "values": [
+            0,
+            2
+          ]
+        }
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.977,
+          "test_loss": 0.07722914130654954,
+          "final_val_accuracy": 0.9775,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.13248363334408148,
+          "post_shift_degradation": 0.00552150367640275,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.9763,
+          "test_loss": 0.07871794967969975,
+          "final_val_accuracy": 0.9751666666666666,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.5244874648769644,
+          "post_shift_degradation": -0.014053887089199218,
+          "recovery_epochs": 0
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.9644,
+          "test_loss": 0.10777313016862224,
+          "final_val_accuracy": 0.957,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.1723138022513941,
+          "post_shift_degradation": 0.010305291951257484,
+          "recovery_epochs": 2
+        }
+      ]
+    },
+    "autotunenet/mnist/label_noise": {
+      "method": "autotunenet",
+      "task": "mnist",
+      "scenario": "label_noise",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.9624333333333333,
+          "std": 0.009981148898465225,
+          "n": 3,
+          "values": [
+            0.9738,
+            0.9551,
+            0.9584
+          ]
+        },
+        "test_loss": {
+          "mean": 0.5207151456117124,
+          "std": 0.04906604844990222,
+          "n": 3,
+          "values": [
+            0.46720459658628816,
+            0.5635931670286094,
+            0.5313476732202397
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.959,
+          "std": 0.010369560153534867,
+          "n": 3,
+          "values": [
+            0.9706666666666667,
+            0.9508333333333333,
+            0.9555
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.1133095163704187,
+          "std": 0.08045926642768414,
+          "n": 3,
+          "values": [
+            -0.19115205984092024,
+            -0.11830973565736991,
+            -0.03046675361296594
+          ]
+        },
+        "post_shift_degradation": {
+          "mean": 0.4226439517899581,
+          "std": 0.043988814164659565,
+          "n": 3,
+          "values": [
+            0.374545880604258,
+            0.4608332643523178,
+            0.4325527104132987
+          ]
+        },
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.9738,
+          "test_loss": 0.46720459658628816,
+          "final_val_accuracy": 0.9706666666666667,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.19115205984092024,
+          "post_shift_degradation": 0.374545880604258,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.9551,
+          "test_loss": 0.5635931670286094,
+          "final_val_accuracy": 0.9508333333333333,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.11830973565736991,
+          "post_shift_degradation": 0.4608332643523178,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.9584,
+          "test_loss": 0.5313476732202397,
+          "final_val_accuracy": 0.9555,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.03046675361296594,
+          "post_shift_degradation": 0.4325527104132987,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "autotunenet/mnist/stationary": {
+      "method": "autotunenet",
+      "task": "mnist",
+      "scenario": "stationary",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.9805,
+          "std": 0.006104916051838919,
+          "n": 3,
+          "values": [
+            0.9874,
+            0.9783,
+            0.9758
+          ]
+        },
+        "test_loss": {
+          "mean": 0.0695438486672615,
+          "std": 0.013566663765131153,
+          "n": 3,
+          "values": [
+            0.054230827513670976,
+            0.07433890802511399,
+            0.08006181046299957
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.9791111111111112,
+          "std": 0.005210388483419254,
+          "n": 3,
+          "values": [
+            0.9846666666666667,
+            0.9783333333333334,
+            0.9743333333333334
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.18473975165808101,
+          "std": 0.14286706834424479,
+          "n": 3,
+          "values": [
+            -0.14781985312452267,
+            -0.3424429773746871,
+            -0.06395642447503325
+          ]
+        },
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.9874,
+          "test_loss": 0.054230827513670976,
+          "final_val_accuracy": 0.9846666666666667,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.14781985312452267,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.9783,
+          "test_loss": 0.07433890802511399,
+          "final_val_accuracy": 0.9783333333333334,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.3424429773746871,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.9758,
+          "test_loss": 0.08006181046299957,
+          "final_val_accuracy": 0.9743333333333334,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.06395642447503325,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "cosine/cifar10/bad_initial_lr": {
+      "method": "cosine",
+      "task": "cifar10",
+      "scenario": "bad_initial_lr",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.10000000000000002,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.1,
+            0.1,
+            0.1
+          ]
+        },
+        "test_loss": {
+          "mean": 2.3026664377767827,
+          "std": 3.521879744692929e-05,
+          "n": 3,
+          "values": [
+            2.3026369523398484,
+            2.3027054358132277,
+            2.3026569251772724
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.09533333333333334,
+          "std": 0.001973153144926503,
+          "n": 3,
+          "values": [
+            0.0976,
+            0.0944,
+            0.094
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.02989630897839879,
+          "std": 0.0043125629838034795,
+          "n": 3,
+          "values": [
+            -0.025165426731109886,
+            -0.030915546417236595,
+            -0.03360795378684989
+          ]
+        },
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.1,
+          "test_loss": 2.3026369523398484,
+          "final_val_accuracy": 0.0976,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.025165426731109886,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.1,
+          "test_loss": 2.3027054358132277,
+          "final_val_accuracy": 0.0944,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.030915546417236595,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.1,
+          "test_loss": 2.3026569251772724,
+          "final_val_accuracy": 0.094,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.03360795378684989,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "cosine/cifar10/label_noise": {
+      "method": "cosine",
+      "task": "cifar10",
+      "scenario": "label_noise",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.7208333333333333,
+          "std": 0.010153981156833669,
+          "n": 3,
+          "values": [
+            0.7243,
+            0.7094,
+            0.7288
+          ]
+        },
+        "test_loss": {
+          "mean": 1.043799586185423,
+          "std": 0.018064027975888106,
+          "n": 3,
+          "values": [
+            1.038816802109344,
+            1.0638320159308519,
+            1.0287499405160736
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.7185333333333332,
+          "std": 0.01693556415751581,
+          "n": 3,
+          "values": [
+            0.7198,
+            0.701,
+            0.7348
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.25291010538736963,
+          "std": 0.1525308226335151,
+          "n": 3,
+          "values": [
+            -0.1527010694146157,
+            -0.1775783300399777,
+            -0.42845091670751556
+          ]
+        },
+        "post_shift_degradation": {
+          "mean": 0.21663303901751838,
+          "std": 0.0034473448219447733,
+          "n": 3,
+          "values": [
+            0.21802774846553807,
+            0.21916450381278996,
+            0.21270686477422707
+          ]
+        },
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.7243,
+          "test_loss": 1.038816802109344,
+          "final_val_accuracy": 0.7198,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.1527010694146157,
+          "post_shift_degradation": 0.21802774846553807,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.7094,
+          "test_loss": 1.0638320159308519,
+          "final_val_accuracy": 0.701,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.1775783300399777,
+          "post_shift_degradation": 0.21916450381278996,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.7288,
+          "test_loss": 1.0287499405160736,
+          "final_val_accuracy": 0.7348,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.42845091670751556,
+          "post_shift_degradation": 0.21270686477422707,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "cosine/cifar10/stationary": {
+      "method": "cosine",
+      "task": "cifar10",
+      "scenario": "stationary",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.7372333333333333,
+          "std": 0.008527797683653922,
+          "n": 3,
+          "values": [
+            0.7417,
+            0.7274,
+            0.7426
+          ]
+        },
+        "test_loss": {
+          "mean": 0.7442216345026523,
+          "std": 0.028528816033465392,
+          "n": 3,
+          "values": [
+            0.7275663667087313,
+            0.7771631848963001,
+            0.7279353519029255
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.7353333333333333,
+          "std": 0.0184719607333205,
+          "n": 3,
+          "values": [
+            0.7406,
+            0.7148,
+            0.7506
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": 0.02964635863900174,
+          "std": 0.10421042260932971,
+          "n": 3,
+          "values": [
+            0.0683447450399397,
+            0.10897157117724432,
+            -0.0883772403001788
+          ]
+        },
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.7417,
+          "test_loss": 0.7275663667087313,
+          "final_val_accuracy": 0.7406,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": 0.0683447450399397,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.7274,
+          "test_loss": 0.7771631848963001,
+          "final_val_accuracy": 0.7148,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": 0.10897157117724432,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.7426,
+          "test_loss": 0.7279353519029255,
+          "final_val_accuracy": 0.7506,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.0883772403001788,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "cosine/mnist/bad_initial_lr": {
+      "method": "cosine",
+      "task": "mnist",
+      "scenario": "bad_initial_lr",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.1135,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.1135,
+            0.1135,
+            0.1135
+          ]
+        },
+        "test_loss": {
+          "mean": 2.3012580785528614,
+          "std": 0.00011133870654049694,
+          "n": 3,
+          "values": [
+            2.301130250760704,
+            2.3013338814875124,
+            2.3013101034103687
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.11155555555555556,
+          "std": 0.0006938886664887056,
+          "n": 3,
+          "values": [
+            0.111,
+            0.11133333333333334,
+            0.11233333333333333
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.03983962789494896,
+          "std": 0.00749671222064056,
+          "n": 3,
+          "values": [
+            -0.03823700103353955,
+            -0.0332738262541743,
+            -0.048008056397133014
+          ]
+        },
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.1135,
+          "test_loss": 2.301130250760704,
+          "final_val_accuracy": 0.111,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.03823700103353955,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.1135,
+          "test_loss": 2.3013338814875124,
+          "final_val_accuracy": 0.11133333333333334,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.0332738262541743,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.1135,
+          "test_loss": 2.3013101034103687,
+          "final_val_accuracy": 0.11233333333333333,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.048008056397133014,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "cosine/mnist/gradient_noise": {
+      "method": "cosine",
+      "task": "mnist",
+      "scenario": "gradient_noise",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.9758,
+          "std": 0.005311308689955802,
+          "n": 3,
+          "values": [
+            0.9818,
+            0.9739,
+            0.9717
+          ]
+        },
+        "test_loss": {
+          "mean": 0.08043950279228654,
+          "std": 0.014504969212193727,
+          "n": 3,
+          "values": [
+            0.06369084668172818,
+            0.08873623758509969,
+            0.08889142411003174
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.9735,
+          "std": 0.006173419725817412,
+          "n": 3,
+          "values": [
+            0.9805,
+            0.9711666666666666,
+            0.9688333333333333
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.4217524038858304,
+          "std": 0.08083485084038508,
+          "n": 3,
+          "values": [
+            -0.33379578607267096,
+            -0.4927861770748736,
+            -0.43867524850994666
+          ]
+        },
+        "post_shift_degradation": {
+          "mean": -0.0021013145790565874,
+          "std": 0.013726422601176692,
+          "n": 3,
+          "values": [
+            0.013492029034990832,
+            -0.01235774320877217,
+            -0.007438229563388424
+          ]
+        },
+        "recovery_epochs": {
+          "mean": 0.5,
+          "std": 0.7071067811865476,
+          "n": 2,
+          "values": [
+            0,
+            1
+          ]
+        }
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.9818,
+          "test_loss": 0.06369084668172818,
+          "final_val_accuracy": 0.9805,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.33379578607267096,
+          "post_shift_degradation": 0.013492029034990832,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.9739,
+          "test_loss": 0.08873623758509969,
+          "final_val_accuracy": 0.9711666666666666,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.4927861770748736,
+          "post_shift_degradation": -0.01235774320877217,
+          "recovery_epochs": 0
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.9717,
+          "test_loss": 0.08889142411003174,
+          "final_val_accuracy": 0.9688333333333333,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.43867524850994666,
+          "post_shift_degradation": -0.007438229563388424,
+          "recovery_epochs": 1
+        }
+      ]
+    },
+    "cosine/mnist/label_noise": {
+      "method": "cosine",
+      "task": "mnist",
+      "scenario": "label_noise",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.9711333333333334,
+          "std": 0.00695509405639731,
+          "n": 3,
+          "values": [
+            0.979,
+            0.9686,
+            0.9658
+          ]
+        },
+        "test_loss": {
+          "mean": 0.4726668073619753,
+          "std": 0.028394705087351372,
+          "n": 3,
+          "values": [
+            0.4401780091653204,
+            0.48508788711705786,
+            0.49273452580354776
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.9678333333333334,
+          "std": 0.007131697631778214,
+          "n": 3,
+          "values": [
+            0.976,
+            0.9646666666666667,
+            0.9628333333333333
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.34325364365239114,
+          "std": 0.06625956277702724,
+          "n": 3,
+          "values": [
+            -0.2668087170979483,
+            -0.37874488697010783,
+            -0.3842073268891172
+          ]
+        },
+        "post_shift_degradation": {
+          "mean": 0.4030276629873568,
+          "std": 0.005240345704705222,
+          "n": 3,
+          "values": [
+            0.40764750505715824,
+            0.40410212040977916,
+            0.3973333634951331
+          ]
+        },
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.979,
+          "test_loss": 0.4401780091653204,
+          "final_val_accuracy": 0.976,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.2668087170979483,
+          "post_shift_degradation": 0.40764750505715824,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.9686,
+          "test_loss": 0.48508788711705786,
+          "final_val_accuracy": 0.9646666666666667,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.37874488697010783,
+          "post_shift_degradation": 0.40410212040977916,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.9658,
+          "test_loss": 0.49273452580354776,
+          "final_val_accuracy": 0.9628333333333333,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.3842073268891172,
+          "post_shift_degradation": 0.3973333634951331,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "cosine/mnist/stationary": {
+      "method": "cosine",
+      "task": "mnist",
+      "scenario": "stationary",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.9814666666666666,
+          "std": 0.005326662494783539,
+          "n": 3,
+          "values": [
+            0.9876,
+            0.9788,
+            0.978
+          ]
+        },
+        "test_loss": {
+          "mean": 0.06874378600089937,
+          "std": 0.012192585280408381,
+          "n": 3,
+          "values": [
+            0.054665324185814324,
+            0.07570043052381696,
+            0.07586560329306681
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.981388888888889,
+          "std": 0.004726795171423499,
+          "n": 3,
+          "values": [
+            0.9868333333333333,
+            0.9783333333333334,
+            0.979
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": {
+          "mean": -0.26010710432850864,
+          "std": 0.0834350818591747,
+          "n": 3,
+          "values": [
+            -0.2621619942379921,
+            -0.3424957606698723,
+            -0.1756635580776616
+          ]
+        },
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.9876,
+          "test_loss": 0.054665324185814324,
+          "final_val_accuracy": 0.9868333333333333,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.2621619942379921,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.9788,
+          "test_loss": 0.07570043052381696,
+          "final_val_accuracy": 0.9783333333333334,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.3424957606698723,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.978,
+          "test_loss": 0.07586560329306681,
+          "final_val_accuracy": 0.979,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": -0.1756635580776616,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "fixed_lr/cifar10/bad_initial_lr": {
+      "method": "fixed_lr",
+      "task": "cifar10",
+      "scenario": "bad_initial_lr",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.10000000000000002,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.1,
+            0.1,
+            0.1
+          ]
+        },
+        "test_loss": {
+          "mean": 2.3097170193990073,
+          "std": 0.00193386367753189,
+          "n": 3,
+          "values": [
+            2.31168206130402,
+            2.309653076944472,
+            2.3078159199485295
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.09746666666666666,
+          "std": 0.0028448784391135796,
+          "n": 3,
+          "values": [
+            0.0942,
+            0.0988,
+            0.0994
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": null,
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.1,
+          "test_loss": 2.31168206130402,
+          "final_val_accuracy": 0.0942,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.1,
+          "test_loss": 2.309653076944472,
+          "final_val_accuracy": 0.0988,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.1,
+          "test_loss": 2.3078159199485295,
+          "final_val_accuracy": 0.0994,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "fixed_lr/cifar10/label_noise": {
+      "method": "fixed_lr",
+      "task": "cifar10",
+      "scenario": "label_noise",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.7074666666666666,
+          "std": 0.012064963047325641,
+          "n": 3,
+          "values": [
+            0.6937,
+            0.7125,
+            0.7162
+          ]
+        },
+        "test_loss": {
+          "mean": 1.0763197694649678,
+          "std": 0.02048528822011553,
+          "n": 3,
+          "values": [
+            1.0539234416394294,
+            1.0809262409994873,
+            1.0941096257559861
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.7050666666666666,
+          "std": 0.01204214820259796,
+          "n": 3,
+          "values": [
+            0.6916,
+            0.7088,
+            0.7148
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": null,
+        "post_shift_degradation": {
+          "mean": 0.2481255117058754,
+          "std": 0.026710168970495825,
+          "n": 3,
+          "values": [
+            0.2654246968030929,
+            0.21736287385225284,
+            0.2615889644622805
+          ]
+        },
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.6937,
+          "test_loss": 1.0539234416394294,
+          "final_val_accuracy": 0.6916,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": 0.2654246968030929,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.7125,
+          "test_loss": 1.0809262409994873,
+          "final_val_accuracy": 0.7088,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": 0.21736287385225284,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.7162,
+          "test_loss": 1.0941096257559861,
+          "final_val_accuracy": 0.7148,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": 0.2615889644622805,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "fixed_lr/cifar10/stationary": {
+      "method": "fixed_lr",
+      "task": "cifar10",
+      "scenario": "stationary",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.7538333333333332,
+          "std": 0.003784617990409778,
+          "n": 3,
+          "values": [
+            0.7582,
+            0.7518,
+            0.7515
+          ]
+        },
+        "test_loss": {
+          "mean": 0.6957595910452589,
+          "std": 0.010147492961698359,
+          "n": 3,
+          "values": [
+            0.6843020866943311,
+            0.6993632999402059,
+            0.7036133865012398
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.7552666666666666,
+          "std": 0.01080987203131161,
+          "n": 3,
+          "values": [
+            0.7594,
+            0.743,
+            0.7634
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": null,
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.7582,
+          "test_loss": 0.6843020866943311,
+          "final_val_accuracy": 0.7594,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.7518,
+          "test_loss": 0.6993632999402059,
+          "final_val_accuracy": 0.743,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.7515,
+          "test_loss": 0.7036133865012398,
+          "final_val_accuracy": 0.7634,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "fixed_lr/mnist/bad_initial_lr": {
+      "method": "fixed_lr",
+      "task": "mnist",
+      "scenario": "bad_initial_lr",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.09999999999999999,
+          "std": 0.003800000000000003,
+          "n": 3,
+          "values": [
+            0.1032,
+            0.101,
+            0.0958
+          ]
+        },
+        "test_loss": {
+          "mean": 2.3145571544671513,
+          "std": 0.007304256322474103,
+          "n": 3,
+          "values": [
+            2.310478552131896,
+            2.310203028332656,
+            2.322989882936903
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.09633333333333334,
+          "std": 0.0022912878474779146,
+          "n": 3,
+          "values": [
+            0.09583333333333334,
+            0.09433333333333334,
+            0.09883333333333333
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": null,
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.1032,
+          "test_loss": 2.310478552131896,
+          "final_val_accuracy": 0.09583333333333334,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.101,
+          "test_loss": 2.310203028332656,
+          "final_val_accuracy": 0.09433333333333334,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.0958,
+          "test_loss": 2.322989882936903,
+          "final_val_accuracy": 0.09883333333333333,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "fixed_lr/mnist/gradient_noise": {
+      "method": "fixed_lr",
+      "task": "mnist",
+      "scenario": "gradient_noise",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.9556666666666667,
+          "std": 0.010038094108611088,
+          "n": 3,
+          "values": [
+            0.9671,
+            0.9516,
+            0.9483
+          ]
+        },
+        "test_loss": {
+          "mean": 0.14708500481530729,
+          "std": 0.03183797408380571,
+          "n": 3,
+          "values": [
+            0.11043222545135238,
+            0.16294422659987381,
+            0.16787856239469567
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.9523333333333334,
+          "std": 0.011905880899790647,
+          "n": 3,
+          "values": [
+            0.9658333333333333,
+            0.9478333333333333,
+            0.9433333333333334
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": null,
+        "post_shift_degradation": {
+          "mean": 0.06149845377076416,
+          "std": 0.0028757351845334466,
+          "n": 3,
+          "values": [
+            0.05878662187457481,
+            0.06451398674596816,
+            0.06119475269174954
+          ]
+        },
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.9671,
+          "test_loss": 0.11043222545135238,
+          "final_val_accuracy": 0.9658333333333333,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": 0.05878662187457481,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.9516,
+          "test_loss": 0.16294422659987381,
+          "final_val_accuracy": 0.9478333333333333,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": 0.06451398674596816,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.9483,
+          "test_loss": 0.16787856239469567,
+          "final_val_accuracy": 0.9433333333333334,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": 0.06119475269174954,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "fixed_lr/mnist/label_noise": {
+      "method": "fixed_lr",
+      "task": "mnist",
+      "scenario": "label_noise",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.9466666666666667,
+          "std": 0.01205003457809701,
+          "n": 3,
+          "values": [
+            0.9593,
+            0.9353,
+            0.9454
+          ]
+        },
+        "test_loss": {
+          "mean": 0.5541830014144793,
+          "std": 0.010160707722566064,
+          "n": 3,
+          "values": [
+            0.5554374477286248,
+            0.543453315450887,
+            0.5636582410639259
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.9458888888888889,
+          "std": 0.015833625728294293,
+          "n": 3,
+          "values": [
+            0.9616666666666667,
+            0.93,
+            0.946
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": null,
+        "post_shift_degradation": {
+          "mean": 0.45092767929048966,
+          "std": 0.009978518696196275,
+          "n": 3,
+          "values": [
+            0.4395446841017977,
+            0.45816559234356613,
+            0.4550727614261051
+          ]
+        },
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.9593,
+          "test_loss": 0.5554374477286248,
+          "final_val_accuracy": 0.9616666666666667,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": 0.4395446841017977,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.9353,
+          "test_loss": 0.543453315450887,
+          "final_val_accuracy": 0.93,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": 0.45816559234356613,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.9454,
+          "test_loss": 0.5636582410639259,
+          "final_val_accuracy": 0.946,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": 0.4550727614261051,
+          "recovery_epochs": null
+        }
+      ]
+    },
+    "fixed_lr/mnist/stationary": {
+      "method": "fixed_lr",
+      "task": "mnist",
+      "scenario": "stationary",
+      "metrics": {
+        "test_accuracy": {
+          "mean": 0.9632999999999999,
+          "std": 0.00555607775323564,
+          "n": 3,
+          "values": [
+            0.9687,
+            0.9576,
+            0.9636
+          ]
+        },
+        "test_loss": {
+          "mean": 0.12169181863033864,
+          "std": 0.013137358580822567,
+          "n": 3,
+          "values": [
+            0.11100346367408753,
+            0.13635852214640043,
+            0.11771347007052795
+          ]
+        },
+        "final_val_accuracy": {
+          "mean": 0.9622222222222222,
+          "std": 0.0017821127702606348,
+          "n": 3,
+          "values": [
+            0.9633333333333334,
+            0.9601666666666666,
+            0.9631666666666666
+          ]
+        },
+        "epochs_trained": {
+          "mean": 10.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            10,
+            10,
+            10
+          ]
+        },
+        "max_parallel_models": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "trials": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            1,
+            1,
+            1
+          ]
+        },
+        "restarts": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wall_time_sec": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "regret_vs_fixed_lr": null,
+        "post_shift_degradation": null,
+        "recovery_epochs": null
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_accuracy": 0.9687,
+          "test_loss": 0.11100346367408753,
+          "final_val_accuracy": 0.9633333333333334,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 43,
+          "test_accuracy": 0.9576,
+          "test_loss": 0.13635852214640043,
+          "final_val_accuracy": 0.9601666666666666,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        },
+        {
+          "seed": 44,
+          "test_accuracy": 0.9636,
+          "test_loss": 0.11771347007052795,
+          "final_val_accuracy": 0.9631666666666666,
+          "epochs_trained": 10,
+          "max_parallel_models": 1,
+          "trials": 1,
+          "restarts": 0,
+          "wall_time_sec": 0.0,
+          "regret_vs_fixed_lr": null,
+          "post_shift_degradation": null,
+          "recovery_epochs": null
+        }
+      ]
+    }
+  }
+}

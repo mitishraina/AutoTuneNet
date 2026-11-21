@@ -1,171 +1,212 @@
 """
-Render the support matrix as native SVG (the primary artefact), plus Markdown
-and an HTML page that embeds the SVG. Colour codes:
+Render the support matrix as native SVG (primary), Markdown, and an HTML page
+embedding the SVG.
 
-- cell shade: rank within the column (lightest = rank 1 = best)
-- red triangle: worse than the Fixed LR baseline in that column
-- grey "n/a": the scenario does not apply to the method
-- dashed row: the Fixed LR baseline
+Reading the SVG:
+- Fixed LR is the reference row at the top (neutral).
+- Every other cell is coloured by its difference from Fixed LR in the same
+  column, in percentage points: teal = better, rose = worse, grey = within
+  0.25 pp. The cell shows the accuracy, the difference and the rank.
+- Hatched "pending": planned, not run yet. Partly done cells say "2/3 seeds".
+- Blank "n/a": the scenario does not apply to the method.
+- The cost column draws epochs trained per cell on a log scale.
+The SVG follows the viewer's light or dark theme.
 """
 import html
+import math
 
 from benchmarks.reporting.labels import BASELINE, METHOD_LABELS, label
-from benchmarks.reporting.table import Matrix, cost_text
+from benchmarks.reporting.table import NA, PARTIAL, PENDING, Matrix, cost_text
 
-RANK_COLOURS = ["#c8dbfa", "#9dbdf3", "#6f9de6", "#4a7fd6", "#3463b6", "#274d92", "#1f3d74", "#18305c"]
-GROUP_COLOURS = ["#5ab37a", "#e07b5f", "#c9a227", "#8f7ad6"]       # one bar colour per task
-BG, PANEL, BORDER = "#0f1319", "#161b22", "#2a313c"
-TEXT, MUTED, WORSE, NA_FILL = "#e6edf3", "#9aa6b4", "#f0524f", "#232a34"
+# difference vs baseline (pp) -> bin; each bin has a light and a dark colour
+BINS = [(-math.inf, -2.0, "n3"), (-2.0, -1.0, "n2"), (-1.0, -0.25, "n1"), (-0.25, 0.25, "z"),
+        (0.25, 1.0, "p1"), (1.0, 2.0, "p2"), (2.0, math.inf, "p3")]
+LEGEND = [("n3", "≤ −2"), ("n2", "−2 to −1"), ("n1", "−1 to −¼"), ("z", "± ¼"),
+          ("p1", "¼ to 1"), ("p2", "1 to 2"), ("p3", "≥ 2")]
+
+STYLE = """
+.bg{fill:#ffffff}.ink{fill:#1d2733}.soft{fill:#5d6b7a}.rule{stroke:#d8dee6}
+.n3{fill:#c2414f}.n2{fill:#e0838c}.n1{fill:#f3c6ca}.z{fill:#e9edf2}.p1{fill:#bfe6dc}.p2{fill:#6cc3ab}.p3{fill:#1f8f74}
+.ref{fill:#f4f6f9;stroke:#9aa6b4}.pend{fill:url(#hatch);stroke:#b3bdc8}.na{fill:none;stroke:#e1e6ec}
+.hatch-line{stroke:#d6dde5}.bar{fill:#7d8fa3}.track{fill:#eef1f5}
+.dark-text{fill:#ffffff}.light-text{fill:#1d2733}
+@media (prefers-color-scheme: dark){
+.bg{fill:#11161d}.ink{fill:#e6ebf1}.soft{fill:#93a1b0}.rule{stroke:#2a333e}
+.n3{fill:#b8404d}.n2{fill:#8c3a44}.n1{fill:#4e2f36}.z{fill:#232b35}.p1{fill:#21453d}.p2{fill:#24735f}.p3{fill:#2fae8c}
+.ref{fill:#1a212a;stroke:#5c6b7b}.pend{stroke:#3b4652}.na{stroke:#262e38}
+.hatch-line{stroke:#2c3642}.bar{fill:#6f8399}.track{fill:#1c232c}
+.dark-text{fill:#ffffff}.light-text{fill:#e6ebf1}}
+"""
 FONT = "-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
 MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
 
-# layout (px)
-PAD, LABEL_W, CELL_W, CELL_H, GAP, COST_W = 32, 190, 118, 64, 6, 280
-TITLE_H, LEGEND_H, GROUP_H, HEADER_H, BASELINE_GAP, NOTE_H = 64, 44, 34, 46, 18, 40
+PAD, LABEL_W, CELL_W, CELL_H, GAP, COST_W = 28, 180, 112, 58, 8, 230
+HEAD_H, LEGEND_H, GROUP_H, COLHEAD_H, REF_GAP, NOTE_H = 70, 52, 26, 40, 14, 34
 
 
-def _rank_colour(rank):
-    return RANK_COLOURS[min(rank, len(RANK_COLOURS)) - 1]
+def _bin(delta):
+    for low, high, name in BINS:
+        if low <= delta < high:
+            return name
+    return "z"
 
 
-def _ink(rank):
-    """Dark text on the light (top-ranked) shades, light text on the dark ones."""
-    return "#0f1319" if rank is not None and rank <= 3 else TEXT
+def _on_dark_fill(name):
+    """Text on the saturated bins needs to be white in both themes."""
+    return name in ("n3", "p3")
 
 
 def _esc(s):
     return html.escape(str(s), quote=True)
 
 
-def _text(x, y, s, size=13, fill=TEXT, weight="normal", anchor="start", family=FONT):
-    return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="{family}" font-size="{size}" '
-            f'font-weight="{weight}" fill="{fill}" text-anchor="{anchor}">{_esc(s)}</text>')
+def _text(x, y, s, size=13, cls="ink", weight="normal", anchor="start", family=FONT):
+    return (f'<text x="{x:.1f}" y="{y:.1f}" class="{cls}" font-family="{family}" font-size="{size}" '
+            f'font-weight="{weight}" text-anchor="{anchor}">{_esc(s)}</text>')
 
 
 def render_svg(matrix: Matrix, title: str, subtitle: str = "") -> str:
     n_cols = len(matrix.columns)
-    body_rows = [m for m in matrix.rows if m != BASELINE]
-    has_baseline = BASELINE in matrix.rows
-    grid_w = LABEL_W + n_cols * (CELL_W + GAP) + COST_W
-    width = PAD * 2 + grid_w
-    rows_h = len(body_rows) * (CELL_H + GAP) + (BASELINE_GAP + CELL_H + GAP if has_baseline else 0)
-    top = PAD + TITLE_H + LEGEND_H + GROUP_H + HEADER_H
+    has_ref = BASELINE in matrix.rows
+    others = [m for m in matrix.rows if m != BASELINE]
+    width = PAD * 2 + LABEL_W + n_cols * (CELL_W + GAP) + COST_W
+    top = PAD + HEAD_H + LEGEND_H + GROUP_H + COLHEAD_H
+    rows_h = (CELL_H + GAP + REF_GAP if has_ref else 0) + len(others) * (CELL_H + GAP)
     height = top + rows_h + NOTE_H + PAD
+    x0 = PAD + LABEL_W
+    cost_x = x0 + n_cols * (CELL_W + GAP) + 10
 
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
            f'viewBox="0 0 {width} {height}" role="img" aria-label="{_esc(title)}">',
-           f'<title>{_esc(title)}</title>',
-           f'<rect width="{width}" height="{height}" fill="{BG}"/>']
+           f'<title>{_esc(title)}</title>', f'<style>{STYLE}</style>',
+           '<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" '
+           'patternTransform="rotate(45)"><rect width="8" height="8" class="bg"/>'
+           '<line x1="0" y1="0" x2="0" y2="8" class="hatch-line" stroke-width="3"/></pattern></defs>',
+           f'<rect width="{width}" height="{height}" class="bg"/>']
 
-    # title
-    out.append(_text(PAD, PAD + 30, title, size=26, weight="700"))
+    # heading
+    out.append(_text(PAD, PAD + 26, title, size=24, weight="700"))
     if subtitle:
-        out.append(_text(PAD, PAD + 52, subtitle, size=12, fill=MUTED))
-    out.append(f'<line x1="{PAD}" y1="{PAD + TITLE_H - 4}" x2="{width - PAD}" y2="{PAD + TITLE_H - 4}" '
-               f'stroke="{BORDER}"/>')
+        out.append(_text(PAD, PAD + 48, subtitle, size=12, cls="soft"))
 
-    # legend: rank scale, worse-than-baseline marker, n/a
-    ly = PAD + TITLE_H + 24
-    x = PAD
-    out.append(_text(x, ly + 4, "rank 1", size=12, fill=MUTED))
-    x += 46
-    for i, colour in enumerate(RANK_COLOURS[:6]):
-        out.append(f'<rect x="{x + i * 30}" y="{ly - 8}" width="26" height="16" rx="4" fill="{colour}"/>')
-    x += 6 * 30 + 4
-    out.append(_text(x, ly + 4, "rank 6+", size=12, fill=MUTED))
-    x += 84
-    out.append(f'<path d="M{x} {ly - 6} L{x + 12} {ly - 6} L{x + 6} {ly + 5} Z" fill="{WORSE}"/>')
-    out.append(_text(x + 18, ly + 4, f"worse than {label(METHOD_LABELS, BASELINE)}", size=12, fill=MUTED))
-    x += 170
-    out.append(f'<rect x="{x}" y="{ly - 8}" width="26" height="16" rx="4" fill="{NA_FILL}" stroke="{BORDER}"/>')
-    out.append(_text(x + 34, ly + 4, "n/a: scenario does not apply", size=12, fill=MUTED))
+    # legend: diverging scale vs baseline, pending, n/a
+    ly = PAD + HEAD_H
+    out.append(_text(PAD, ly + 4, f"vs {label(METHOD_LABELS, BASELINE)} (pp)", size=12, cls="soft"))
+    x = PAD + 122
+    for name, text in LEGEND:
+        out.append(f'<rect x="{x}" y="{ly - 10}" width="54" height="18" rx="3" class="{name}"/>')
+        out.append(_text(x + 27, ly + 3, text, size=10, cls="dark-text" if _on_dark_fill(name) else "light-text",
+                         anchor="middle"))
+        x += 58
+    x += 18
+    out.append(f'<rect x="{x}" y="{ly - 10}" width="54" height="18" rx="3" class="pend"/>')
+    out.append(_text(x + 62, ly + 3, "pending", size=12, cls="soft"))
+    x += 128
+    out.append(f'<rect x="{x}" y="{ly - 10}" width="54" height="18" rx="3" class="na"/>')
+    out.append(_text(x + 62, ly + 3, "n/a", size=12, cls="soft"))
 
-    # group bars (one per task) and column headers
-    gx0 = PAD + LABEL_W
-    gy = PAD + TITLE_H + LEGEND_H
-    for k, task in enumerate(matrix.tasks):
+    # dataset groups and column headings
+    gy = PAD + HEAD_H + LEGEND_H
+    for task in matrix.tasks:
         idx = [i for i, c in enumerate(matrix.columns) if c[0] == task]
-        x1 = gx0 + idx[0] * (CELL_W + GAP)
-        x2 = gx0 + (idx[-1] + 1) * (CELL_W + GAP) - GAP
-        colour = GROUP_COLOURS[k % len(GROUP_COLOURS)]
-        out.append(f'<rect x="{x1}" y="{gy + 4}" width="{x2 - x1}" height="4" rx="2" fill="{colour}"/>')
-        out.append(_text(x1, gy + 24, matrix.task_title(task).upper(), size=11, fill=MUTED, weight="600"))
+        x1 = x0 + idx[0] * (CELL_W + GAP)
+        x2 = x0 + (idx[-1] + 1) * (CELL_W + GAP) - GAP
+        out.append(_text(x1, gy + 12, matrix.task_title(task), size=13, weight="700"))
+        out.append(f'<line x1="{x1}" y1="{gy + 20}" x2="{x2}" y2="{gy + 20}" class="rule" stroke-width="1"/>')
     hy = gy + GROUP_H
     for j, column in enumerate(matrix.columns):
-        cx = gx0 + j * (CELL_W + GAP) + CELL_W / 2
-        out.append(_text(cx, hy + 16, matrix.column_title(column), size=13, weight="700", anchor="middle"))
-        out.append(_text(cx, hy + 33, "test acc % ↑", size=11, fill=MUTED, anchor="middle"))
-    cost_x = gx0 + n_cols * (CELL_W + GAP) + 8
-    out.append(_text(cost_x, hy + 16, "cost per cell", size=13, weight="700"))
-    out.append(_text(cost_x, hy + 33, "epochs trained, models", size=11, fill=MUTED))
+        out.append(_text(x0 + j * (CELL_W + GAP) + 6, hy + 18, matrix.column_title(column), size=12, cls="soft"))
+    out.append(_text(cost_x, hy + 18, "training cost per cell", size=12, cls="soft"))
 
-    def row(method, y, baseline):
+    max_epochs = max([c["epochs"] for c in matrix.cost.values() if c] or [1])
+
+    def draw_row(method, y, reference):
         name = label(METHOD_LABELS, method)
-        if baseline:
-            out.append(_text(PAD, y + 28, "Baseline", size=15, weight="700", fill=MUTED))
-            out.append(_text(PAD, y + 47, name, size=12, fill=MUTED))
-        else:
-            out.append(_text(PAD, y + CELL_H / 2 + 5, name, size=15, weight="700"))
+        out.append(_text(PAD, y + CELL_H / 2 + (0 if reference else 5), name, size=14, weight="700"))
+        if reference:
+            out.append(_text(PAD, y + CELL_H / 2 + 16, "reference", size=11, cls="soft"))
         for j, (task, scenario) in enumerate(matrix.columns):
             c = matrix.cell(method, task, scenario)
-            x = gx0 + j * (CELL_W + GAP)
-            dash = f' stroke="{MUTED}" stroke-dasharray="4 3"' if baseline else ""
-            if c.mean is None:
-                out.append(f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" rx="6" '
-                           f'fill="{NA_FILL}" stroke="{BORDER}"/>')
-                out.append(_text(x + CELL_W / 2, y + CELL_H / 2 + 5, "n/a", size=13, fill=MUTED, anchor="middle"))
+            x = x0 + j * (CELL_W + GAP)
+            rect = f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" rx="4"'
+            if c.status == PENDING:
+                out.append(f'{rect} class="pend"><title>{_esc(name)}: not run yet</title></rect>')
+                out.append(_text(x + CELL_W / 2, y + CELL_H / 2 + 4, "pending", size=11, cls="soft", anchor="middle"))
                 continue
-            ink = _ink(c.rank)
-            out.append(f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" rx="6" '
-                       f'fill="{_rank_colour(c.rank)}"{dash}><title>{_esc(name)}: '
-                       f'{c.mean:.2f} ± {c.std:.2f} % over {c.n} seeds, rank {c.rank}</title></rect>')
-            out.append(_text(x + CELL_W / 2, y + 30, f"{c.mean:.2f}", size=19, weight="700", fill=ink,
-                             anchor="middle", family=MONO))
-            out.append(_text(x + CELL_W / 2, y + 50, f"#{c.rank} · ±{c.std:.2f}", size=11, fill=ink,
-                             anchor="middle"))
-            if c.worse_than_baseline:
-                out.append(f'<path d="M{x + 7} {y + 7} L{x + 21} {y + 7} L{x + 14} {y + 19} Z" fill="{WORSE}">'
-                           f'<title>worse than {label(METHOD_LABELS, BASELINE)}</title></path>')
-        out.append(_text(cost_x, y + CELL_H / 2 + 5, cost_text(matrix.cost[method]), size=12, fill=MUTED))
+            if c.status == NA:
+                out.append(f'{rect} class="na"/>')
+                out.append(_text(x + CELL_W / 2, y + CELL_H / 2 + 4, "n/a", size=11, cls="soft", anchor="middle"))
+                continue
+            if reference or c.delta is None:
+                cls, ink = "ref", "light-text"
+            else:
+                cls = _bin(c.delta)
+                ink = "dark-text" if _on_dark_fill(cls) else "light-text"
+            detail = f"{c.n}/{c.planned} seeds" if c.status == PARTIAL else f"±{c.std:.2f}"
+            tip = f"{name}: {c.mean:.2f}% ± {c.std:.2f} over {c.n} seeds, rank {c.rank}"
+            if c.delta is not None:
+                tip += f", {c.delta:+.2f} pp vs {label(METHOD_LABELS, BASELINE)}"
+            out.append(f'{rect} class="{cls}"><title>{_esc(tip)}</title></rect>')
+            out.append(_text(x + 10, y + 25, f"{c.mean:.2f}", size=17, cls=ink, weight="700", family=MONO))
+            out.append(_text(x + CELL_W - 10, y + 25, f"#{c.rank}", size=11, cls=ink, anchor="end"))
+            sub = detail if reference or c.delta is None else f"{c.delta:+.2f} pp · {detail}"
+            out.append(_text(x + 10, y + 46, sub, size=10.5, cls=ink))
+        cost = matrix.cost.get(method)
+        if cost:
+            frac = math.log10(1 + cost["epochs"]) / math.log10(1 + max_epochs)
+            out.append(f'<rect x="{cost_x}" y="{y + 14}" width="{COST_W - 30}" height="6" rx="3" class="track"/>')
+            out.append(f'<rect x="{cost_x}" y="{y + 14}" width="{(COST_W - 30) * frac:.1f}" height="6" rx="3" '
+                       f'class="bar"/>')
+        out.append(_text(cost_x, y + 40, cost_text(cost), size=11.5, cls="soft"))
 
     y = top
-    for method in body_rows:
-        row(method, y, baseline=False)
-        y += CELL_H + GAP
-    if has_baseline:
-        y += BASELINE_GAP
-        row(BASELINE, y, baseline=True)
+    if has_ref:
+        draw_row(BASELINE, y, reference=True)
+        y += CELL_H + GAP + REF_GAP
+        out.append(f'<line x1="{PAD}" y1="{y - REF_GAP / 2 - GAP / 2}" x2="{width - PAD}" '
+                   f'y2="{y - REF_GAP / 2 - GAP / 2}" class="rule" stroke-dasharray="2 4"/>')
+    for method in others:
+        draw_row(method, y, reference=False)
         y += CELL_H + GAP
 
-    out.append(_text(PAD, y + 26, "Cells: test accuracy (%) on the held-out split, mean ± std over seeds, "
-                                  "#rank within the column. Hover a cell for details.", size=11, fill=MUTED))
+    out.append(_text(PAD, y + 22, "Test accuracy (%) on held-out data, mean ± std over seeds; colour = difference "
+                                  "from the reference row in percentage points; #rank within the column.",
+                     size=11, cls="soft"))
     out.append("</svg>")
     return "\n".join(out) + "\n"
 
 
 def render_markdown(matrix: Matrix, title: str = "Support matrix") -> str:
     header = ["Method"] + [f"{matrix.task_title(t)} · {matrix.column_title((t, s))}" for t, s in matrix.columns] \
-        + ["Cost per cell"]
+        + ["Training cost per cell"]
     lines = [f"## {title}", "", "| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
-    for method in matrix.rows:
-        name = label(METHOD_LABELS, method) + (" *(baseline)*" if method == BASELINE else "")
+    rows = ([BASELINE] if BASELINE in matrix.rows else []) + [m for m in matrix.rows if m != BASELINE]
+    for method in rows:
+        name = label(METHOD_LABELS, method) + (" *(reference)*" if method == BASELINE else "")
         cells = []
         for task, scenario in matrix.columns:
             c = matrix.cell(method, task, scenario)
-            if c.mean is None:
-                cells.append("n/a")
+            if c.status in (NA, PENDING):
+                cells.append("n/a" if c.status == NA else "pending")
                 continue
-            text = f"{c.mean:.2f} ± {c.std:.2f} (#{c.rank})"
-            cells.append(("**" + text + "**" if c.rank == 1 else text) + (" ▼" if c.worse_than_baseline else ""))
-        lines.append("| " + " | ".join([name] + cells + [cost_text(matrix.cost[method])]) + " |")
+            text = f"{c.mean:.2f} ± {c.std:.2f}"
+            if c.delta is not None:
+                text += f" ({c.delta:+.2f})"
+            text += f" #{c.rank}"
+            if c.status == PARTIAL:
+                text += f" [{c.n}/{c.planned} seeds]"
+            cells.append("**" + text + "**" if c.rank == 1 else text)
+        lines.append("| " + " | ".join([name] + cells + [cost_text(matrix.cost.get(method))]) + " |")
     lines.append("")
-    lines.append("Test accuracy (%) on the held-out split, mean ± std over seeds; #rank within the column; "
-                 "**bold** = best; ▼ = worse than Fixed LR; n/a = the scenario does not apply to the method.")
+    lines.append("Test accuracy (%) on the held-out split, mean ± std over seeds; (±x) = difference from Fixed LR "
+                 "in percentage points; #rank within the column; **bold** = best; pending = not run yet; "
+                 "n/a = the scenario does not apply.")
     return "\n".join(lines) + "\n"
 
 
 def render_html(svg: str, title: str) -> str:
     """A standalone page around the SVG, for sharing or opening in a browser."""
     return (f'<!doctype html><html><head><meta charset="utf-8"><title>{_esc(title)}</title>'
-            f'<style>body{{margin:0;background:{BG};display:flex;justify-content:center;padding:24px}}'
+            '<style>body{margin:0;display:flex;justify-content:center;padding:24px;background:#fff}'
+            '@media (prefers-color-scheme: dark){body{background:#11161d}}'
             f'svg{{max-width:100%;height:auto}}</style></head><body>{svg}</body></html>\n')

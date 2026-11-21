@@ -1,0 +1,108 @@
+{
+  "experiment": "previous",
+  "method": "fixed_lr",
+  "task": "mnist",
+  "scenario": "bad_initial_lr",
+  "seed": 42,
+  "test_loss": 2.310478552131896,
+  "test_accuracy": 0.1032,
+  "history": [
+    {
+      "epoch": 0,
+      "lr": 0.1,
+      "train_loss": 4.865750304895554,
+      "val_loss": 2.305315778610554,
+      "val_accuracy": 0.111
+    },
+    {
+      "epoch": 1,
+      "lr": 0.1,
+      "train_loss": 2.3104457894772716,
+      "val_loss": 2.307289625735993,
+      "val_accuracy": 0.10933333333333334
+    },
+    {
+      "epoch": 2,
+      "lr": 0.1,
+      "train_loss": 2.310274644485582,
+      "val_loss": 2.306870143464271,
+      "val_accuracy": 0.10166666666666667
+    },
+    {
+      "epoch": 3,
+      "lr": 0.1,
+      "train_loss": 2.3103297957311875,
+      "val_loss": 2.3073375732340713,
+      "val_accuracy": 0.10933333333333334
+    },
+    {
+      "epoch": 4,
+      "lr": 0.1,
+      "train_loss": 2.3097992367089075,
+      "val_loss": 2.30783285739574,
+      "val_accuracy": 0.09933333333333333
+    },
+    {
+      "epoch": 5,
+      "lr": 0.1,
+      "train_loss": 2.3102581314566013,
+      "val_loss": 2.306126581861618,
+      "val_accuracy": 0.09583333333333334
+    },
+    {
+      "epoch": 6,
+      "lr": 0.1,
+      "train_loss": 2.3097424241603832,
+      "val_loss": 2.30736897600458,
+      "val_accuracy": 0.0995
+    },
+    {
+      "epoch": 7,
+      "lr": 0.1,
+      "train_loss": 2.310671014525879,
+      "val_loss": 2.3088199128495885,
+      "val_accuracy": 0.10166666666666667
+    },
+    {
+      "epoch": 8,
+      "lr": 0.1,
+      "train_loss": 2.3098585766638626,
+      "val_loss": 2.3101366732982878,
+      "val_accuracy": 0.09616666666666666
+    },
+    {
+      "epoch": 9,
+      "lr": 0.1,
+      "train_loss": 2.3103092168744706,
+      "val_loss": 2.3133447931167925,
+      "val_accuracy": 0.09583333333333334
+    }
+  ],
+  "shift_epoch": null,
+  "compute": {
+    "epochs_trained": 10,
+    "max_parallel_models": 1,
+    "trials": 1,
+    "restarts": 0,
+    "wall_time_sec": 0.0,
+    "controller_time_sec": 0.0
+  },
+  "environment": {
+    "device": "mps",
+    "accelerator": "Apple MPS (previous benchmark scripts)",
+    "torch": null,
+    "cuda": null,
+    "python": null,
+    "platform": null,
+    "git_commit": null
+  },
+  "config": {
+    "epochs": 10,
+    "source": "legacy/stress_test/mnist/seed_42"
+  },
+  "extra": {
+    "imported_from": "legacy/stress_test/mnist/seed_42",
+    "rollbacks": 0
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,107 @@
+{
+  "experiment": "previous",
+  "method": "autotunenet",
+  "task": "cifar10",
+  "scenario": "label_noise",
+  "seed": 43,
+  "test_loss": 1.1236721382865422,
+  "test_accuracy": 0.6882,
+  "history": [
+    {
+      "epoch": 0,
+      "lr": 0.001,
+      "train_loss": 1.8214490481398322,
+      "val_loss": 1.4122145891189575,
+      "val_accuracy": 0.4766
+    },
+    {
+      "epoch": 1,
+      "lr": 0.001,
+      "train_loss": 1.4142598563974553,
+      "val_loss": 1.171441937983036,
+      "val_accuracy": 0.5716
+    },
+    {
+      "epoch": 2,
+      "lr": 0.001,
+      "train_loss": 1.268474442037669,
+      "val_loss": 1.0736956164240836,
+      "val_accuracy": 0.6144
+    },
+    {
+      "epoch": 3,
+      "lr": 0.0005,
+      "train_loss": 1.1323902383446693,
+      "val_loss": 0.9985314145684242,
+      "val_accuracy": 0.6432
+    },
+    {
+      "epoch": 4,
+      "lr": 0.00025,
+      "train_loss": 1.064481513405388,
+      "val_loss": 0.9162060484290123,
+      "val_accuracy": 0.6632
+    },
+    {
+      "epoch": 5,
+      "lr": 0.000375,
+      "train_loss": 1.8619447137144478,
+      "val_loss": 1.1603424772620201,
+      "val_accuracy": 0.6682
+    },
+    {
+      "epoch": 6,
+      "lr": 0.0001918121073641534,
+      "train_loss": 1.8115433928641407,
+      "val_loss": 1.1456088826060296,
+      "val_accuracy": 0.6608
+    },
+    {
+      "epoch": 7,
+      "lr": 0.00028771816104623013,
+      "train_loss": 1.8064461397853764,
+      "val_loss": 1.1509678035974502,
+      "val_accuracy": 0.675
+    },
+    {
+      "epoch": 8,
+      "lr": 0.0004066103599047796,
+      "train_loss": 1.8031531409783796,
+      "val_loss": 1.126915417611599,
+      "val_accuracy": 0.6774
+    },
+    {
+      "epoch": 9,
+      "lr": 0.0003501417522502427,
+      "train_loss": 1.794237889010798,
+      "val_loss": 1.1313110366463661,
+      "val_accuracy": 0.6778
+    }
+  ],
+  "shift_epoch": 5,
+  "compute": {
+    "epochs_trained": 10,
+    "max_parallel_models": 1,
+    "trials": 1,
+    "restarts": 0,
+    "wall_time_sec": 0.0,
+    "controller_time_sec": 0.0
+  },
+  "environment": {
+    "device": "mps",
+    "accelerator": "Apple MPS (previous benchmark scripts)",
+    "torch": null,
+    "cuda": null,
+    "python": null,
+    "platform": null,
+    "git_commit": null
+  },
+  "config": {
+    "epochs": 10,
+    "source": "legacy/autotunenet_bench/cifar_autotunenet/seed_43"
+  },
+  "extra": {
+    "imported_from": "legacy/autotunenet_bench/cifar_autotunenet/seed_43"
+  },
+  "schema_version": 1
+}

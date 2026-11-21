@@ -29,6 +29,8 @@ def test_ties_share_a_rank_and_worse_than_baseline_is_flagged():
     assert m.cell("autotunenet", "mnist", "stationary").rank == 4
     assert m.cell("autotunenet", "mnist", "stationary").worse_than_baseline
     assert not m.cell("cosine", "mnist", "stationary").worse_than_baseline
+    assert round(m.cell("cosine", "mnist", "stationary").delta, 6) == 1.0          # pp vs Fixed LR
+    assert m.cell("fixed_lr", "mnist", "stationary").delta is None
     assert m.rows[-1] == "fixed_lr"                       # baseline row last
 
 
@@ -51,7 +53,8 @@ def test_report_end_to_end_on_the_smoke_run(tmp_path):
     out = report.build_report(tmp_path, "smoke", "Support matrix")
     svg = (out / "support_matrix.svg").read_text()
     xml.dom.minidom.parseString(svg)                      # well-formed SVG
-    assert "AutoTuneNet" in svg and "Baseline" in svg
+    assert "AutoTuneNet" in svg and "reference" in svg
+    assert "prefers-color-scheme: dark" in svg          # follows the viewer's theme
     markdown = (out / "support_matrix.md").read_text()
     assert markdown.startswith("## Support matrix")
     assert "| Method |" in markdown
@@ -60,3 +63,29 @@ def test_report_end_to_end_on_the_smoke_run(tmp_path):
         assert (out / "paper_figures" / f"toy_{name}.png").exists()
     assert (out / "accuracy_vs_compute" / "toy_label_noise.png").exists()
     assert (out / "curves" / "toy_label_noise_val_loss.png").exists()
+
+
+def test_plan_marks_pending_and_partial_cells_and_counts_progress():
+    summary = _summary(
+        _group("fixed_lr", "mnist", "stationary", 0.96),
+        _group("autotunenet", "mnist", "stationary", 0.97),
+    )
+    summary["groups"]["autotunenet/mnist/stationary"]["metrics"]["test_accuracy"]["n"] = 2   # 2 of 3 seeds
+    plan = {"cells": {("fixed_lr", "mnist", "stationary"), ("autotunenet", "mnist", "stationary"),
+                      ("pbt", "mnist", "stationary")}, "seeds": 3}
+    m = build_matrix(summary, plan)
+    assert m.cell("pbt", "mnist", "stationary").status == "pending"
+    assert m.cell("autotunenet", "mnist", "stationary").status == "partial"
+    assert m.cell("fixed_lr", "mnist", "stationary").status == "done"
+    assert m.progress() == (1, 3)
+    assert m.cost["pbt"] is None
+    svg = render_svg(m, "t")
+    assert "not run yet" in svg and "2/3 seeds" in svg
+    assert "| pending |" in render_markdown(m)
+
+
+def test_previous_results_cover_the_imported_cells():
+    from pathlib import Path
+    root = Path("benchmarks/results/previous")
+    runs = list(root.glob("*/*/*/seed_*.json"))
+    assert len(runs) == 63          # 3 methods x 7 task/scenario pairs x 3 seeds
