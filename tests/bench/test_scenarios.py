@@ -2,14 +2,14 @@ import random
 from types import SimpleNamespace
 
 import torch
-from torch.utils.data import DataLoader, Subset, TensorDataset
+from torch.utils.data import Subset
 
-from benchmarks.core.trainer import Trainer
-from benchmarks.core.registry import TASKS
-from benchmarks.scenarios.bad_initial_lr import BadInitialLR
-from benchmarks.scenarios.gradient_noise import GradientNoise
-from benchmarks.scenarios.label_noise import corrupt_labels, LabelNoise
-from benchmarks.tasks.toy import LabelledTensors
+from autotunenet.bench.core.trainer import Trainer
+from autotunenet.bench.core.registry import TASKS
+from autotunenet.bench.scenarios.bad_initial_lr import BadInitialLR
+from autotunenet.bench.scenarios.gradient_noise import GradientNoise
+from autotunenet.bench.scenarios.label_noise import corrupt_labels, LabelNoise
+from autotunenet.bench.tasks.toy import LabelledTensors
 
 
 def _labels(n=1000, tensor=False):

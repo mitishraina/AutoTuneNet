@@ -33,8 +33,8 @@ def test_sgd_momentum_is_accepted():
 
 @pytest.mark.parametrize("task", ["mnist", "cifar10", "toy"])
 def test_benchmark_autotunenet_config_builds_against_adam(task):
-    from benchmarks.core.registry import TASKS, load_plugins
-    from benchmarks.methods.autotunenet import AutoTuneNet
+    from autotunenet.bench.core.registry import TASKS, load_plugins
+    from autotunenet.bench.methods.autotunenet import AutoTuneNet
 
     load_plugins()
     config = AutoTuneNet().config_for(TASKS.get(task))

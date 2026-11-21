@@ -3,10 +3,10 @@ import torch
 
 pytest.importorskip("ray")
 
-from benchmarks.core.ledger import ComputeLedger  # noqa: E402
-from benchmarks.core.method import RunContext  # noqa: E402
-from benchmarks.core.registry import TASKS  # noqa: E402
-from benchmarks.methods.pbt import PBT  # noqa: E402
+from autotunenet.bench.core.ledger import ComputeLedger  # noqa: E402
+from autotunenet.bench.core.method import RunContext  # noqa: E402
+from autotunenet.bench.core.registry import TASKS  # noqa: E402
+from autotunenet.bench.methods.pbt import PBT  # noqa: E402
 
 
 def _run(scenario="stationary", params=None, seed=0):

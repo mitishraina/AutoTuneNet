@@ -1,17 +1,16 @@
-import json
 
 import pytest
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
-from benchmarks.core.experiment import Cell, Experiment, parse_shard, take_shard
-from benchmarks.core.metrics import cumulative_regret, post_shift_metrics
-from benchmarks.core.registry import METHODS, Registry, SCENARIOS, TASKS
-from benchmarks.core.result import RunResult, result_path
-from benchmarks.core.trainer import Trainer
+from autotunenet.bench.core.experiment import Experiment, parse_shard, take_shard
+from autotunenet.bench.core.metrics import cumulative_regret, post_shift_metrics
+from autotunenet.bench.core.registry import METHODS, Registry, SCENARIOS, TASKS
+from autotunenet.bench.core.result import RunResult, result_path
+from autotunenet.bench.core.trainer import Trainer
 
-SMOKE = "benchmarks/experiments/smoke.yaml"
-COMPARISON = "benchmarks/experiments/comparison.yaml"
+SMOKE = "smoke"
+COMPARISON = "comparison"
 
 
 # ------------------------------------------------------------------ registry

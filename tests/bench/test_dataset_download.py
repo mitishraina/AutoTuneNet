@@ -1,4 +1,4 @@
-import benchmarks.tasks.data as ds
+import autotunenet.bench.tasks.data as ds
 
 
 class _FakeDataset:

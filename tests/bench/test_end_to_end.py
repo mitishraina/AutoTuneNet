@@ -1,18 +1,19 @@
 """Every registered method under every scenario, on the toy task, through the real CLI."""
 import pytest
 
-from benchmarks import aggregate, run
-from benchmarks.core.experiment import Experiment
-from benchmarks.core.registry import METHODS, SCENARIOS
-from benchmarks.core.result import RunResult
+from autotunenet import cli
+from autotunenet.bench import aggregate
+from autotunenet.bench.core.experiment import Experiment
+from autotunenet.bench.core.registry import METHODS, SCENARIOS
+from autotunenet.bench.core.result import RunResult
 
-SMOKE = "benchmarks/experiments/smoke.yaml"
+SMOKE = "smoke"
 
 
 @pytest.fixture(scope="module")
 def smoke_results(tmp_path_factory):
     root = tmp_path_factory.mktemp("results")
-    assert run.main(["--experiment", SMOKE, "--results-dir", str(root), "--device", "cpu"]) == 0
+    assert cli.main(["run", "--experiment", SMOKE, "--results-dir", str(root), "--device", "cpu", "--no-report"]) == 0
     return root
 
 
@@ -33,15 +34,15 @@ def test_every_cell_produces_a_valid_result(smoke_results):
 
 
 def test_finished_cells_are_skipped(smoke_results, capsys):
-    assert run.main(["--experiment", SMOKE, "--results-dir", str(smoke_results), "--device", "cpu"]) == 0
+    n = len(Experiment.load(SMOKE).cells())
+    assert cli.main(["run", "--experiment", SMOKE, "--results-dir", str(smoke_results), "--device", "cpu",
+                     "--no-report"]) == 0
     out = capsys.readouterr().out
-    assert "run:" not in out and out.count("skip (done)") == len(Experiment.load(SMOKE).cells())
+    assert f"0 of {n} cells to run" in out and f"all {n} cells done" in out
 
 
 def test_aggregate_summarises_the_smoke_run(smoke_results):
-    aggregate.main(["--experiment", "smoke", "--results-dir", str(smoke_results)])
-    import json
-    summary = json.load(open(smoke_results / "smoke" / "summary.json"))
+    summary, warnings = aggregate.summarise(aggregate.load_results(smoke_results, "smoke"))
     groups = {(c.method, c.task, c.scenario) for c in Experiment.load(SMOKE).cells()}
-    assert len(summary["groups"]) == len(groups)
-    assert summary["warnings"] == []
+    assert len(summary) == len(groups)
+    assert warnings == []
