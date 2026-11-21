@@ -74,7 +74,13 @@ uv run python -m benchmarks.run --experiment ... --list                         
 uv run python -m benchmarks.run --experiment ... --shard 2/4                          # a quarter of the cells
 uv run python -m benchmarks.aggregate --experiment comparison                         # summary table
 uv run python -m benchmarks.report --experiment comparison                            # matrix + figures
+uv run python -m benchmarks.report --experiment comparison \
+    --plan benchmarks/experiments/comparison.yaml                                      # ... with progress
 ```
+
+With `--plan`, the support matrix draws every planned cell: cells without results show **—** (not run yet), cells with only some seeds show "2/3 seeds", and the subtitle counts complete cells, so the matrix doubles as a progress tracker while a run is in flight (for example across Kaggle shards).
+
+`uv run python -m benchmarks.legacy_import` converts the results of the previous benchmark scripts (fixed LR, cosine, AutoTuneNet; `benchmarks/results/legacy/`) into the `previous` experiment, which the README's matrix shows until the comparison run is complete.
 
 Results go to `benchmarks/results/<experiment>/<method>/<task>/<scenario>/seed_<s>.json`. Finished cells are skipped, so a run can be interrupted and restarted, or split across machines with `--shard` and merged by copying the result folders together. Datasets download automatically on first use (see the README).
 
