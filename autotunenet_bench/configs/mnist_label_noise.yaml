@@ -9,7 +9,13 @@ training:
 controller:
   type: autotunenet
   parameter_space:
-    lr: [1e-4, 1e-1]
+    lr: {low: 1e-4, high: 1e-1, log: true}
+  search:
+    # TPE samples at random for this many trials before using its model.
+    # A 10-epoch run has at most 8 tuning steps, so Optuna's default (10)
+    # would make every proposal random.
+    n_startup_trials: 3
+
   tuning:
     tune_n_steps: 1
     warmup_epochs: 2

@@ -1,3 +1,4 @@
+import math
 from typing import Dict, Any
 import optuna
 from optuna.distributions import CategoricalDistribution, FloatDistribution
@@ -13,12 +14,31 @@ class BayesianOptimizer(Optimizer):
     """
     Bayesian optimizer using Optuna's TPE sampler.(Using ask-tell interface)
     """
-    def __init__(self, param_space, seed: int | None = None, smoothing_window: int=5):
+    def __init__(
+        self,
+        param_space,
+        seed: int | None = None,
+        smoothing_window: int = 5,
+        n_startup_trials: int = 10,
+    ):
+        """
+        Args:
+            param_space: ParameterSpace to search.
+            seed: Seed for the TPE sampler.
+            smoothing_window: Moving-average window used by the stability check.
+            n_startup_trials: Number of completed trials TPE samples at random
+                before it starts using its model. Optuna's default is 10; online
+                runs with few tuning steps should use a smaller value, or every
+                proposal will be random.
+        """
         super().__init__(param_space)
+
+        if not isinstance(n_startup_trials, int) or isinstance(n_startup_trials, bool) or n_startup_trials < 0:
+            raise ValueError("n_startup_trials must be a non-negative integer")
         
         self.study = optuna.create_study(
             direction="maximize",
-            sampler=optuna.samplers.TPESampler(seed=seed)
+            sampler=optuna.samplers.TPESampler(seed=seed, n_startup_trials=n_startup_trials)
         )
         
         self._active_trial = None
@@ -39,7 +59,7 @@ class BayesianOptimizer(Optimizer):
             if isinstance(values, tuple):
                 low, high = values
                 params[name] = self._active_trial.suggest_float(
-                    name, low, high
+                    name, low, high, log=self.param_space.is_log(name)
                 )
                 
             elif isinstance(values, list):
@@ -57,10 +77,22 @@ class BayesianOptimizer(Optimizer):
         
         self.last_instability = False
         self.last_rollback = False
-        
-        smoothed_score = self.smoother.add(score)
-        best_score = self.best_score() if self.history else None
-        is_stable = self.guard.update(smoothed_score, best_score)
+
+        if isinstance(score, bool) or not isinstance(score, (int, float)):
+            raise ValueError("Score must be a numeric value")
+
+        if math.isfinite(score):
+            smoothed_score = self.smoother.add(score)
+            best_score = self.best_score() if self.history else None
+            is_stable = self.guard.update(smoothed_score, best_score)
+        else:
+            # A NaN/Inf score means training has diverged. Roll back at once
+            # (no patience, even during cooldown) and keep the value out of the
+            # smoother and history, where it would poison every later comparison.
+            self.tracker.logger.warning(f"Non-finite score {score}; rolling back immediately.")
+            smoothed_score = None
+            self.guard.force_rollback()
+            is_stable = False
         
         trial = self._active_trial
         self._active_trial = None
@@ -70,9 +102,16 @@ class BayesianOptimizer(Optimizer):
                 self.guard.exit_rollback()
                 self.tracker.log_rollback_end()
                 
+            # The smoothed score drives the stability check and history; TPE gets
+            # the raw score, which belongs to this config alone (the smoothing
+            # window also contains epochs that ran under earlier configs).
             super().observe(params, smoothed_score)
-            self._record_observation(trial, params, smoothed_score)
-            self.rollback.update(params)
+            self._record_observation(trial, params, score)
+            # Only a non-regressing step becomes the rollback target. A step
+            # accepted during cooldown, or one still within the patience
+            # allowance, may be a bad config.
+            if not getattr(self.guard, "last_step_regressed", False):
+                self.rollback.update(params)
             
             self.tracker.log_step(
                 step=self._step,
@@ -84,15 +123,29 @@ class BayesianOptimizer(Optimizer):
         else:
             self.last_instability = True
             self.last_rollback = True
-            # Close the trial so it is not left RUNNING forever. FAIL trials are
-            # ignored by TPE.
-            self.study.tell(trial, state=TrialState.FAIL)
+            # Report the rejected config with the score it actually produced, so
+            # TPE learns that this region is harmful (a FAIL would be ignored).
+            if math.isfinite(score):
+                self._record_observation(trial, params, score)
+            else:
+                worst = self._worst_completed_value()
+                if worst is None:
+                    self.study.tell(trial, state=TrialState.FAIL)
+                else:
+                    self._record_observation(trial, params, worst)
             # Store rollback params for adapter to apply
             if self.rollback._last_good_params is not None:
                 self._rollback_params = self.rollback.rollback()
             self.tracker.log_rollback_start()
             return False
         
+    def _worst_completed_value(self):
+        values = [
+            t.value for t in self.study.trials
+            if t.state == TrialState.COMPLETE and t.value is not None and math.isfinite(t.value)
+        ]
+        return min(values) if values else None
+
     def _record_observation(self, trial, params: Dict[str, Any], score: float) -> None:
         """
         Tell the study which hyperparameters produced `score`.

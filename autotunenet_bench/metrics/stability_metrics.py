@@ -21,7 +21,11 @@ class StabilityMetrics:
     
     def record_loss(self, loss: float):
         self.val_losses.append(loss)
-        
+
+        # The baseline is built from pre-shift losses only and frozen once the
+        # shift happens; post-shift losses must not move it.
+        if self.shift_epoch is not None:
+            return
         if self.pre_shift_best is None:
             self.pre_shift_best = loss
         else:
@@ -36,6 +40,12 @@ class StabilityMetrics:
             self.rollback_epochs.append(epoch)
             
     def mark_shift(self, epoch: int):
+        """
+        Call before recording the loss of the first epoch trained under the shift.
+
+        With reset_best_on_shift=True the baseline is the last pre-shift loss;
+        otherwise it is the best pre-shift loss. Either way it is frozen here.
+        """
         self.shift_epoch = epoch
         
         if self.reset_best_on_shift:
@@ -45,13 +55,16 @@ class StabilityMetrics:
     def check_recovery(self, epoch: int, loss: float):
         if self.shift_epoch is None or self.recovered_epoch is not None:
             return
+        if epoch < self.shift_epoch:
+            return
         
         if loss <= (1 + self.recovery_epsilion) * self.pre_shift_best:
             self.recovered_epoch = epoch
             
     def summary(self) -> dict:
+        # val_losses[shift_epoch] is the first epoch trained under the shift.
         post_shift_losses = (
-            self.val_losses[self.shift_epoch + 1:]
+            self.val_losses[self.shift_epoch:]
             if self.shift_epoch is not None
             else []
         )

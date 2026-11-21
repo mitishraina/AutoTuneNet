@@ -36,8 +36,12 @@ class StabilityMonitor:
         """
         Update guard state.
         Returns:
-            True if step is considered stable. Accept step
-            False if unstable. Trigger rollback
+            True if no rollback is needed, False to trigger a rollback.
+
+        After each call, `last_step_regressed` tells whether this step was a
+        regression. A step can return True and still have regressed: while
+        the regression count is below `patience`, or during cooldown. Such a
+        step must not become the rollback target.
         """
         print(
             f"[STABILITY] score={score:.6f}, "
@@ -50,18 +54,17 @@ class StabilityMonitor:
             self._patience = 0
             self._cooldown_remaining = 0
             self._in_rollback = False
+            self.last_step_regressed = False
             return True
+
+        patience = (not self._is_score_valid(score)) or self.is_regression(score, best_score)
+        self.last_step_regressed = patience
         
         if self._cooldown_remaining > 0:
+            # Cooldown only suppresses a second rollback; the step is still
+            # judged above, so a regressing step is not recorded as good.
             self._cooldown_remaining -= 1
             return True
-        
-        patience = False
-        
-        if not self._is_score_valid(score):
-            patience = True
-        elif self.is_regression(score, best_score):
-            patience = True
             
         if patience:
             self._patience += 1
@@ -74,6 +77,10 @@ class StabilityMonitor:
         return True
     
     
+    def force_rollback(self) -> None:
+        """Enter rollback immediately, bypassing patience and cooldown."""
+        self._enter_rollback()
+
     def _enter_rollback(self):
         self._in_rollback = True
         self._patience = 0
@@ -87,6 +94,7 @@ class StabilityMonitor:
         return self._in_rollback 
         
     def reset(self) -> None:
+        self.last_step_regressed = False
         self._patience = 0
         self._cooldown_remaining = 0
         self._in_rollback = False 

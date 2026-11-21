@@ -17,23 +17,25 @@ def _to_number(value: Any, name: str) -> float:
 
 def normalize_parameter_space(
     raw_space: Dict[str, Any],
-) -> Dict[str, Union[Tuple[float, float], List[Any]]]:
+) -> Dict[str, Union[Tuple[float, float], Dict[str, Any], List[Any]]]:
     """
     Convert a config-style parameter space into the form ParameterSpace expects.
 
     Config files (YAML/JSON) have no tuple type, so the config syntax is:
-        lr: [1e-4, 1e-1]                  -> continuous range (low, high)
-        lr: {low: 1e-4, high: 1e-1}       -> continuous range (low, high)
-        batch_size: {choices: [32, 64]}   -> categorical choices
+        lr: [1e-4, 1e-1]                        -> continuous range (low, high), linear
+        lr: {low: 1e-4, high: 1e-1}             -> continuous range, linear
+        lr: {low: 1e-4, high: 1e-1, log: true}  -> continuous range, log scale
+        batch_size: {choices: [32, 64]}         -> categorical choices
 
     Tuples are passed through unchanged as ranges.
     """
     if not isinstance(raw_space, dict):
         raise ValueError("parameter_space must be a dictionary")
 
-    normalized: Dict[str, Union[Tuple[float, float], List[Any]]] = {}
+    normalized: Dict[str, Union[Tuple[float, float], Dict[str, Any], List[Any]]] = {}
 
     for name, spec in raw_space.items():
+        log = False
         if isinstance(spec, dict):
             if "choices" in spec:
                 choices = spec["choices"]
@@ -42,6 +44,9 @@ def normalize_parameter_space(
                 normalized[name] = list(choices)
                 continue
             if "low" in spec and "high" in spec:
+                log = spec.get("log", False)
+                if not isinstance(log, bool):
+                    raise ValueError(f"Parameter '{name}': 'log' must be true or false")
                 spec = [spec["low"], spec["high"]]
             else:
                 raise ValueError(
@@ -57,7 +62,12 @@ def normalize_parameter_space(
             low, high = (_to_number(v, name) for v in spec)
             if low > high:
                 raise ValueError(f"Parameter '{name}': low ({low}) must be <= high ({high})")
-            normalized[name] = (low, high)
+            if log:
+                if low <= 0:
+                    raise ValueError(f"Parameter '{name}': a log-scale range needs low > 0")
+                normalized[name] = {"low": low, "high": high, "log": True}
+            else:
+                normalized[name] = (low, high)
             continue
 
         raise ValueError(f"invalid parameter definition for {name}")
@@ -77,6 +87,7 @@ class AutoTuneConfig:
         self.tuning = raw_config.get("tuning", {}) or {}
         self.stability = raw_config.get("stability", {}) or {}
         self.metrics = raw_config.get("metrics", {}) or {}
+        self.search = raw_config.get("search", {}) or {}
 
         self._validate()
 
@@ -94,8 +105,13 @@ class AutoTuneConfig:
             
         warmup_metric_threshold = self.tuning.get("warmup_metric_threshold")
         if warmup_metric_threshold is not None:
-            if not isinstance(warmup_metric_threshold, (int, float)):
+            if isinstance(warmup_metric_threshold, bool) or not isinstance(warmup_metric_threshold, (int, float)):
                 raise ValueError("warmup_metric_threshold must be a number")
+            if warmup_metric_threshold <= 0:
+                raise ValueError(
+                    "warmup_metric_threshold must be > 0: tuning starts once the validation "
+                    "loss is at or below it (the adapter receives -val_loss as the metric)"
+                )
             
         max_delta = self.tuning.get("max_delta")
         if max_delta is not None:
@@ -113,6 +129,11 @@ class AutoTuneConfig:
         if max_regression is not None:
             if not isinstance(max_regression, (int, float)) or max_regression < 0:
                 raise ValueError("max_regression must be a non-negative number")
+
+        n_startup_trials = self.search.get("n_startup_trials")
+        if n_startup_trials is not None:
+            if not isinstance(n_startup_trials, int) or isinstance(n_startup_trials, bool) or n_startup_trials < 0:
+                raise ValueError("n_startup_trials must be a non-negative integer")
 
         patience = self.stability.get("patience")
         if patience is not None:
