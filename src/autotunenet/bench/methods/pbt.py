@@ -44,9 +44,11 @@ def _save(directory, trainer, optimizer, epoch, history, owner):
                Path(directory) / _STATE_FILE)
 
 
-def _load(checkpoint, device):
+def _load(checkpoint):
+    # Load on the CPU: torch.set_rng_state only accepts a CPU tensor, and
+    # load_state_dict moves model and optimizer tensors to their parameters' device.
     with checkpoint.as_directory() as directory:
-        return torch.load(Path(directory) / _STATE_FILE, map_location=device, weights_only=False)
+        return torch.load(Path(directory) / _STATE_FILE, map_location="cpu", weights_only=False)
 
 
 def _log(path, *fields):
@@ -79,7 +81,7 @@ def _train_member(config, ctx: RunContext, log_path: str, interval: int):
 
     checkpoint = tune.get_checkpoint()
     if checkpoint is not None:
-        state = _load(checkpoint, ctx.device)
+        state = _load(checkpoint)
         trainer.load_state(state, optimizer)
         for group in optimizer.param_groups:
             group["lr"] = config["lr"]                # possibly perturbed by PBT
@@ -168,11 +170,19 @@ class PBT(Method):
                 run_config=tune.RunConfig(storage_path=storage, name="pbt", verbose=0),
             )
             results = tuner.fit()
+            if results.errors:
+                # A failed member would otherwise be reported from its last checkpoint,
+                # with fewer epochs than the run claims. Fail the cell instead.
+                raise RuntimeError(f"{len(results.errors)} PBT member(s) failed; first error: "
+                                   f"{results.errors[0]!r}")
             best = results.get_best_result(metric="rank_loss", mode="min", scope="last")
-            state = _load(best.checkpoint, ctx.device)
+            state = _load(best.checkpoint)
             events = [line.split()[0] for line in open(log_path)] if os.path.exists(log_path) else []
         finally:
             shutil.rmtree(storage, ignore_errors=True)
+
+        if len(state["history"]) != ctx.epochs:
+            raise RuntimeError(f"PBT reported a model trained for {len(state['history'])} of {ctx.epochs} epochs")
 
         # Only the selected member is evaluated on the test split.
         trainer = ctx.new_trainer()
