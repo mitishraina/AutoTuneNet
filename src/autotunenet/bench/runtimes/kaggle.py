@@ -42,7 +42,9 @@ JOB_TEMPLATE = Path(__file__).with_name("kaggle_job.py")
 # batch runs to a separate queue where they can wait for hours.
 MAX_GPU_SESSIONS = 2                      # Kaggle runs at most 2 batch GPU sessions per account
 GPUS_PER_NOTEBOOK = 2
-FINISHED = ("complete", "error", "cancelled")
+# "missing": the notebook was deleted on Kaggle. Its round ends, and the next run
+# plans its unfinished cells again instead of waiting for it forever.
+FINISHED = ("complete", "error", "cancelled", "missing")
 TOKEN_HELP = ("Create a token at kaggle.com -> profile picture -> Settings -> API -> Create New Token. "
               "Kaggle saves it under ~/.kaggle/ (access_token, or a kaggle.json you move there and chmod 600).")
 
@@ -212,6 +214,8 @@ class Kaggle(Runtime):
     def _state_of(self, kernel_id: str) -> str:
         out = kaggle("kernels", "status", kernel_id, check=False, capture=True)
         text = (out.stdout + out.stderr).lower()
+        if "cannot access kernel" in text or "not found" in text:
+            return "missing"
         for state in ("complete", "error", "cancel", "running", "queued"):
             if state in text:
                 return "cancelled" if state == "cancel" else state
