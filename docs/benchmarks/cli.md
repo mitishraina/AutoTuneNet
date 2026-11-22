@@ -77,14 +77,19 @@ The stages of a hosted run, for when you want to inspect the notebooks before an
 
 ```text
 $ autotunenet status --experiment comparison --runtime kaggle
-comparison: 84/150 cells done
-  asha: 9 to run
-  pbt: 21 to run
-  ...
-kaggle round 1 (autotunenet[bench] @ git+https://github.com/...@4b891a0)
-  autotunenet-comparison-1-of-3: running, 22 cells
-  autotunenet-comparison-2-of-3: downloaded, 22 cells
+comparison: 138/150 cells done
+  pbt: 12 to run
+notebook 1/2  running    ██████░░░░  6/11 done
+  GPU 0  ▶ pbt · cifar10 · label_noise · seed 43            running 3:12
+  GPU 1  ▶ pbt · mnist · bad_initial_lr · seed 44           running 0:48
+notebook 2/2  downloaded results downloaded (10 runs)
+
+finished 6/21 · downloaded 10/21 (results arrive when each notebook ends)
+last  ✓ pbt · mnist · stationary · seed 43  99.18%  2:54
+logs  benchmarks/results/comparison/.runtime/logs  (live.log per notebook; tail -f to follow)
 ```
+
+For a running notebook, `status` reads its live output for a few seconds, so it shows which run each GPU is on.
 
 ## `report`
 

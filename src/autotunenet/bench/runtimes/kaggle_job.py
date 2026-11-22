@@ -68,9 +68,30 @@ ENV = {**os.environ, "AUTOTUNENET_DATA_DIR": DATA}
 
 # %% [markdown]
 # ## 3. Run one group of cells per GPU
+# Each GPU process writes its full output to logs/gpu<N>.log. Progress events
+# (a run started, finished or failed) are also printed here, so the notebook's
+# live output shows them and `autotunenet run` can follow along.
 
 # %%
-procs = []
+import threading
+
+MARKER = "@@autotunenet "
+
+
+def follow(gpu, proc, log_path):
+    with open(log_path, "w") as log:
+        for line in proc.stdout:
+            log.write(line)
+            log.flush()
+            i = line.find(MARKER)
+            if i >= 0:
+                event = json.loads(line[i + len(MARKER):])
+                print(MARKER + json.dumps({**event, "gpu": gpu}), flush=True)
+            elif line.startswith("[") and any(mark in line for mark in ("▶", "✓", "✗")):
+                print(f"GPU {gpu}  {line}", end="", flush=True)   # readable progress on the notebook page
+
+
+procs, threads = [], []
 for gpu, cells in enumerate(JOB["gpu_cells"]):
     if not cells:
         continue
@@ -80,10 +101,16 @@ for gpu, cells in enumerate(JOB["gpu_cells"]):
            "--results-dir", RESULTS, "--device", "cuda", "--no-report"] + plugins
     log_path = os.path.join(LOGS, f"gpu{gpu}.log")
     print(f"GPU {gpu}: {len(cells)} cells", flush=True)
-    procs.append((gpu, log_path, subprocess.Popen(
-        cmd, cwd=WORK, env={**ENV, "CUDA_VISIBLE_DEVICES": str(gpu)},
-        stdout=open(log_path, "w"), stderr=subprocess.STDOUT)))
+    proc = subprocess.Popen(cmd, cwd=WORK, text=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                            env={**ENV, "CUDA_VISIBLE_DEVICES": str(gpu), "AUTOTUNENET_EVENTS": "1",
+                                 "PYTHONUNBUFFERED": "1"})
+    thread = threading.Thread(target=follow, args=(gpu, proc, log_path), daemon=True)
+    thread.start()
+    procs.append((gpu, log_path, proc))
+    threads.append(thread)
 failed = [gpu for gpu, _, p in procs if p.wait() != 0]
+for thread in threads:
+    thread.join()
 print(f"finished in {(time.time() - START) / 60:.1f} min; GPUs with failed cells: {failed or 'none'}")
 
 # %% [markdown]

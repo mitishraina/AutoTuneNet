@@ -32,7 +32,7 @@ class Cell:
     seed: int
 
     def label(self) -> str:
-        return f"{self.method} / {self.task} / {self.scenario} / seed {self.seed}"
+        return f"{self.method} · {self.task} · {self.scenario} · seed {self.seed}"
 
     def to_dict(self) -> dict:
         return {"task": self.task, "scenario": self.scenario, "method": self.method, "seed": self.seed}

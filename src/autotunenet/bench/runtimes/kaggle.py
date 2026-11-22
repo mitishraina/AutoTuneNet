@@ -19,6 +19,8 @@ GitHub, otherwise from PyPI at your installed version.
 """
 import importlib.metadata
 import json
+import queue
+import threading
 import re
 import shutil
 import subprocess
@@ -30,6 +32,7 @@ from pathlib import Path
 from typing import List
 
 import autotunenet
+from autotunenet.bench import progress
 from autotunenet.bench.run import pending_cells
 from autotunenet.bench.runtimes.base import Runtime
 from autotunenet.bench.tasks.data import DATA_DIR
@@ -46,13 +49,63 @@ TOKEN_HELP = ("Create a token at kaggle.com -> profile picture -> Settings -> AP
 
 # ------------------------------------------------------------------ helpers
 
-def kaggle(*args, check=True, capture=False):
-    """Run the Kaggle CLI from this Python environment."""
+def _kaggle_cmd(*args) -> List[str]:
     cli = Path(sys.executable).with_name("kaggle")
     if not cli.exists() and shutil.which("kaggle") is None:
         raise SystemExit('The Kaggle CLI is missing: pip install "autotunenet[bench]"')
-    cmd = [str(cli) if cli.exists() else "kaggle", *args]
-    return subprocess.run(cmd, check=check, text=True, capture_output=capture)
+    return [str(cli) if cli.exists() else "kaggle", *args]
+
+
+def kaggle(*args, check=True, capture=False):
+    """Run the Kaggle CLI from this Python environment."""
+    return subprocess.run(_kaggle_cmd(*args), check=check, text=True, capture_output=capture)
+
+
+class LogFollower(threading.Thread):
+    """
+    Follows a running notebook's live output (`kaggle kernels logs -f`), saves it
+    to `live.log` and puts its progress events on a queue. Kaggle replays the
+    output from the start on every connection; replayed events are ignored by
+    `NotebookProgress.apply`.
+    """
+
+    def __init__(self, slug: str, kernel_id: str, log_file: Path, events: "queue.Queue"):
+        super().__init__(daemon=True)
+        self.slug, self.kernel_id, self.log_file, self.events = slug, kernel_id, log_file, events
+        self.stopped = threading.Event()
+        self.proc = None
+
+    def run(self):
+        self.log_file.parent.mkdir(parents=True, exist_ok=True)
+        while not self.stopped.is_set():
+            with open(self.log_file, "w") as log:
+                self.proc = subprocess.Popen(_kaggle_cmd("kernels", "logs", "-f", self.kernel_id), text=True,
+                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+                for line in self.proc.stdout:
+                    log.write(line)
+                    log.flush()
+                    event = progress.parse(line)
+                    if event:
+                        self.events.put(("event", self.slug, event))
+                self.proc.wait()
+            self.stopped.wait(20)                         # stream ended; reconnect while still running
+
+    def stop(self):
+        self.stopped.set()
+        if self.proc and self.proc.poll() is None:
+            self.proc.terminate()
+
+
+def snapshot(kernel_id: str, seconds: float = 20) -> List[dict]:
+    """Events of a running notebook so far, read from its live output for a few seconds."""
+    proc = subprocess.Popen(_kaggle_cmd("kernels", "logs", "-f", kernel_id), text=True,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+    lines: List[str] = []
+    reader = threading.Thread(target=lambda: lines.extend(proc.stdout), daemon=True)
+    reader.start()
+    reader.join(seconds)
+    proc.terminate()
+    return [e for e in map(progress.parse, list(lines)) if e]
 
 
 def slugify(text: str) -> str:
@@ -252,7 +305,7 @@ class Kaggle(Runtime):
             self._save(exp, results_dir, state)
             print(f"[start] https://www.kaggle.com/code/{nb['id']} ({nb['cells']} cells)")
 
-    def pull(self, exp, results_dir) -> int:
+    def pull(self, exp, results_dir, quiet: bool = False) -> int:
         state = self._load(exp, results_dir)
         added = 0
         for nb in state["notebooks"]:
@@ -278,22 +331,40 @@ class Kaggle(Runtime):
                     if (Path(tmp) / "logs").exists():
                         shutil.copytree(Path(tmp) / "logs", logs, dirs_exist_ok=True)
             nb["pulled"] = True
-            print(f"[pull] {nb['slug']}: {nb['state']}")
+            if not quiet:
+                print(f"[pull] {nb['slug']}: {nb['state']}")
         self._save(exp, results_dir, state)
         return added
 
     def in_progress(self, exp, results_dir) -> bool:
         return any(nb["pushed"] and not nb["pulled"] for nb in self._load(exp, results_dir)["notebooks"])
 
+    def _board(self, exp, results_dir, state) -> "progress.Board":
+        notebooks = [progress.NotebookProgress(title=nb["slug"], cells=nb["cells"],
+                                               state="downloaded" if nb["pulled"] else nb.get("state", "prepared"))
+                     for nb in state["notebooks"]]
+        board = progress.Board(f"{exp.name} · Kaggle round {state['round']}", notebooks,
+                               self._log_dir(exp, results_dir))
+        return board
+
+    @staticmethod
+    def _log_dir(exp, results_dir) -> Path:
+        return results_dir / exp.name / ".runtime" / "logs"
+
     def describe(self, exp, results_dir) -> List[str]:
         state = self._load(exp, results_dir)
         if not state["notebooks"]:
             return ["kaggle: nothing prepared yet"]
-        lines = [f"kaggle round {state['round']} ({state.get('install', '')})"]
-        for nb in state["notebooks"]:
-            where = ("downloaded" if nb["pulled"] else self._state_of(nb["id"]) if nb["pushed"] else "prepared")
-            lines.append(f"  {nb['slug']}: {where}, {nb['cells']} cells")
-        return lines
+        board = self._board(exp, results_dir, state)
+        board.live = False
+        for nb, view in zip(state["notebooks"], board.notebooks):
+            if nb["pushed"] and not nb["pulled"]:
+                view.state = self._state_of(nb["id"])
+                if view.state == "running":
+                    for event in snapshot(nb["id"]):
+                        view.apply(event)
+        board.downloaded = sum(nb["cells"] for nb in state["notebooks"] if nb["pulled"])
+        return board.lines()[2:]                         # skip the title and elapsed time
 
     def run(self, exp, exp_path, cells, results_dir, plugins, parallel, device):
         problems = self.setup()
@@ -304,14 +375,49 @@ class Kaggle(Runtime):
         self.data([TASKS.get(t) for t in sorted({c.task for c in todo})])
         self.prepare(exp, exp_path, cells, results_dir, plugins, parallel)
         self.start(exp, results_dir)
-        started = time.time()
-        while True:
-            added = self.pull(exp, results_dir)
-            left = len(pending_cells(exp, results_dir, cells))
-            states = [l.strip() for l in self.describe(exp, results_dir)[1:]]
-            print(f"[{(time.time() - started) / 60:5.1f} min] {len(cells) - left}/{len(cells)} cells done"
-                  f"{f' (+{added})' if added else ''} | " + " | ".join(states), flush=True)
-            if not self.in_progress(exp, results_dir):
-                break
-            time.sleep(60)
+        return self.follow(exp, results_dir, cells)
+
+    def follow(self, exp, results_dir, cells):
+        """Show live progress until every notebook of the round is downloaded."""
+        state = self._load(exp, results_dir)
+        board = self._board(exp, results_dir, state)
+        views = {nb["slug"]: view for nb, view in zip(state["notebooks"], board.notebooks)}
+        events: "queue.Queue" = queue.Queue()
+        followers: dict = {}
+        board.downloaded = sum(nb["cells"] for nb in state["notebooks"] if nb["pulled"])
+        next_poll = 0.0
+        try:
+            while True:
+                if time.time() >= next_poll:
+                    added = self.pull(exp, results_dir, quiet=True)
+                    if added:
+                        board.downloaded += added
+                        board.note(f"downloaded {added} result(s)")
+                    state = self._load(exp, results_dir)
+                    for nb in state["notebooks"]:
+                        view = views[nb["slug"]]
+                        view.state = "downloaded" if nb["pulled"] else nb.get("state") or "prepared"
+                        running = nb["pushed"] and not nb["pulled"]
+                        if running and nb["slug"] not in followers:
+                            followers[nb["slug"]] = LogFollower(
+                                nb["slug"], nb["id"], board.log_dir / nb["slug"] / "live.log", events)
+                            followers[nb["slug"]].start()
+                        if not running and nb["slug"] in followers:
+                            followers.pop(nb["slug"]).stop()
+                    if not self.in_progress(exp, results_dir):
+                        break
+                    next_poll = time.time() + 60
+                while not events.empty():
+                    kind, slug, event = events.get()
+                    text = views[slug].apply(event) if kind == "event" else None
+                    if text:
+                        board.note(f"{slug} GPU {event.get('gpu', 0)}  {text}")
+                board.draw()
+                time.sleep(2)
+        finally:
+            for follower in followers.values():
+                follower.stop()
+        board.draw()
+        if not board.live:
+            print("\n".join(board.lines()), flush=True)
         return pending_cells(exp, results_dir, cells)

@@ -15,6 +15,7 @@ This project follows Semantic Versioning (https://semver.org)
 - `pip install "autotunenet[bench]"` extra for PBT, Kaggle and figures.
 - Documentation site (MkDocs Material) with an API reference generated from docstrings, published to GitHub Pages; runnable examples in `examples/`.
 - `CONTRIBUTING.md`.
+- Live progress for Kaggle runs: which run each GPU is on, finished and failed runs with accuracy and time, and a local `live.log` per notebook. Local runs print one readable line per run (▶ started, ✓ finished, ✗ failed).
 
 ### Fixed
 
