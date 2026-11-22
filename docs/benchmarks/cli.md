@@ -88,7 +88,7 @@ kaggle round 1 (autotunenet[bench] @ git+https://github.com/...@4b891a0)
 
 ## `report`
 
-Builds `<results>/<experiment>/report/`: `summary.json`, `support_matrix.{svg,md,html}` and the figures. The matrix shows every planned cell, so unfinished cells appear as pending.
+Builds `<results>/<experiment>/report/`: `summary.json`, `support_matrix.{svg,md,html}` and the figures. The matrix shows every planned cell, so cells not run yet appear as a hatched dash (—).
 
 | Option | Meaning |
 |---|---|

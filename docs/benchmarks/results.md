@@ -5,7 +5,7 @@ What has been run so far, where every number comes from, and how to check it.
 ## Support matrix
 
 <p align="center">
-  <img src="../../benchmarks/results/previous/report/support_matrix.svg" width="100%" alt="Support matrix: test accuracy per method, task and scenario, coloured by the difference from a fixed learning rate; cells not run yet are hatched" />
+  <img src="../../benchmarks/results/comparison/report/support_matrix.svg" width="100%" alt="Support matrix: test accuracy per method, task and scenario, coloured by the difference from a fixed learning rate; cells not run yet are hatched" />
 </p>
 
 Fixed LR is the reference row at the top. Every other cell shows:
@@ -14,12 +14,12 @@ Fixed LR is the reference row at the top. Every other cell shows:
 - its difference from Fixed LR in percentage points;
 - its rank in the column.
 
-The colour encodes that difference: teal is better, rose is worse and grey is within ±0.25 pp. Hatched **pending** cells have not been run yet. **n/a** marks a scenario that does not apply to the method (offline search methods pick their own learning rate, so a bad initial one means nothing to them). The last column is each method's training cost, as epochs trained on a log scale, with the number of models trained in parallel and restarts. The filled cells are the previous runs; the full comparison (`autotunenet run --experiment comparison`) fills the rest.
+The colour encodes that difference: teal is better, rose is worse and grey is within ±0.25 pp. Hatched cells with a dash (—) have not been run yet, or are running now. **n/a** marks a scenario that does not apply to the method (offline search methods pick their own learning rate, so a bad initial one means nothing to them). The last column is each method's training cost, as epochs trained on a log scale, with the number of models trained in parallel and restarts. These are the `comparison` runs on Kaggle T4 GPUs (3 seeds, 10 epochs, small CNNs). PBT is being rerun: the first run hit a checkpoint bug that cut every member to 2 epochs, so its results were withdrawn.
 
 Redraw it:
 
 ```bash
-autotunenet report --experiment previous --plan comparison
+autotunenet report --experiment comparison
 ```
 
 ## Result folders
@@ -29,7 +29,7 @@ autotunenet report --experiment previous --plan comparison
 | [`legacy/`](https://github.com/mitishraina/AutoTuneNet/tree/main/benchmarks/results/legacy/) | Raw output of the earlier benchmark scripts (Apple MPS, 3 seeds), kept unchanged |
 | [`previous/`](https://github.com/mitishraina/AutoTuneNet/tree/main/benchmarks/results/previous/) | `legacy/` converted to the current result format by `benchmarks/legacy_import.py`; feeds the matrix above |
 | [`pilot/`](https://github.com/mitishraina/AutoTuneNet/tree/main/benchmarks/results/pilot/) | A small Kaggle run used to time the methods; includes its notebook |
-| `comparison/` | The full comparison, once run, with the Kaggle notebooks that produced it |
+| [`comparison/`](https://github.com/mitishraina/AutoTuneNet/tree/main/benchmarks/results/comparison/) | The comparison run on Kaggle, with the notebooks that produced it (`notebooks/round-1/`, and later rounds for reruns) |
 
 ## Verifying a result
 

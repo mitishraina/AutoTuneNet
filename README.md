@@ -73,10 +73,10 @@ A complete script that runs in a second: [`examples/quickstart.py`](examples/qui
 ## Benchmarks
 
 <p align="center">
-  <img src="benchmarks/results/previous/report/support_matrix.svg" width="100%" alt="Support matrix: test accuracy of AutoTuneNet and seven other learning-rate strategies on MNIST and CIFAR-10 across four scenarios, coloured by the difference from a fixed learning rate; cells not run yet are hatched" />
+  <img src="benchmarks/results/comparison/report/support_matrix.svg" width="100%" alt="Support matrix: test accuracy of AutoTuneNet and seven other learning-rate strategies on MNIST and CIFAR-10 across four scenarios, coloured by the difference from a fixed learning rate; cells not run yet are hatched" />
 </p>
 
-Test accuracy on the held-out split, as mean ± std over 3 seeds. Each cell is coloured by its difference from Fixed LR (the top row), and the last column shows each method's training cost. Hatched cells are not run yet. The filled cells are the earlier runs; tables, figures and observations are in [Results](https://mitishraina.github.io/AutoTuneNet/benchmarks/results/).
+Test accuracy on the held-out split, as mean ± std over 3 seeds (42–44), from runs on Kaggle T4 GPUs; the notebooks that ran them are in [`benchmarks/results/comparison/notebooks/`](benchmarks/results/comparison/notebooks/). Each cell is coloured by its difference from Fixed LR (the top row), and the last column shows each method's training cost. A dash (—) marks runs not finished yet: PBT is being rerun after a checkpoint bug. All tables and figures: [Results](https://mitishraina.github.io/AutoTuneNet/benchmarks/results/).
 
 Reproduce or extend:
 
@@ -104,7 +104,7 @@ Known limitations and the work planned for each are tracked in [issue #58](https
 
 ## Contributing
 
-Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). AutoTuneNet builds on [Optuna](https://optuna.org/) and [PyTorch](https://pytorch.org/), and the PBT baseline uses [Ray Tune](https://docs.ray.io/en/latest/tune/). Released under the [MIT License](LICENSE).
+Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md), the [Code of Conduct](CODE_OF_CONDUCT.md), the [security policy](SECURITY.md) and the [accessibility statement](ACCESSIBILITY.md). AutoTuneNet builds on [Optuna](https://optuna.org/) and [PyTorch](https://pytorch.org/), and the PBT baseline uses [Ray Tune](https://docs.ray.io/en/latest/tune/). Released under the [MIT License](LICENSE).
 
 ## Citation
 
