@@ -48,3 +48,20 @@ def test_prepare_spreads_every_pending_cell_over_the_gpus_once(tmp_path, monkeyp
         assert len(ns["JOB"]["gpu_cells"]) == GPUS_PER_NOTEBOOK
         assigned += [tuple(c.values()) for g in ns["JOB"]["gpu_cells"] for c in g]
     assert sorted(assigned) == sorted(tuple(c.to_dict().values()) for c in exp.cells())
+
+
+def test_a_deleted_notebook_ends_its_round(tmp_path, monkeypatch):
+    """A notebook deleted on Kaggle must not keep `run` waiting forever."""
+    from types import SimpleNamespace
+    from autotunenet.bench.runtimes import kaggle as K
+    exp = Experiment.load("smoke")
+    monkeypatch.setattr(K.Kaggle, "user", property(lambda self: "someone"))
+    monkeypatch.setattr(K, "kaggle", lambda *a, **k: SimpleNamespace(
+        stdout="", stderr="Cannot access kernel 'someone/nb' (Permission 'kernels.get' was denied)."))
+    runtime = K.Kaggle()
+    runtime._save(exp, tmp_path, {"round": 1, "install": "x", "notebooks": [
+        {"id": "someone/nb", "slug": "nb", "title": "t", "datasets": [], "cells": 2,
+         "pushed": True, "pulled": False, "state": "running"}]})
+    assert runtime._state_of("someone/nb") == "missing"
+    assert runtime.pull(exp, tmp_path, quiet=True) == 0
+    assert not runtime.in_progress(exp, tmp_path)
