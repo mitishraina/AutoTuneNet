@@ -61,6 +61,23 @@ def kaggle(*args, check=True, capture=False):
     return subprocess.run(_kaggle_cmd(*args), check=check, text=True, capture_output=capture)
 
 
+# Messages from the Kaggle CLI itself, not from the notebook. They must not end up in
+# live.log, where they would look like errors of the run.
+_CLI_MESSAGE = re.compile(r"^(\d{3} (Client|Server) Error|This is a problem on Kaggle's side|User cancelled operation)")
+
+
+def _is_cli_message(line: str) -> bool:
+    return bool(_CLI_MESSAGE.match(line.strip()))
+
+
+def _clean(line: str) -> str:
+    """Undo Kaggle's log stream decoding UTF-8 text as Latin-1 (e.g. 'Â·' for '·')."""
+    try:
+        return line.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return line
+
+
 class LogFollower(threading.Thread):
     """
     Follows a running notebook's live output (`kaggle kernels logs -f`), saves it
@@ -82,6 +99,9 @@ class LogFollower(threading.Thread):
                 self.proc = subprocess.Popen(_kaggle_cmd("kernels", "logs", "-f", self.kernel_id), text=True,
                                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
                 for line in self.proc.stdout:
+                    line = _clean(line)
+                    if _is_cli_message(line):
+                        continue
                     log.write(line)
                     log.flush()
                     event = progress.parse(line)
@@ -105,7 +125,7 @@ def snapshot(kernel_id: str, seconds: float = 20) -> List[dict]:
     reader.start()
     reader.join(seconds)
     proc.terminate()
-    return [e for e in map(progress.parse, list(lines)) if e]
+    return [e for e in map(progress.parse, (_clean(l) for l in lines if not _is_cli_message(l))) if e]
 
 
 def slugify(text: str) -> str:
@@ -361,7 +381,12 @@ class Kaggle(Runtime):
             if nb["pushed"] and not nb["pulled"]:
                 view.state = self._state_of(nb["id"])
                 if view.state == "running":
-                    for event in snapshot(nb["id"]):
+                    live = board.log_dir / nb["slug"] / "live.log"
+                    if live.exists() and time.time() - live.stat().st_mtime < 300:
+                        events = [e for e in map(progress.parse, live.read_text().splitlines()) if e]
+                    else:                                 # no `run` following it: read the stream briefly
+                        events = snapshot(nb["id"])
+                    for event in events:
                         view.apply(event)
         board.downloaded = sum(nb["cells"] for nb in state["notebooks"] if nb["pulled"])
         return board.lines()[2:]                         # skip the title and elapsed time
@@ -397,7 +422,8 @@ class Kaggle(Runtime):
                     for nb in state["notebooks"]:
                         view = views[nb["slug"]]
                         view.state = "downloaded" if nb["pulled"] else nb.get("state") or "prepared"
-                        running = nb["pushed"] and not nb["pulled"]
+                        # Only a running notebook has a log to stream; a queued one returns an error.
+                        running = nb["pushed"] and not nb["pulled"] and nb.get("state") == "running"
                         if running and nb["slug"] not in followers:
                             followers[nb["slug"]] = LogFollower(
                                 nb["slug"], nb["id"], board.log_dir / nb["slug"] / "live.log", events)
