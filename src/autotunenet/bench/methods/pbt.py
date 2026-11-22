@@ -21,10 +21,12 @@ Requires the `bench` dependency group (installed by `uv sync`):
     uv sync --group bench
 """
 import atexit
+import logging
 import os
 import random
 import shutil
 import tempfile
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -159,6 +161,9 @@ class PBT(Method):
         log_path = os.path.join(storage, "events.log")
         gpu = 1.0 / self.population if ctx.device.type == "cuda" else 0   # members share the GPU
         _ensure_ray(ray, self.population)
+        # Ray Tune catches Ctrl-C to end only its own experiment; the command would then
+        # carry on with the next cell. Let Ctrl-C stop the whole command instead.
+        os.environ["TUNE_DISABLE_SIGINT_HANDLER"] = "1"
         try:
             tuner = tune.Tuner(
                 tune.with_resources(tune.with_parameters(_train_member, ctx=ctx, log_path=log_path,
@@ -207,6 +212,11 @@ def _ensure_ray(ray, population: int) -> None:
     """Start Ray once per process and reuse it for every PBT cell (starting it costs seconds)."""
     if ray.is_initialized():
         return
+    # Keep the terminal to one line per run: no per-experiment banner or tips from Ray.
+    os.environ.setdefault("RAY_AIR_NEW_OUTPUT", "0")
+    warnings.filterwarnings("ignore", message="Consider boosting PBT performance")
+    for name in ("ray", "ray.tune", "ray.train"):    # e.g. "Remote file not found" while syncing checkpoints
+        logging.getLogger(name).setLevel(logging.ERROR)
     from autotunenet.bench.plugins import ENV
     env_vars = {k: os.environ[k] for k in ("AUTOTUNENET_DATA_DIR", ENV) if os.environ.get(k)}
     ray.init(num_cpus=max(population, os.cpu_count() or 1), include_dashboard=False,
