@@ -1,0 +1,22 @@
+name: Accessibility barrier
+description: Something in the documentation, the command line or the figures is hard or impossible to use.
+labels: [accessibility]
+body:
+  - type: textarea
+    id: barrier
+    attributes:
+      label: What were you trying to do, and what happened?
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: Page URL, command, or file.
+    validations:
+      required: true
+  - type: input
+    id: tools
+    attributes:
+      label: What you use
+      description: e.g. NVDA + Firefox on Windows, VoiceOver + Safari, keyboard only, 200% zoom, high-contrast mode.

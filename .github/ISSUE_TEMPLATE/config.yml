@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/mitishraina/AutoTuneNet/discussions
+    about: Ask how to use AutoTuneNet or discuss an idea before opening an issue.
+  - name: Documentation
+    url: https://mitishraina.github.io/AutoTuneNet/
+    about: Installation, guides, API reference and FAQ.
+  - name: Security vulnerability
+    url: https://github.com/mitishraina/AutoTuneNet/security/advisories/new
+    about: Report privately; do not open a public issue.

@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a new capability, hyperparameter, integration or benchmark.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do that AutoTuneNet does not support today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What you would like to happen, with an example of the API or command if possible.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence or references
+      description: Papers, benchmark results or other libraries that show this helps. Optional, but it speeds up decisions.
+  - type: checkboxes
+    id: roadmap
+    attributes:
+      label: Checks
+      options:
+        - label: I checked the roadmap issues (milestones v1.1–v2.0) and this is not already planned.
