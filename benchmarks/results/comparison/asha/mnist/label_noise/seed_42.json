@@ -1,0 +1,124 @@
+{
+  "experiment": "comparison",
+  "method": "asha",
+  "task": "mnist",
+  "scenario": "label_noise",
+  "seed": 42,
+  "test_loss": 0.4581435548782349,
+  "test_accuracy": 0.9809,
+  "history": [
+    {
+      "epoch": 0,
+      "lr": 0.0015546306621573127,
+      "train_loss": 0.13205491924341078,
+      "val_loss": 0.06727771070599556,
+      "val_accuracy": 0.9795
+    },
+    {
+      "epoch": 1,
+      "lr": 0.0015546306621573127,
+      "train_loss": 0.0406741633662885,
+      "val_loss": 0.05580555505491793,
+      "val_accuracy": 0.9841666666666666
+    },
+    {
+      "epoch": 2,
+      "lr": 0.0015546306621573127,
+      "train_loss": 0.028219608540543253,
+      "val_loss": 0.07441796193675448,
+      "val_accuracy": 0.9791666666666666
+    },
+    {
+      "epoch": 3,
+      "lr": 0.0015546306621573127,
+      "train_loss": 0.020972113208862504,
+      "val_loss": 0.03600449489119152,
+      "val_accuracy": 0.9896666666666667
+    },
+    {
+      "epoch": 4,
+      "lr": 0.0015546306621573127,
+      "train_loss": 0.015112539745918993,
+      "val_loss": 0.04930537844200929,
+      "val_accuracy": 0.9888333333333333
+    },
+    {
+      "epoch": 5,
+      "lr": 0.0015546306621573127,
+      "train_loss": 1.4148295408884684,
+      "val_loss": 0.541213228225708,
+      "val_accuracy": 0.9808333333333333
+    },
+    {
+      "epoch": 6,
+      "lr": 0.0015546306621573127,
+      "train_loss": 1.3238122585084704,
+      "val_loss": 0.4659740177790324,
+      "val_accuracy": 0.9841666666666666
+    },
+    {
+      "epoch": 7,
+      "lr": 0.0015546306621573127,
+      "train_loss": 1.2997050455234669,
+      "val_loss": 0.42465459028879804,
+      "val_accuracy": 0.985
+    },
+    {
+      "epoch": 8,
+      "lr": 0.0015546306621573127,
+      "train_loss": 1.276187747001648,
+      "val_loss": 0.43010466543833414,
+      "val_accuracy": 0.9863333333333333
+    },
+    {
+      "epoch": 9,
+      "lr": 0.0015546306621573127,
+      "train_loss": 1.2485944379170735,
+      "val_loss": 0.4556007849375407,
+      "val_accuracy": 0.9838333333333333
+    }
+  ],
+  "shift_epoch": 5,
+  "compute": {
+    "epochs_trained": 56,
+    "max_parallel_models": 1,
+    "trials": 16,
+    "restarts": 15,
+    "wall_time_sec": 853.2261201469992,
+    "controller_time_sec": 0.0061401859875331866
+  },
+  "environment": {
+    "device": "cuda",
+    "accelerator": "Tesla T4",
+    "torch": "2.11.0+cu130",
+    "cuda": "13.0",
+    "python": "3.13.16",
+    "platform": "Linux-6.18.55+-x86_64-with-glibc2.39",
+    "git_commit": null
+  },
+  "config": {
+    "epochs": 10,
+    "method_params": {
+      "n_trials": 16,
+      "n_startup_trials": 3
+    },
+    "scenario_params": {
+      "start_epoch": 5,
+      "noise_ratio": 0.3
+    },
+    "task": {
+      "batch_size": 64,
+      "lr": 0.01,
+      "lr_range": [
+        0.0001,
+        0.1
+      ]
+    }
+  },
+  "extra": {
+    "best_lr": 0.0015546306621573127,
+    "trials_completed": 2,
+    "trials_pruned": 14
+  },
+  "schema_version": 1
+}

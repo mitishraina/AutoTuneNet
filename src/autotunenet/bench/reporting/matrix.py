@@ -7,7 +7,7 @@ Reading the SVG:
 - Every other cell is coloured by its difference from Fixed LR in the same
   column, in percentage points: teal = better, rose = worse, grey = within
   0.25 pp. The cell shows the accuracy, the difference and the rank.
-- Hatched "pending": planned, not run yet. Partly done cells say "2/3 seeds".
+- Hatched cell with a dash: planned, not run yet (or running now). Partly done cells say "2/3 seeds".
 - Blank "n/a": the scenario does not apply to the method.
 - The cost column draws epochs trained per cell on a log scale.
 The SVG follows the viewer's light or dark theme.
@@ -100,8 +100,8 @@ def render_svg(matrix: Matrix, title: str, subtitle: str = "") -> str:
         x += 58
     x += 18
     out.append(f'<rect x="{x}" y="{ly - 10}" width="54" height="18" rx="3" class="pend"/>')
-    out.append(_text(x + 62, ly + 3, "pending", size=12, cls="soft"))
-    x += 128
+    out.append(_text(x + 62, ly + 3, "— not run yet", size=12, cls="soft"))
+    x += 166
     out.append(f'<rect x="{x}" y="{ly - 10}" width="54" height="18" rx="3" class="na"/>')
     out.append(_text(x + 62, ly + 3, "n/a", size=12, cls="soft"))
 
@@ -131,7 +131,7 @@ def render_svg(matrix: Matrix, title: str, subtitle: str = "") -> str:
             rect = f'<rect x="{x}" y="{y}" width="{CELL_W}" height="{CELL_H}" rx="4"'
             if c.status == PENDING:
                 out.append(f'{rect} class="pend"><title>{_esc(name)}: not run yet</title></rect>')
-                out.append(_text(x + CELL_W / 2, y + CELL_H / 2 + 4, "pending", size=11, cls="soft", anchor="middle"))
+                out.append(_text(x + CELL_W / 2, y + CELL_H / 2 + 5, "—", size=16, cls="soft", anchor="middle"))
                 continue
             if c.status == NA:
                 out.append(f'{rect} class="na"/>')
@@ -187,7 +187,7 @@ def render_markdown(matrix: Matrix, title: str = "Support matrix") -> str:
         for task, scenario in matrix.columns:
             c = matrix.cell(method, task, scenario)
             if c.status in (NA, PENDING):
-                cells.append("n/a" if c.status == NA else "pending")
+                cells.append("n/a" if c.status == NA else "—")
                 continue
             text = f"{c.mean:.2f} ± {c.std:.2f}"
             if c.delta is not None:
@@ -199,7 +199,7 @@ def render_markdown(matrix: Matrix, title: str = "Support matrix") -> str:
         lines.append("| " + " | ".join([name] + cells + [cost_text(matrix.cost.get(method))]) + " |")
     lines.append("")
     lines.append("Test accuracy (%) on the held-out split, mean ± std over seeds; (±x) = difference from Fixed LR "
-                 "in percentage points; #rank within the column; **bold** = best; pending = not run yet; "
+                 "in percentage points; #rank within the column; **bold** = best; — = not run yet; "
                  "n/a = the scenario does not apply.")
     return "\n".join(lines) + "\n"
 

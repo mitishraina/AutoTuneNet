@@ -81,7 +81,7 @@ def test_plan_marks_pending_and_partial_cells_and_counts_progress():
     assert m.cost["pbt"] is None
     svg = render_svg(m, "t")
     assert "not run yet" in svg and "2/3 seeds" in svg
-    assert "| pending |" in render_markdown(m)
+    assert "| — |" in render_markdown(m)
 
 
 def test_previous_results_cover_the_imported_cells():
