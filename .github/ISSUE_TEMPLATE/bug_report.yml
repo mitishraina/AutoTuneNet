@@ -1,0 +1,41 @@
+name: Bug report
+description: Something in the library, the command line or the benchmark does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting. Please check existing issues first. For security problems, use SECURITY.md instead of a public issue.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: The smallest script or command that shows the problem.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output or traceback
+      description: Full error output. For tuning problems, include the AutoTuneNet log lines (accepted steps and rollbacks).
+      render: text
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: "Output of: python -c \"import autotunenet, torch, sys; print(autotunenet.__file__, torch.__version__, sys.version)\" and `pip show autotunenet`"
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does it run?
+      multiple: true
+      options: [CPU, CUDA GPU, Apple MPS, Kaggle runtime, Other]

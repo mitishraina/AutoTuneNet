@@ -1,0 +1,31 @@
+name: Benchmark result or discrepancy
+description: Share results on your own task, or report numbers that differ from the published ones.
+labels: [benchmarks]
+body:
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup
+      description: Task (dataset and model), scenario, methods, seeds, epochs, and the experiment file or command.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: results
+    attributes:
+      label: Results
+      description: The support_matrix.md table or summary.json excerpt. Mean ± std over seeds, please.
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware
+      description: e.g. Kaggle T4 ×2, RTX 4090, Apple M3.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything surprising, or how this differs from the published results.
