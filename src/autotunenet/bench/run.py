@@ -11,6 +11,7 @@ import traceback
 from pathlib import Path
 from typing import List, Optional, Sequence
 
+from autotunenet.bench import progress
 from autotunenet.bench.core.device import resolve_device
 from autotunenet.bench.core.env import describe_environment
 from autotunenet.bench.core.experiment import Cell, Experiment
@@ -78,19 +79,26 @@ def execute(exp: Experiment, cells: Sequence[Cell], device_name: str, results_di
     """Run the given cells (skipping finished ones unless force); returns the cells that failed."""
     todo = cells if force else pending_cells(exp, results_dir, cells)
     device = resolve_device(device_name)
-    print(f"[run] {exp.name}: {len(todo)} of {len(cells)} cells to run on {device}", flush=True)
+    progress.run_header(exp.name, len(todo), len(cells), device)
     failed = []
     for i, cell in enumerate(todo, 1):
-        print(f"[{i}/{len(todo)}] {cell.label()}", flush=True)
+        progress.run_start(i, len(todo), cell)
+        progress.emit("start", i=i, n=len(todo), **cell.to_dict())
+        start = time.perf_counter()
         try:
             result = run_cell(exp, cell, device)
-        except Exception:
+        except Exception as e:
             traceback.print_exc()
+            error = f"{type(e).__name__}: {e}".splitlines()[0][:200]
+            progress.run_failed(i, len(todo), cell, error)
+            progress.emit("failed", i=i, n=len(todo), error=error, **cell.to_dict())
             failed.append(cell)
             continue
         result.save(path_of(results_dir, exp, cell))
-        print(f"    test_accuracy={result.test_accuracy:.4f} epochs={result.compute['epochs_trained']} "
-              f"time={result.compute['wall_time_sec']:.0f}s", flush=True)
-    for cell in failed:
-        print(f"[run] failed: {cell.label()}")
+        seconds = time.perf_counter() - start
+        progress.run_done(i, len(todo), cell, result.test_accuracy, result.compute["epochs_trained"], seconds)
+        progress.emit("done", i=i, n=len(todo), accuracy=result.test_accuracy,
+                      epochs=result.compute["epochs_trained"], seconds=seconds, **cell.to_dict())
+    if failed:
+        print(f"{len(failed)} cell(s) failed: " + "; ".join(c.label() for c in failed), flush=True)
     return failed

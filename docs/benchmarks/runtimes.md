@@ -58,9 +58,26 @@ The notebooks install AutoTuneNet from the exact commit you are on when it has b
 3. **`prepare`** lists the pending cells and deals them round-robin across `--parallel × 2` GPU slots. It writes one notebook per pair of slots and records the round in `<results>/<experiment>/.runtime/kaggle.json`.
 4. **`start`** pushes each notebook as a private kernel with GPU and internet enabled and the task datasets attached.
 5. Inside each notebook, `pip install` installs the same AutoTuneNet commit, the data is linked into place, and `autotunenet run --cells ...` runs once per GPU with `CUDA_VISIBLE_DEVICES` set. The results and logs are packed into `autotunenet_results.tar.gz`.
-6. **`pull`** downloads each finished notebook's output and adds the result files it does not have yet. Logs go to `.runtime/logs/`.
+6. **`pull`** downloads each finished notebook's output and adds the result files it does not have yet. The full per-GPU logs go to `.runtime/logs/<notebook>/`.
 
-`run` does all of this and polls once a minute. A round ends when every notebook has been pulled; the next `run` plans a new round from whatever is still missing.
+`run` does all of this and shows live progress while the notebooks run:
+
+```text
+comparison · Kaggle round 2 · 21 runs on 2 notebook(s) (4 GPUs)   elapsed 0:42:10
+
+notebook 1/2  running    ██████░░░░  6/11 done
+  GPU 0  ▶ pbt · cifar10 · label_noise · seed 43            running 3:12
+  GPU 1  ▶ pbt · mnist · bad_initial_lr · seed 44           running 0:48
+notebook 2/2  running    ███░░░░░░░  3/10 done, 1 failed
+  GPU 0  ▶ pbt · cifar10 · stationary · seed 44             running 5:01
+  GPU 1  ■ finished its 5 runs
+
+finished 9/21 · failed 1 · downloaded 0/21 (results arrive when each notebook ends)
+last  ✗ pbt · mnist · label_noise · seed 42  failed: RuntimeError: 1 PBT member(s) failed
+logs  benchmarks/results/comparison/.runtime/logs  (live.log per notebook; tail -f to follow)
+```
+
+Each GPU process inside the notebook reports when a run starts, finishes or fails, and the notebook prints those events as they happen. Your terminal follows the notebook's live output (`kaggle kernels logs -f`), saves it to `.runtime/logs/<notebook>/live.log` and redraws the block every two seconds. When the output is not a terminal (a log file, CI), it prints one line per event instead. Result files are still downloaded only when a notebook ends, because Kaggle publishes a notebook's output files at the end. A round ends when every notebook has been pulled; the next `run` plans a new round from whatever is still missing.
 
 ## Adding a runtime
 
