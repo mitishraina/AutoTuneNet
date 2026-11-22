@@ -52,3 +52,13 @@ def test_board_prints_plain_lines_when_not_a_terminal():
     board.note("✓ something")
     board.draw()                                   # no redraw codes in a log file
     assert "✓ something" in out.getvalue() and "\x1b[" not in out.getvalue()
+
+
+def test_kaggle_cli_messages_and_mangled_text_are_cleaned():
+    from autotunenet.bench.runtimes.kaggle import _clean, _is_cli_message
+    assert _is_cli_message("500 Server Error: Internal Server Error for url: https://api.kaggle.com/...")
+    assert _is_cli_message("This is a problem on Kaggle's side, not with your command. Please try again later.")
+    assert _is_cli_message("User cancelled operation")
+    assert not _is_cli_message("GPU 0  [1/5] ▶ pbt · cifar10 · stationary · seed 42")
+    assert _clean("â\x96¶ pbt Â· cifar10") == "▶ pbt · cifar10"
+    assert _clean("already fine · ▶") == "already fine · ▶"
